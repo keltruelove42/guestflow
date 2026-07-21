@@ -112,7 +112,7 @@ export default function LeadsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="hidden flex-wrap items-start justify-between gap-3 md:flex">
         <p className="max-w-xl text-sm text-ink-2">
           Every contact field is optional at capture — GuestFlow picks the best follow-up channel
           from whatever it has. Open a lead to send email or SMS.
@@ -128,7 +128,7 @@ export default function LeadsPage() {
       </div>
 
       {delivery && (
-        <div className="rounded-control border border-[var(--border)] bg-surface-2 px-3 py-2 text-xs text-ink-2">
+        <div className="hidden rounded-control border border-[var(--border)] bg-surface-2 px-3 py-2 text-xs text-ink-2 md:block">
           Outbound: email{" "}
           <b className="text-ink">{delivery.email === "live" ? "live (Resend)" : "demo log"}</b>
           {" · "}
@@ -146,7 +146,53 @@ export default function LeadsPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-card border border-[var(--border)] bg-surface">
+      {/* Mobile: tappable card list (thumb-friendly, no cramped table) */}
+      <div className="overflow-hidden rounded-card border border-[var(--border)] bg-surface md:hidden">
+        {isLoading && <p className="p-4 text-sm text-muted">Loading…</p>}
+        {!isLoading && leads.length === 0 && (
+          <p className="p-4 text-sm text-muted">No leads yet.</p>
+        )}
+        {leads.map((l) => {
+          const contact = l.email ?? l.phone ?? "no contact yet";
+          const enr = l.enrollments[0];
+          return (
+            <button
+              key={l.id}
+              type="button"
+              onClick={() => setSelectedId(l.id)}
+              className="flex min-h-[64px] w-full items-center gap-3 border-b border-[var(--border)] px-4 py-3 text-left last:border-0 active:bg-surface-2/60"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="truncate text-sm font-medium">{l.name}</span>
+                  {l.isDemo && (
+                    <span className="rounded-pill bg-surface-2 px-1.5 text-[10px] text-muted">
+                      Demo
+                    </span>
+                  )}
+                </div>
+                <div className="truncate text-xs text-muted">
+                  {contact}
+                  {l.property?.name ? ` · ${l.property.name}` : ""}
+                </div>
+                {enr && (
+                  <div className="mt-0.5 truncate text-[11px] text-muted">
+                    🔁 {enr.sequence.name} · step {enr.currentStep + 1}
+                  </div>
+                )}
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[10px]">{l.stage}</span>
+                <span className="text-[10px] text-muted">{l.source}</span>
+              </div>
+              <span className="text-muted">›</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Desktop: full table */}
+      <div className="hidden overflow-hidden rounded-card border border-[var(--border)] bg-surface md:block">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-[var(--border)] bg-surface-2 text-xs text-muted">
             <tr>
@@ -315,12 +361,16 @@ function LeadDrawer({
               {lead?.property?.name ? ` · ${lead.property.name}` : ""}
             </p>
           </div>
-          <button type="button" className="text-sm text-muted" onClick={onClose}>
+          <button
+            type="button"
+            className="-mr-2 flex h-10 min-w-[44px] items-center justify-center rounded-control px-2 text-sm text-muted active:bg-surface-2"
+            onClick={onClose}
+          >
             Close
           </button>
         </div>
 
-        <div className="flex-1 space-y-5 overflow-auto p-5">
+        <div className="flex-1 space-y-5 overflow-auto p-4 pb-[calc(20px+env(safe-area-inset-bottom))] md:p-5">
           {isLoading && <p className="text-sm text-muted">Loading…</p>}
           {lead && (
             <>

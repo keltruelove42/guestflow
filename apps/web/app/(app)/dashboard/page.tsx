@@ -113,7 +113,7 @@ function DashboardInner() {
   return (
     <div className="space-y-4">
       {/* KPI tiles */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <KpiTile
           label="New leads · 30 days"
           value={kpisLoading ? "—" : String(kpis?.newLeads30d ?? 0)}

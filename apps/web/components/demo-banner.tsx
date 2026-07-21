@@ -63,9 +63,12 @@ export function DemoDataBanner() {
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--warn)_14%,transparent)] px-6 py-2.5 text-sm">
       <div className="text-ink-2">
         <b className="text-ink">Demo data</b>
-        {" — "}
-        {counts.leads} leads · {counts.properties} properties · {counts.campaigns} campaigns ·{" "}
-        {counts.sequences} sequences. Anything you add yourself is kept when you clear.
+        <span className="hidden md:inline">
+          {" — "}
+          {counts.leads} leads · {counts.properties} properties · {counts.campaigns} campaigns ·{" "}
+          {counts.sequences} sequences. Anything you add yourself is kept when you clear.
+        </span>
+        <span className="md:hidden"> · {counts.total} rows</span>
       </div>
       {!confirming ? (
         <button

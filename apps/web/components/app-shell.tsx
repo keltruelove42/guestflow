@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { DemoDataBanner } from "@/components/demo-banner";
+import { MobileTabBar } from "@/components/mobile-nav";
 import { OnboardingRoot } from "@/components/onboarding";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { cn } from "@/lib/utils";
@@ -61,11 +62,15 @@ function SimulateButton() {
         disabled={busy}
         onClick={simulate}
         className="rounded-control border border-[var(--border)] bg-page px-3 py-1.5 text-sm text-ink-2 disabled:opacity-60"
+        title="Simulate incoming lead"
       >
-        {busy ? "Simulating…" : "⚡ Simulate incoming lead"}
+        <span className="md:hidden">{busy ? "…" : "⚡"}</span>
+        <span className="hidden md:inline">
+          {busy ? "Simulating…" : "⚡ Simulate incoming lead"}
+        </span>
       </button>
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 max-w-sm rounded-card border border-[var(--border)] bg-surface px-4 py-3 text-sm shadow-lg">
+        <div className="fixed bottom-20 left-4 right-4 z-50 rounded-card border border-[var(--border)] bg-surface px-4 py-3 text-sm shadow-lg md:bottom-4 md:left-auto md:max-w-sm">
           {toast}
         </div>
       )}
@@ -112,7 +117,12 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   });
 
   const title =
-    NAV.find((n) => pathname.startsWith(n.href))?.label ?? "GuestFlow";
+    NAV.find((n) => pathname.startsWith(n.href))?.label ??
+    (pathname.startsWith("/followups")
+      ? "Follow-ups"
+      : pathname.startsWith("/more")
+        ? "More"
+        : "GuestFlow");
 
   function setProperty(id: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -130,7 +140,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-page text-ink">
-      <aside className="flex w-56 shrink-0 flex-col border-r border-[var(--border)] bg-surface">
+      <aside className="hidden w-56 shrink-0 flex-col border-r border-[var(--border)] bg-surface md:flex">
         <div className="px-4 py-5">
           <div className="text-lg font-semibold tracking-tight">GuestFlow</div>
           <div className="mt-0.5 truncate text-xs text-muted">{me?.orgName ?? "…"}</div>
@@ -186,13 +196,14 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <DemoDataBanner />
-        <header className="flex h-14 items-center justify-between gap-4 border-b border-[var(--border)] bg-surface px-6">
-          <h1 className="text-base font-semibold">{title}</h1>
-          <div className="flex items-center gap-3">
+        <header className="flex h-14 items-center justify-between gap-3 border-b border-[var(--border)] bg-surface px-4 md:px-6">
+          <h1 className="truncate text-base font-semibold">{title}</h1>
+          <div className="flex items-center gap-2 md:gap-3">
             <select
-              className="rounded-control border border-[var(--border)] bg-page px-2.5 py-1.5 text-sm text-ink outline-none"
+              className="max-w-[44vw] rounded-control border border-[var(--border)] bg-page px-2.5 py-1.5 text-sm text-ink outline-none md:max-w-none"
               value={property}
               onChange={(e) => setProperty(e.target.value)}
+              aria-label="Filter by property"
             >
               <option value="all">All properties</option>
               {properties.map((p) => (
@@ -204,8 +215,12 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             {me?.orgMode === "DEMO" && <SimulateButton />}
           </div>
         </header>
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-4 pb-[calc(72px+env(safe-area-inset-bottom))] md:p-6 md:pb-6">
+          {children}
+        </main>
       </div>
+
+      <MobileTabBar leadsCount={leads.length} />
     </div>
   );
 }
