@@ -98,6 +98,13 @@ export async function verifyProviderCredentials(
     if (provider === "klaviyo") {
       const apiKey = String(creds.apiKey ?? "").trim();
       if (!apiKey) return { ok: false, error: "API key required" };
+      if (!apiKey.startsWith("pk_")) {
+        return {
+          ok: false,
+          error:
+            "That looks like a public key — Klaviyo private API keys start with pk_ (Settings → API keys → Create Private API Key)",
+        };
+      }
       const res = await fetch("https://a.klaviyo.com/api/accounts/", {
         headers: {
           Authorization: `Klaviyo-API-Key ${apiKey}`,
@@ -105,8 +112,24 @@ export async function verifyProviderCredentials(
           revision: "2024-10-15",
         },
       });
-      if (!res.ok) return { ok: false, error: "Klaviyo rejected this API key" };
-      return { ok: true, detail: "Klaviyo key verified" };
+      if (res.ok) return { ok: true, detail: "Klaviyo key verified" };
+
+      // 403 = the key is real but missing the accounts:read scope —
+      // still a usable key for lists/events, so accept it.
+      if (res.status === 403) {
+        return { ok: true, detail: "Klaviyo key accepted (limited scopes)" };
+      }
+
+      const body = (await res.json().catch(() => null)) as {
+        errors?: Array<{ detail?: string; title?: string }>;
+      } | null;
+      const detail = body?.errors?.[0]?.detail ?? body?.errors?.[0]?.title;
+      return {
+        ok: false,
+        error: detail
+          ? `Klaviyo: ${detail}`
+          : `Klaviyo rejected this API key (HTTP ${res.status}) — check it was copied fully and is a Private API Key`,
+      };
     }
 
     if (provider === "lodgify") {
