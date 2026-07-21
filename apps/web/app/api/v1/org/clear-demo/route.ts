@@ -25,7 +25,8 @@ export async function POST() {
   const result = await clearDemoData(session.orgId);
   return NextResponse.json({
     cleared: true,
-    message: "Demo data removed. Your real properties, leads, and sequences were kept.",
+    message:
+      "Demo data removed. Template sequences and everything you created yourself were kept.",
     deleted: result,
   });
 }

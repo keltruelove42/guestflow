@@ -1,0 +1,23 @@
+import { NextResponse } from "next/server";
+import { prisma, seedDemoContent } from "@guestflow/db";
+import { clearDemoData } from "@guestflow/core";
+import { getSession } from "@/lib/auth";
+
+/**
+ * Restore the demo dataset (properties, template sequences, campaigns, leads)
+ * after "Clear demo data". Real (user-created) rows are untouched: we clear
+ * any leftover isDemo rows first to avoid duplicates, then re-seed.
+ */
+export async function POST() {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  await clearDemoData(session.orgId);
+  await seedDemoContent(session.orgId);
+  await prisma.org.update({
+    where: { id: session.orgId },
+    data: { demoClearedAt: null },
+  });
+
+  return NextResponse.json({ message: "Demo data restored." });
+}

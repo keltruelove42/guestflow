@@ -26,6 +26,19 @@ export function DemoDataBanner() {
     refetchInterval: 15_000,
   });
 
+  const restore = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/v1/org/restore-demo", { method: "POST" });
+      if (!res.ok) throw new Error("Failed to restore");
+      return res.json() as Promise<{ message: string }>;
+    },
+    onSuccess: async (data) => {
+      setMessage(data.message);
+      await qc.invalidateQueries(); // refresh every screen — the whole dataset changed
+      setTimeout(() => setMessage(null), 5000);
+    },
+  });
+
   const clear = useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/v1/org/clear-demo", { method: "POST" });
@@ -56,6 +69,21 @@ export function DemoDataBanner() {
         </div>
       );
     }
+    if (counts && counts.total === 0) {
+      return (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] bg-surface px-4 py-1.5 text-xs text-muted md:px-6">
+          <span>Demo data cleared — your own leads and sequences are untouched.</span>
+          <button
+            type="button"
+            className="rounded-control border border-[var(--border)] px-2.5 py-1 text-xs text-ink-2 disabled:opacity-60"
+            disabled={restore.isPending}
+            onClick={() => restore.mutate()}
+          >
+            {restore.isPending ? "Restoring…" : "Restore demo data"}
+          </button>
+        </div>
+      );
+    }
     return null;
   }
 
@@ -65,8 +93,8 @@ export function DemoDataBanner() {
         <b className="text-ink">Demo data</b>
         <span className="hidden md:inline">
           {" — "}
-          {counts.leads} leads · {counts.properties} properties · {counts.campaigns} campaigns ·{" "}
-          {counts.sequences} sequences. Anything you add yourself is kept when you clear.
+          {counts.leads} leads · {counts.properties} properties · {counts.campaigns} campaigns.
+          Templates and anything you add yourself are kept when you clear.
         </span>
         <span className="md:hidden"> · {counts.total} rows</span>
       </div>

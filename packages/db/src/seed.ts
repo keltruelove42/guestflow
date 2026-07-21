@@ -75,6 +75,33 @@ export async function seedDemoOrg(opts?: {
     },
   });
 
+  await seedDemoContent(org.id);
+
+  return { org, userId, email };
+}
+
+/**
+ * (Re)create the demo dataset — properties, sequences, campaigns, leads —
+ * inside an EXISTING org. Used by first-login seeding and by
+ * "Restore demo data" after a clear. All rows are tagged isDemo.
+ */
+export async function seedDemoContent(orgId: string) {
+  const org = { id: orgId };
+
+  // Template sequences are permanent (they survive "Clear demo data"),
+  // so re-seeding must reuse them instead of creating duplicates.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function ensureSequence(args: { data: any; include?: any }): Promise<any> {
+    const existing = await prisma.sequence.findFirst({
+      where: { orgId: org.id, name: args.data.name, isDemo: true },
+      include: { steps: { orderBy: { order: "asc" } } },
+    });
+    if (existing) return existing;
+    return prisma.sequence.create({
+      data: args.data,
+      include: { steps: { orderBy: { order: "asc" } } },
+    });
+  }
   const [p1, p2, p3] = await Promise.all([
     prisma.property.create({
       data: {
@@ -182,7 +209,7 @@ export async function seedDemoOrg(opts?: {
     ],
   });
 
-  const s1 = await prisma.sequence.create({
+  const s1 = await ensureSequence({
     data: {
       orgId: org.id,
       name: "Abandoned Inquiry Rescue",
@@ -231,7 +258,7 @@ export async function seedDemoOrg(opts?: {
     include: { steps: true },
   });
 
-  const s2 = await prisma.sequence.create({
+  const s2 = await ensureSequence({
     data: {
       orgId: org.id,
       name: "New Ad Lead Welcome",
@@ -280,7 +307,7 @@ export async function seedDemoOrg(opts?: {
     include: { steps: true },
   });
 
-  const s3 = await prisma.sequence.create({
+  const s3 = await ensureSequence({
     data: {
       orgId: org.id,
       name: "Quote Sent, No Booking",
@@ -322,7 +349,7 @@ export async function seedDemoOrg(opts?: {
     include: { steps: true },
   });
 
-  await prisma.sequence.create({
+  await ensureSequence({
     data: {
       orgId: org.id,
       name: "Conversation Went Cold",
@@ -363,7 +390,7 @@ export async function seedDemoOrg(opts?: {
     },
   });
 
-  await prisma.sequence.create({
+  await ensureSequence({
     data: {
       orgId: org.id,
       name: "Price Shopping / Comparing Options",
@@ -404,7 +431,7 @@ export async function seedDemoOrg(opts?: {
     },
   });
 
-  await prisma.sequence.create({
+  await ensureSequence({
     data: {
       orgId: org.id,
       name: "Requested Dates Unavailable",
@@ -445,7 +472,7 @@ export async function seedDemoOrg(opts?: {
     },
   });
 
-  await prisma.sequence.create({
+  await ensureSequence({
     data: {
       orgId: org.id,
       name: "Past Guest Re-engagement",
@@ -620,8 +647,14 @@ export async function seedDemoOrg(opts?: {
     "hostfully",
     "hostaway",
   ] as const) {
-    await prisma.integration.create({
-      data: {
+    await prisma.integration.upsert({
+      where: { orgId_provider: { orgId: org.id, provider } },
+      update: {
+        status: IntegrationStatus.CONNECTED,
+        isDemo: true,
+        lastSyncAt: daysAgo(0, 1),
+      },
+      create: {
         orgId: org.id,
         provider,
         status: IntegrationStatus.CONNECTED,
@@ -639,8 +672,10 @@ export async function seedDemoOrg(opts?: {
     "twilio",
     "stripe",
   ] as const) {
-    await prisma.integration.create({
-      data: {
+    await prisma.integration.upsert({
+      where: { orgId_provider: { orgId: org.id, provider } },
+      update: {},
+      create: {
         orgId: org.id,
         provider,
         status: IntegrationStatus.DISCONNECTED,
@@ -1078,7 +1113,6 @@ export async function seedDemoOrg(opts?: {
     enroll: { sequenceId: s1.id, currentStep: 0 },
   });
 
-  return { org, userId, email };
 }
 
 async function main() {

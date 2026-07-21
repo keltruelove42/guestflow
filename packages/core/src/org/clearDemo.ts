@@ -22,27 +22,9 @@ export async function clearDemoData(orgId: string): Promise<ClearDemoResult> {
     })
   ).map((l) => l.id);
 
-  const demoSeqIds = (
-    await prisma.sequence.findMany({
-      where: { orgId, isDemo: true },
-      select: { id: true },
-    })
-  ).map((s) => s.id);
-
-  // Cancel enrollments on real leads that point at demo sequences
-  if (demoSeqIds.length) {
-    const enrollments = await prisma.enrollment.findMany({
-      where: { orgId, sequenceId: { in: demoSeqIds } },
-      select: { id: true },
-    });
-    const enrIds = enrollments.map((e) => e.id);
-    if (enrIds.length) {
-      await prisma.scheduledMessage.deleteMany({
-        where: { enrollmentId: { in: enrIds } },
-      });
-      await prisma.enrollment.deleteMany({ where: { id: { in: enrIds } } });
-    }
-  }
+  // NOTE: template sequences (isDemo) are preserved, and so are any
+  // enrollments of REAL leads in them — clearing demo data must never
+  // interrupt live follow-ups.
 
   if (demoLeadIds.length) {
     await prisma.scheduledMessage.deleteMany({
@@ -62,10 +44,10 @@ export async function clearDemoData(orgId: string): Promise<ClearDemoResult> {
     await prisma.campaign.deleteMany({ where: { orgId, isDemo: true } })
   ).count;
 
-  // Demo sequences (steps cascade)
-  const sequences = (
-    await prisma.sequence.deleteMany({ where: { orgId, isDemo: true } })
-  ).count;
+  // Template sequences (isDemo) are KEPT — they are reusable templates,
+  // not clearable demo rows. Only their demo-lead enrollments go away
+  // (deleted with the demo leads above).
+  const sequences = 0;
 
   const availability = (
     await prisma.availabilityBlock.deleteMany({ where: { orgId, isDemo: true } })
@@ -117,7 +99,7 @@ export async function demoDataCounts(orgId: string) {
     leads,
     properties,
     campaigns,
-    sequences,
-    total: leads + properties + campaigns + sequences,
+    sequences, // templates — reported for display, NOT clearable
+    total: leads + properties + campaigns,
   };
 }

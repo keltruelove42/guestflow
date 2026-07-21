@@ -78,6 +78,9 @@ export default function SequencesPage() {
     },
   });
 
+  const own = sequences.filter((s) => !s.isDemo);
+  const templates = sequences.filter((s) => s.isDemo);
+
   const toggle = useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
       const path = active ? "activate" : "pause";
@@ -107,8 +110,15 @@ export default function SequencesPage() {
 
       {isLoading && <p className="text-sm text-muted">Loading…</p>}
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {sequences.map((s) => (
+      {!isLoading && own.length === 0 && (
+        <p className="text-sm text-muted">
+          No sequences of your own yet — adapt a template below (Edit) or create a new one.
+        </p>
+      )}
+
+      {own.length > 0 && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {own.map((s) => (
           <article
             key={s.id}
             className="rounded-card border border-[var(--border)] bg-surface p-5"
@@ -121,8 +131,8 @@ export default function SequencesPage() {
                     {s.channelLabel}
                   </span>
                   {s.isDemo && (
-                    <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[11px] text-muted">
-                      Demo
+                    <span className="rounded-pill bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-2 py-0.5 text-[11px] text-accent">
+                      Template
                     </span>
                   )}
                   <span
@@ -202,8 +212,123 @@ export default function SequencesPage() {
               ))}
             </ol>
           </article>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {templates.length > 0 && (
+        <details
+          open={own.length === 0}
+          className="rounded-card border border-[var(--border)] bg-surface-2/50"
+        >
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-semibold marker:hidden [&::-webkit-details-marker]:hidden">
+            <span>📁</span> Templates
+            <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[11px] font-normal text-muted">
+              {templates.length}
+            </span>
+            <span className="ml-auto text-xs font-normal text-muted">
+              always available · never deleted by demo clear
+            </span>
+          </summary>
+          <div className="grid gap-4 p-4 pt-1 lg:grid-cols-2">
+            {templates.map((s) => (
+          <article
+            key={s.id}
+            className="rounded-card border border-[var(--border)] bg-surface p-5"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-base font-semibold">{s.name}</h2>
+                  <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[11px] text-muted">
+                    {s.channelLabel}
+                  </span>
+                  {s.isDemo && (
+                    <span className="rounded-pill bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-2 py-0.5 text-[11px] text-accent">
+                      Template
+                    </span>
+                  )}
+                  <span
+                    className={`rounded-pill px-2 py-0.5 text-[11px] ${
+                      s.active
+                        ? "bg-[color-mix(in_srgb,var(--good)_18%,transparent)] text-[var(--good-text)]"
+                        : "bg-surface-2 text-muted"
+                    }`}
+                  >
+                    {s.active ? "Active" : "Paused"}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-ink-2">
+                  {TRIGGER_LABELS[s.trigger] ?? s.trigger}
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  className="rounded-control border border-[var(--border)] px-2 py-1 text-xs"
+                  onClick={() => setEditor({ mode: "edit", seq: s })}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="rounded-control border border-[var(--border)] px-2 py-1 text-xs"
+                  onClick={() => toggle.mutate({ id: s.id, active: !s.active })}
+                >
+                  {s.active ? "Pause" : "Activate"}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-2 rounded-control bg-surface-2 p-3 text-center">
+              <div>
+                <div className="text-lg font-semibold tabular-nums">{s.stats.enrolled}</div>
+                <div className="text-[10px] uppercase tracking-wide text-muted">Enrolled</div>
+              </div>
+              <div>
+                <div className="text-lg font-semibold tabular-nums">
+                  {s.stats.replies}
+                  <span className="text-xs font-normal text-muted"> · {s.stats.replyRate}%</span>
+                </div>
+                <div className="text-[10px] uppercase tracking-wide text-muted">Replies</div>
+              </div>
+              <div>
+                <div
+                  className="text-lg font-semibold tabular-nums"
+                  style={{ color: "var(--good-text)" }}
+                >
+                  {s.stats.booked}
+                </div>
+                <div className="text-[10px] uppercase tracking-wide text-muted">Booked</div>
+              </div>
+            </div>
+
+            <ol className="relative mt-4 space-y-0 border-l border-[var(--border)] pl-4">
+              {s.steps.map((step, i) => (
+                <li key={step.id ?? i} className="relative pb-4 last:pb-0">
+                  <span className="absolute -left-[21px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-surface text-[10px]">
+                    {step.channel === "SMS" ? "💬" : step.channel === "CALL" ? "📞" : "✉️"}
+                  </span>
+                  <div className="text-[10px] font-medium uppercase tracking-wide text-muted">
+                    Wait {formatDelay(step.delayMinutes)} · {step.channel}
+                  </div>
+                  <div className="mt-0.5 text-sm font-medium">
+                    {step.subject ||
+                      (step.channel === "SMS"
+                        ? "SMS step"
+                        : step.channel === "CALL"
+                          ? "Call task"
+                          : "Email step")}
+                  </div>
+                  <p className="mt-0.5 line-clamp-2 text-xs text-ink-2">{step.body}</p>
+                </li>
+              ))}
+            </ol>
+          </article>
+            ))}
+          </div>
+        </details>
+      )}
 
       {editor && (
         <SequenceEditor

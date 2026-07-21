@@ -1,2 +1,2 @@
 export * from "./client";
-export { seedDemoOrg } from "./seed";
+export { seedDemoOrg, seedDemoContent } from "./seed";
