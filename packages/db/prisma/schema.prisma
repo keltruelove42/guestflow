@@ -5,6 +5,7 @@ generator client {
   // PRISMA_CLIENT_ENGINE_TYPE=client at generate time to use the WASM engine
   // (no native binary downloads needed).
   provider        = "prisma-client-js"
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
   previewFeatures = ["queryCompiler", "driverAdapters"]
 }
 

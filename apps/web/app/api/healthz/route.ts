@@ -5,7 +5,7 @@ import { prisma } from "@guestflow/db";
 
 export const dynamic = "force-dynamic";
 
-const BUILD_MARKER = "v4-fresh-path";
+const BUILD_MARKER = "v5-engine-trace";
 
 /** Diagnostic health check — reports DB connectivity without leaking secrets. */
 export async function GET() {
@@ -23,11 +23,10 @@ export async function GET() {
   let clientDir = "(unresolved)";
   let clientFiles: string[] = [];
   try {
+    const pkg = require.resolve("@prisma/client/package.json");
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const resolved = require.resolve(".prisma/client/index.js", {
-      paths: [require.resolve("@prisma/client")].map((p) => dirname(p)),
-    });
-    clientDir = dirname(resolved);
+    const { join } = require("node:path") as typeof import("node:path");
+    clientDir = join(dirname(pkg), "..", ".prisma", "client");
     clientFiles = readdirSync(clientDir).filter(
       (f) => f.endsWith(".wasm") || f.endsWith(".node") || f === "index.js" || f === "client.js",
     );
