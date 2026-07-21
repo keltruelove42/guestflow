@@ -218,7 +218,9 @@ export default function LeadsPage() {
         <table className="w-full text-left text-sm">
           <thead className="border-b border-[var(--border)] bg-surface-2 text-xs text-muted">
             <tr>
-              <th className="px-4 py-2.5 font-medium">Lead</th>
+              <th className="px-4 py-2.5 font-medium">Name</th>
+              <th className="px-4 py-2.5 font-medium">Email</th>
+              <th className="px-4 py-2.5 font-medium">Phone</th>
               <th className="px-4 py-2.5 font-medium">Source</th>
               <th className="px-4 py-2.5 font-medium">Property</th>
               <th className="px-4 py-2.5 font-medium">Dates</th>
@@ -229,14 +231,14 @@ export default function LeadsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted">
+                <td colSpan={8} className="px-4 py-8 text-center text-muted">
                   Loading…
                 </td>
               </tr>
             )}
             {!isLoading && leads.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted">
+                <td colSpan={8} className="px-4 py-8 text-center text-muted">
                   No leads yet.
                 </td>
               </tr>
@@ -259,8 +261,11 @@ export default function LeadsPage() {
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-muted">{contact}</div>
                   </td>
+                  <td className="max-w-[220px] truncate px-4 py-3 text-ink-2">
+                    {l.email ?? "—"}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-ink-2">{l.phone ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs">
                       {l.source}
