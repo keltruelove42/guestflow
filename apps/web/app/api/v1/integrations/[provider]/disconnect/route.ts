@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@guestflow/db";
+import { disconnectIntegration, getProviderMeta } from "@guestflow/core";
 import { getSession } from "@/lib/auth";
 
 type Ctx = { params: { provider: string } };
@@ -9,21 +9,14 @@ export async function POST(_req: Request, { params }: Ctx) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const provider = params.provider.toLowerCase();
-  const integration = await prisma.integration.updateMany({
-    where: { orgId: session.orgId, provider },
-    data: {
-      status: "DISCONNECTED",
-      credentials: null,
-      lastSyncAt: null,
-    },
-  });
-
-  if (integration.count === 0) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!getProviderMeta(provider)) {
+    return NextResponse.json({ error: "Unknown provider" }, { status: 404 });
   }
 
-  const row = await prisma.integration.findUnique({
-    where: { orgId_provider: { orgId: session.orgId, provider } },
+  const integration = await disconnectIntegration(session.orgId, provider);
+  return NextResponse.json({
+    id: integration.id,
+    provider: integration.provider,
+    status: integration.status,
   });
-  return NextResponse.json(row);
 }

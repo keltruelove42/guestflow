@@ -7,6 +7,9 @@ import {
   parseTwilioCredentials,
   twilioCredsFromEnv,
 } from "./twilio";
+import { readIntegrationCredentials } from "./verify";
+import { HostfullyPmsProvider } from "./hostfully";
+import { HostawayPmsProvider } from "./hostaway";
 import type { AdsProvider, EmailSender, PmsProvider, SmsSender } from "./types";
 
 const adsCache = new Map<string, AdsProvider>();
@@ -27,6 +30,18 @@ export function wantsLiveDelivery(mode: OrgMode): boolean {
   return mode === "LIVE";
 }
 
+/** Prefer live adapters when the org has real (non-demo) credentials stored. */
+function hasLiveCredentials(integration: {
+  status: string;
+  isDemo: boolean;
+  credentials: unknown;
+} | null): boolean {
+  if (!integration || integration.status !== "CONNECTED" || integration.isDemo) {
+    return false;
+  }
+  return Boolean(readIntegrationCredentials(integration.credentials));
+}
+
 export async function getAdsProvider(
   orgId: string,
   platform: "META" | "TIKTOK" | "PINTEREST",
@@ -36,8 +51,14 @@ export async function getAdsProvider(
   const integration = await prisma.integration.findUnique({
     where: { orgId_provider: { orgId, provider: platform.toLowerCase() } },
   });
-  // Live providers land in M6; until then always mock
-  if (mode === "DEMO" || !integration || integration.status !== "CONNECTED") {
+
+  // Live Marketing API campaign create lands fully in M6 — use mock for create/metrics
+  // until dedicated live ads classes ship. Connected OAuth still enables lead fetch later.
+  if (
+    mode === "DEMO" &&
+    !hasLiveCredentials(integration) &&
+    process.env.SEND_MODE?.trim().toLowerCase() !== "live"
+  ) {
     if (!adsCache.has(key)) adsCache.set(key, new MockAdsProvider());
     return adsCache.get(key)!;
   }
@@ -50,14 +71,46 @@ export async function getPmsProviders(orgId: string): Promise<PmsProvider[]> {
   const connected = await prisma.integration.findMany({
     where: {
       orgId,
-      status: "CONNECTED",
+      status: { in: ["CONNECTED", "ERROR"] },
       provider: { in: ["hostfully", "hostaway", "ownerrez", "lodgify"] },
     },
   });
-  if (mode === "DEMO" || connected.length === 0) {
-    return [new MockPmsProvider("hostfully")];
+
+  const liveForce = process.env.SEND_MODE?.trim().toLowerCase() === "live";
+  const useLive = mode === "LIVE" || liveForce;
+
+  if ((!useLive && connected.every((c) => c.isDemo || !c.credentials)) || connected.length === 0) {
+    if (mode === "DEMO") return [new MockPmsProvider("hostfully")];
+    if (connected.length === 0) return [new MockPmsProvider("hostfully")];
   }
-  return connected.map((i) => new MockPmsProvider(i.provider));
+
+  const providers: PmsProvider[] = [];
+  for (const row of connected) {
+    const creds = readIntegrationCredentials<Record<string, unknown>>(row.credentials);
+    if (!creds || row.isDemo) {
+      providers.push(new MockPmsProvider(row.provider));
+      continue;
+    }
+    if (row.provider === "hostfully") {
+      providers.push(
+        new HostfullyPmsProvider({
+          apiKey: String(creds.apiKey ?? ""),
+          agencyUid: creds.agencyUid ? String(creds.agencyUid) : undefined,
+        }),
+      );
+    } else if (row.provider === "hostaway") {
+      providers.push(
+        new HostawayPmsProvider({
+          accountId: String(creds.accountId ?? ""),
+          clientSecret: String(creds.clientSecret ?? ""),
+        }),
+      );
+    } else {
+      // OwnerRez / Lodgify: credentials stored; live sync coming soon → mock for pipeline demos
+      providers.push(new MockPmsProvider(row.provider));
+    }
+  }
+  return providers.length ? providers : [new MockPmsProvider("hostfully")];
 }
 
 export async function getEmailSender(orgId: string): Promise<EmailSender> {
@@ -73,17 +126,22 @@ export async function getEmailSender(orgId: string): Promise<EmailSender> {
 
 export async function getSmsSender(orgId: string): Promise<SmsSender> {
   const mode = await getOrgMode(orgId);
-  if (!wantsLiveDelivery(mode)) return new LoggingSmsSender();
-
   const integration = await prisma.integration.findUnique({
     where: { orgId_provider: { orgId, provider: "twilio" } },
   });
+
+  // Use Twilio whenever real credentials exist (even in DEMO) so Connect "just works"
   const fromIntegration =
-    integration?.status === "CONNECTED"
-      ? parseTwilioCredentials(integration.credentials)
+    integration?.status === "CONNECTED" && !integration.isDemo
+      ? parseTwilioCredentials(readIntegrationCredentials(integration.credentials))
       : null;
-  const creds = fromIntegration ?? twilioCredsFromEnv();
-  if (creds) return new TwilioSmsSender(creds);
+
+  if (fromIntegration) return new TwilioSmsSender(fromIntegration);
+
+  if (wantsLiveDelivery(mode)) {
+    const envCreds = twilioCredsFromEnv();
+    if (envCreds) return new TwilioSmsSender(envCreds);
+  }
   return new LoggingSmsSender();
 }
 
@@ -93,17 +151,14 @@ export async function getMessagingDeliveryStatus(orgId: string) {
   const live = wantsLiveDelivery(mode);
   const emailLive = live && resendConfigured();
 
-  let smsLive = false;
-  if (live) {
-    const integration = await prisma.integration.findUnique({
-      where: { orgId_provider: { orgId, provider: "twilio" } },
-    });
-    const fromIntegration =
-      integration?.status === "CONNECTED"
-        ? parseTwilioCredentials(integration.credentials)
-        : null;
-    smsLive = Boolean(fromIntegration ?? twilioCredsFromEnv());
-  }
+  const integration = await prisma.integration.findUnique({
+    where: { orgId_provider: { orgId, provider: "twilio" } },
+  });
+  const fromIntegration =
+    integration?.status === "CONNECTED" && !integration.isDemo
+      ? parseTwilioCredentials(readIntegrationCredentials(integration.credentials))
+      : null;
+  const smsLive = Boolean(fromIntegration ?? (live ? twilioCredsFromEnv() : null));
 
   return {
     orgMode: mode,
@@ -115,6 +170,10 @@ export async function getMessagingDeliveryStatus(orgId: string) {
 }
 
 export * from "./types";
+export * from "./catalog";
+export * from "./connect";
+export * from "./oauth";
+export * from "./verify";
 export { MockAdsProvider } from "./mockAds";
 export { MockPmsProvider, LoggingEmailSender, LoggingSmsSender } from "./mocks";
 export { ResendEmailSender, resendConfigured } from "./resend";
@@ -123,3 +182,5 @@ export {
   twilioCredsFromEnv,
   parseTwilioCredentials,
 } from "./twilio";
+export { HostfullyPmsProvider } from "./hostfully";
+export { HostawayPmsProvider } from "./hostaway";

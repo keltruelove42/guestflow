@@ -1,0 +1,162 @@
+import { decryptJson, isEncryptedBlob } from "../crypto/credentials";
+import { parseTwilioCredentials } from "./twilio";
+
+export function readIntegrationCredentials<T = Record<string, unknown>>(
+  credentials: unknown,
+): T | null {
+  if (!credentials) return null;
+  try {
+    return decryptJson<T>(credentials);
+  } catch {
+    if (credentials && typeof credentials === "object" && !isEncryptedBlob(credentials)) {
+      return credentials as T;
+    }
+    return null;
+  }
+}
+
+export async function verifyProviderCredentials(
+  provider: string,
+  creds: Record<string, unknown>,
+): Promise<{ ok: true; detail?: string } | { ok: false; error: string }> {
+  try {
+    if (provider === "twilio") {
+      const parsed = parseTwilioCredentials(creds);
+      if (!parsed) return { ok: false, error: "Missing SID, auth token, or from number" };
+      const res = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${parsed.accountSid}.json`,
+        {
+          headers: {
+            Authorization: `Basic ${Buffer.from(`${parsed.accountSid}:${parsed.authToken}`).toString("base64")}`,
+          },
+        },
+      );
+      if (!res.ok) return { ok: false, error: "Twilio rejected these credentials" };
+      return { ok: true, detail: "Twilio account verified" };
+    }
+
+    if (provider === "hostfully") {
+      const apiKey = String(creds.apiKey ?? "").trim();
+      if (!apiKey) return { ok: false, error: "API key required" };
+      const res = await fetch("https://api.hostfully.com/api/properties", {
+        headers: {
+          "X-HOSTFULLY-APIKEY": apiKey,
+          Accept: "application/json",
+        },
+      });
+      // Some accounts use v2 — try v2 agencies if v1 fails auth-ish
+      if (res.status === 401 || res.status === 403) {
+        return { ok: false, error: "Hostfully rejected this API key" };
+      }
+      if (!res.ok && res.status !== 404) {
+        const v2 = await fetch("https://api.hostfully.com/v2/properties?limit=1", {
+          headers: {
+            "X-HOSTFULLY-APIKEY": apiKey,
+            Accept: "application/json",
+          },
+        });
+        if (v2.status === 401 || v2.status === 403) {
+          return { ok: false, error: "Hostfully rejected this API key" };
+        }
+        if (!v2.ok) {
+          return {
+            ok: false,
+            error: `Hostfully returned ${v2.status}. Check key and agency access.`,
+          };
+        }
+      }
+      return { ok: true, detail: "Hostfully API key accepted" };
+    }
+
+    if (provider === "hostaway") {
+      const accountId = String(creds.accountId ?? "").trim();
+      const clientSecret = String(creds.clientSecret ?? "").trim();
+      if (!accountId || !clientSecret) {
+        return { ok: false, error: "Account ID and client secret required" };
+      }
+      const body = new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: accountId,
+        client_secret: clientSecret,
+        scope: "general",
+      });
+      const res = await fetch("https://api.hostaway.com/v1/accessTokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        access_token?: string;
+        message?: string;
+      };
+      if (!res.ok || !data.access_token) {
+        return { ok: false, error: data.message ?? "Hostaway auth failed" };
+      }
+      return { ok: true, detail: "Hostaway token issued" };
+    }
+
+    if (provider === "klaviyo") {
+      const apiKey = String(creds.apiKey ?? "").trim();
+      if (!apiKey) return { ok: false, error: "API key required" };
+      const res = await fetch("https://a.klaviyo.com/api/accounts/", {
+        headers: {
+          Authorization: `Klaviyo-API-Key ${apiKey}`,
+          Accept: "application/json",
+          revision: "2024-10-15",
+        },
+      });
+      if (!res.ok) return { ok: false, error: "Klaviyo rejected this API key" };
+      return { ok: true, detail: "Klaviyo key verified" };
+    }
+
+    if (provider === "lodgify") {
+      const apiKey = String(creds.apiKey ?? "").trim();
+      if (!apiKey) return { ok: false, error: "API key required" };
+      const res = await fetch("https://api.lodgify.com/v2/properties", {
+        headers: { "X-ApiKey": apiKey, Accept: "application/json" },
+      });
+      if (res.status === 401 || res.status === 403) {
+        return { ok: false, error: "Lodgify rejected this API key" };
+      }
+      // 200 or other non-auth errors still mean key shape may be ok
+      if (!res.ok && res.status >= 500) {
+        return { ok: false, error: `Lodgify error ${res.status}` };
+      }
+      return { ok: true, detail: "Lodgify key accepted" };
+    }
+
+    if (provider === "ownerrez") {
+      const apiKey = String(creds.apiKey ?? "").trim();
+      const userId = String(creds.userId ?? "").trim();
+      if (!apiKey || !userId) return { ok: false, error: "Email and API token required" };
+      const res = await fetch("https://api.ownerrez.com/v2/properties?limit=1", {
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${userId}:${apiKey}`).toString("base64")}`,
+          Accept: "application/json",
+        },
+      });
+      if (res.status === 401 || res.status === 403) {
+        return { ok: false, error: "OwnerRez rejected these credentials" };
+      }
+      return { ok: true, detail: "OwnerRez credentials accepted" };
+    }
+
+    if (provider === "stayfi") {
+      const apiKey = String(creds.apiKey ?? "").trim();
+      if (!apiKey) return { ok: false, error: "API key required" };
+      // StayFi endpoints vary by plan — accept key format and store; sync validates later
+      if (apiKey.length < 8) return { ok: false, error: "API key looks too short" };
+      return { ok: true, detail: "StayFi key saved (sync when endpoint available)" };
+    }
+
+    // OAuth tokens already verified during exchange
+    if (creds.accessToken) return { ok: true, detail: "OAuth token stored" };
+
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Verification failed",
+    };
+  }
+}

@@ -1,4 +1,4 @@
-import { prisma } from "@guestflow/db";
+import { prisma, Prisma } from "@guestflow/db";
 
 export type ClearDemoResult = {
   leads: number;
@@ -85,7 +85,7 @@ export async function clearDemoData(orgId: string): Promise<ClearDemoResult> {
         status: "DISCONNECTED",
         lastSyncAt: null,
         lastError: null,
-        credentials: null,
+        credentials: Prisma.DbNull,
         isDemo: false,
       },
     })
