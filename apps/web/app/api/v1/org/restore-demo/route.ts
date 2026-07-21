@@ -12,12 +12,17 @@ export async function POST() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  await clearDemoData(session.orgId);
-  await seedDemoContent(session.orgId);
-  await prisma.org.update({
-    where: { id: session.orgId },
-    data: { demoClearedAt: null },
-  });
+  try {
+    await clearDemoData(session.orgId);
+    await seedDemoContent(session.orgId);
+    await prisma.org.update({
+      where: { id: session.orgId },
+      data: { demoClearedAt: null },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message.slice(0, 300) : "Restore failed";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 
   return NextResponse.json({ message: "Demo data restored." });
 }

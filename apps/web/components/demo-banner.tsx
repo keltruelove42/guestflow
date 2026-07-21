@@ -29,7 +29,10 @@ export function DemoDataBanner() {
   const restore = useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/v1/org/restore-demo", { method: "POST" });
-      if (!res.ok) throw new Error("Failed to restore");
+      if (!res.ok) {
+        const d = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(d.error ?? `Failed to restore (HTTP ${res.status})`);
+      }
       return res.json() as Promise<{ message: string }>;
     },
     onSuccess: async (data) => {
@@ -37,7 +40,14 @@ export function DemoDataBanner() {
       await qc.invalidateQueries(); // refresh every screen — the whole dataset changed
       setTimeout(() => setMessage(null), 5000);
     },
+    onError: (e) => {
+      setMessage(
+        `Restore failed: ${e instanceof Error ? e.message : "unknown error"} — try again or contact support.`,
+      );
+      setTimeout(() => setMessage(null), 8000);
+    },
   });
+
 
   const clear = useMutation({
     mutationFn: async () => {
