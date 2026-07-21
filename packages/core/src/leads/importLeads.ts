@@ -9,6 +9,9 @@ export type ImportRow = {
   partySize?: string | null;
   propertyName?: string | null;
   notes?: string | null;
+  /** Per-row consent override (e.g. from a provider's own subscription state) */
+  emailConsent?: boolean;
+  smsConsent?: boolean;
 };
 
 export type ImportInput = {
@@ -17,6 +20,8 @@ export type ImportInput = {
   /** User attests these contacts gave permission to be contacted. */
   emailConsent: boolean;
   smsConsent: boolean;
+  /** Timeline event title, e.g. "Synced from Klaviyo" (default: import copy) */
+  sourceTitle?: string;
   now?: Date;
 };
 
@@ -74,8 +79,8 @@ export async function importLeads(input: ImportInput): Promise<ImportResult> {
       existing = await prisma.lead.findFirst({ where: { orgId: input.orgId, phone } });
     }
 
-    const emailConsent = input.emailConsent && Boolean(email);
-    const smsConsent = input.smsConsent && Boolean(phone);
+    const emailConsent = (row.emailConsent ?? input.emailConsent) && Boolean(email);
+    const smsConsent = (row.smsConsent ?? input.smsConsent) && Boolean(phone);
 
     let leadId: string;
     if (existing) {
@@ -123,7 +128,13 @@ export async function importLeads(input: ImportInput): Promise<ImportResult> {
         orgId: input.orgId,
         leadId,
         type: "IMPORTED",
-        title: existing ? "Imported (merged with existing lead)" : "Imported past inquiry",
+        title: input.sourceTitle
+          ? existing
+            ? `${input.sourceTitle} (merged with existing lead)`
+            : input.sourceTitle
+          : existing
+            ? "Imported (merged with existing lead)"
+            : "Imported past inquiry",
         body: row.notes?.trim() || null,
         meta: { rowNumber: i + 1 },
         occurredAt: now,

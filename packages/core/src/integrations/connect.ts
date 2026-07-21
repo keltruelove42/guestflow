@@ -163,7 +163,24 @@ export async function syncIntegration(orgId: string, provider: string) {
         creds as { accountId: string; clientSecret: string },
       );
       await pms.syncInquiries(new Date(Date.now() - 7 * 864e5));
-    } else if (provider === "twilio" || provider === "klaviyo" || provider === "lodgify" || provider === "ownerrez" || provider === "stayfi") {
+    } else if (provider === "klaviyo") {
+      const apiKey = String((creds as { apiKey?: string }).apiKey ?? "");
+      if (!apiKey) throw new Error("Missing Klaviyo API key — reconnect");
+      const { fetchKlaviyoProfiles } = await import("./klaviyo");
+      const { importLeads } = await import("../leads/importLeads");
+      const pulled = await fetchKlaviyoProfiles(apiKey);
+      if (pulled.rows.length) {
+        // Global consent flags stay false — each profile carries its own
+        // consent from Klaviyo's subscription state.
+        await importLeads({
+          orgId,
+          rows: pulled.rows,
+          emailConsent: false,
+          smsConsent: false,
+          sourceTitle: "Synced from Klaviyo",
+        });
+      }
+    } else if (provider === "twilio" || provider === "lodgify" || provider === "ownerrez" || provider === "stayfi") {
       const check = await verifyProviderCredentials(provider, creds);
       if (!check.ok) throw new Error(check.error);
     } else if (provider === "meta") {

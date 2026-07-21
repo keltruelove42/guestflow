@@ -175,7 +175,7 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
   {
     provider: "klaviyo",
     name: "Klaviyo",
-    desc: "Push segments & mirror follow-up events through Klaviyo.",
+    desc: "Pull your Klaviyo contacts into GuestFlow leads; sync respects each profile's consent.",
     icon: "✉️",
     bg: "#0f172a",
     auth: "api_key",
@@ -231,7 +231,7 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
     bg: "#635bff",
     auth: "oauth",
     fields: [],
-    syncLive: false,
+    syncLive: true,
     setupHint: "Set STRIPE_CLIENT_ID and STRIPE_SECRET_KEY in your environment.",
   },
 ];
