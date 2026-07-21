@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
+import { ImportLeadsModal } from "@/components/import-leads-modal";
 
 type Lead = {
   id: string;
@@ -23,7 +24,7 @@ type Lead = {
   createdAt: string;
 };
 
-type LeadDetail = Lead & {
+type LeadDetail = Omit<Lead, "enrollments"> & {
   events: Array<{
     id: string;
     type: string;
@@ -61,6 +62,7 @@ export default function LeadsPage() {
   const qc = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     if (openId) setSelectedId(openId);
@@ -117,13 +119,33 @@ export default function LeadsPage() {
           Every contact field is optional at capture — GuestFlow picks the best follow-up channel
           from whatever it has. Open a lead to send email or SMS.
         </p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="rounded-control border border-[var(--border)] px-3 py-2 text-sm"
+            onClick={() => setImporting(true)}
+          >
+            ⬆️ Import past inquiries
+          </button>
+          <button
+            type="button"
+            className="rounded-control border border-[var(--border)] px-3 py-2 text-sm"
+            disabled={tick.isPending}
+            onClick={() => tick.mutate()}
+          >
+            {tick.isPending ? "Sending…" : "Send due sequences now"}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile: compact import button */}
+      <div className="flex justify-end md:hidden">
         <button
           type="button"
           className="rounded-control border border-[var(--border)] px-3 py-2 text-sm"
-          disabled={tick.isPending}
-          onClick={() => tick.mutate()}
+          onClick={() => setImporting(true)}
         >
-          {tick.isPending ? "Sending…" : "Send due sequences now"}
+          ⬆️ Import
         </button>
       </div>
 
@@ -274,8 +296,10 @@ export default function LeadsPage() {
         />
       )}
 
+      {importing && <ImportLeadsModal onClose={() => setImporting(false)} />}
+
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 max-w-sm rounded-card border border-[var(--border)] bg-surface px-4 py-3 text-sm shadow-lg">
+        <div className="fixed bottom-20 left-4 right-4 z-50 rounded-card border border-[var(--border)] bg-surface px-4 py-3 text-sm shadow-lg md:bottom-4 md:left-auto md:max-w-sm">
           {toast}
         </div>
       )}
@@ -310,6 +334,38 @@ function LeadDrawer({
       if (!res.ok) throw new Error("Failed");
       return res.json() as Promise<LeadDetail>;
     },
+  });
+
+  const { data: sequences = [] } = useQuery({
+    queryKey: ["sequences"],
+    queryFn: async () => {
+      const res = await fetch("/api/v1/sequences");
+      if (!res.ok) return [];
+      return res.json() as Promise<Array<{ id: string; name: string; active: boolean }>>;
+    },
+  });
+  const [enrollSeqId, setEnrollSeqId] = useState("");
+
+  const enroll = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/v1/leads/${leadId}/enroll`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sequenceId: enrollSeqId }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error ?? "Enroll failed");
+      }
+      return res.json();
+    },
+    onSuccess: async () => {
+      setError(null);
+      await qc.invalidateQueries({ queryKey: ["lead", leadId] });
+      await qc.invalidateQueries({ queryKey: ["leads"] });
+      onSent("Enrolled — first step scheduled.");
+    },
+    onError: (e) => setError(e instanceof Error ? e.message : "Enroll failed"),
   });
 
   const send = useMutation({
@@ -388,6 +444,46 @@ function LeadDrawer({
                   <div className="text-muted">{canSms ? "consent ok" : "cannot send"}</div>
                 </div>
               </div>
+
+              <section>
+                <h3 className="mb-2 text-sm font-semibold">Follow-up sequence</h3>
+                {(() => {
+                  const enr = lead.enrollments.find(
+                    (e) => e.status === "ACTIVE" || e.status === "PAUSED",
+                  );
+                  return enr ? (
+                  <div className="rounded-control border border-[var(--border)] bg-surface-2 px-3 py-2 text-xs text-ink-2">
+                    🔁 {enr.sequence.name} · step {enr.currentStep + 1} ·{" "}
+                    {enr.status.toLowerCase()}
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <select
+                      className="min-w-0 flex-1 rounded-control border border-[var(--border)] bg-page px-2.5 py-2 text-sm outline-none"
+                      value={enrollSeqId}
+                      onChange={(e) => setEnrollSeqId(e.target.value)}
+                    >
+                      <option value="">Choose a sequence…</option>
+                      {sequences
+                        .filter((s) => s.active)
+                        .map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                    </select>
+                    <button
+                      type="button"
+                      className="shrink-0 rounded-control bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+                      disabled={!enrollSeqId || enroll.isPending}
+                      onClick={() => enroll.mutate()}
+                    >
+                      {enroll.isPending ? "Enrolling…" : "Enroll"}
+                    </button>
+                  </div>
+                );
+                })()}
+              </section>
 
               <section>
                 <h3 className="mb-2 text-sm font-semibold">Compose</h3>

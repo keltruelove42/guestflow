@@ -219,5 +219,85 @@ export async function stopActiveEnrollments(
   return open.length;
 }
 
+/**
+ * Enroll a lead in a specific sequence, chosen by a human (e.g. after a CSV
+ * import). Same guardrails as autoEnroll: LOST leads blocked, no duplicate
+ * active/paused enrollment, step 0 scheduled (instant steps process inline).
+ */
+export async function manualEnroll(
+  leadId: string,
+  sequenceId: string,
+  opts?: { now?: Date; processInstant?: boolean },
+): Promise<AutoEnrollResult> {
+  const now = opts?.now ?? new Date();
+  const lead = await prisma.lead.findUniqueOrThrow({ where: { id: leadId } });
+
+  if (lead.stage === "LOST") {
+    return { enrolled: false, reason: "Lead stage is LOST" };
+  }
+
+  const sequence = await prisma.sequence.findFirst({
+    where: { id: sequenceId, orgId: lead.orgId, active: true },
+    include: { steps: { orderBy: { order: "asc" } } },
+  });
+  if (!sequence) return { enrolled: false, reason: "Sequence not found or inactive" };
+
+  const step0 = sequence.steps[0];
+  if (!step0) return { enrolled: false, reason: "Sequence has no steps" };
+
+  const existing = await prisma.enrollment.findFirst({
+    where: {
+      leadId: lead.id,
+      sequenceId: sequence.id,
+      status: { in: ["ACTIVE", "PAUSED"] },
+    },
+  });
+  if (existing) {
+    return { enrolled: false, reason: "Already enrolled in this sequence" };
+  }
+
+  const enrollment = await prisma.enrollment.create({
+    data: {
+      orgId: lead.orgId,
+      leadId: lead.id,
+      sequenceId: sequence.id,
+      status: "ACTIVE",
+      currentStep: 0,
+      createdAt: now,
+    },
+  });
+
+  await prisma.leadEvent.create({
+    data: {
+      orgId: lead.orgId,
+      leadId: lead.id,
+      type: "ENROLLED",
+      title: `Enrolled in “${sequence.name}”`,
+      body: "Enrolled manually",
+      meta: { sequenceId: sequence.id, enrollmentId: enrollment.id, manual: true },
+      occurredAt: now,
+    },
+  });
+
+  const sendAt = new Date(now.getTime() + step0.delayMinutes * 60_000);
+  const scheduled = await prisma.scheduledMessage.create({
+    data: {
+      orgId: lead.orgId,
+      enrollmentId: enrollment.id,
+      stepId: step0.id,
+      channel: step0.channel,
+      sendAt,
+      status: "PENDING",
+      idempotencyKey: `${enrollment.id}:${step0.id}`,
+    },
+  });
+
+  if (step0.delayMinutes === 0 && opts?.processInstant !== false) {
+    await processScheduledMessage(scheduled.id, { now });
+  }
+
+  return { enrolled: true, enrollmentId: enrollment.id, sequenceId: sequence.id };
+}
+
 export type LeadForEnroll = Lead;
 export type { Prisma };

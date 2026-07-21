@@ -103,4 +103,29 @@ export const loginDemoSchema = z.object({
 });
 export type LoginDemoInput = z.infer<typeof loginDemoSchema>;
 
+export const importLeadsSchema = z.object({
+  rows: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        email: z.string().optional().nullable(),
+        phone: z.string().optional().nullable(),
+        travelDates: z.string().optional().nullable(),
+        partySize: z.string().optional().nullable(),
+        propertyName: z.string().optional().nullable(),
+        notes: z.string().optional().nullable(),
+      }),
+    )
+    .min(1)
+    .max(500),
+  emailConsent: z.boolean(),
+  smsConsent: z.boolean(),
+});
+export type ImportLeadsInput = z.infer<typeof importLeadsSchema>;
+
+export const enrollLeadSchema = z.object({
+  sequenceId: z.string().min(1),
+});
+export type EnrollLeadInput = z.infer<typeof enrollLeadSchema>;
+
 export { CampaignStatus };
