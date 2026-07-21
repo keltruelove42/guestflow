@@ -26,7 +26,9 @@ export async function GET() {
         syncLive: c.syncLive,
         docsUrl: c.docsUrl ?? null,
         setupHint: c.setupHint ?? null,
-        oauthReady: c.auth === "oauth" ? oauthConfigured(c.provider) : true,
+        oauthOption: c.oauthOption ?? false,
+        oauthReady:
+          c.auth === "oauth" || c.oauthOption ? oauthConfigured(c.provider) : true,
         id: row?.id ?? null,
         status: row?.status ?? "DISCONNECTED",
         lastSyncAt: row?.lastSyncAt ?? null,

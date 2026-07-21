@@ -59,6 +59,10 @@ export function oauthConfigured(provider: string): boolean {
       );
     case "stripe":
       return Boolean(process.env.STRIPE_CLIENT_ID?.trim() && process.env.STRIPE_SECRET_KEY?.trim());
+    case "hostfully":
+      return Boolean(
+        process.env.HOSTFULLY_CLIENT_ID?.trim() && process.env.HOSTFULLY_CLIENT_SECRET?.trim(),
+      );
     default:
       return false;
   }
@@ -69,7 +73,9 @@ export function buildOAuthUrl(
   state: string,
 ): { url: string } {
   const meta = getProviderMeta(provider);
-  if (!meta || meta.auth !== "oauth") throw new Error("Not an OAuth provider");
+  if (!meta || (meta.auth !== "oauth" && !meta.oauthOption)) {
+    throw new Error("Not an OAuth provider");
+  }
   if (!oauthConfigured(provider)) {
     throw new Error(meta.setupHint ?? `${provider} OAuth is not configured`);
   }
@@ -134,8 +140,26 @@ export function buildOAuthUrl(
     };
   }
 
+  if (provider === "hostfully") {
+    // docs: dev.hostfully.com/reference/authorizing-integration-as-a-customer
+    const params = new URLSearchParams({
+      clientId: process.env.HOSTFULLY_CLIENT_ID!.trim(),
+      redirectUri,
+      scope: "FULL",
+      grantType: "REFRESH_TOKEN",
+      state,
+    });
+    return {
+      url: `${HOSTFULLY_OAUTH_BASE()}/api/auth/oauth/authorize?${params}`,
+    };
+  }
+
   throw new Error(`OAuth not implemented for ${provider}`);
 }
+
+
+const HOSTFULLY_OAUTH_BASE = () =>
+  process.env.HOSTFULLY_OAUTH_BASE?.replace(/\/$/, "") || "https://platform.hostfully.com";
 
 function randomRid(): string {
   return Math.random().toString(36).slice(2, 10);
@@ -256,5 +280,55 @@ export async function exchangeOAuthCode(
     };
   }
 
+  if (provider === "hostfully") {
+    const data = await hostfullyTokenRequest("code-exchange", {
+      code,
+      redirectUri,
+      scope: "FULL",
+      grantType: "REFRESH_TOKEN",
+    });
+    return { oauth: true, ...data };
+  }
+
   throw new Error(`OAuth exchange not implemented for ${provider}`);
+}
+
+/** Shared Basic-auth POST for Hostfully's OAuth token endpoints. */
+async function hostfullyTokenRequest(
+  path: "code-exchange" | "token-refresh",
+  payload: Record<string, unknown>,
+): Promise<{ accessToken: string; refreshToken: string; obtainedAt: string }> {
+  const basic = Buffer.from(
+    `${process.env.HOSTFULLY_CLIENT_ID!.trim()}:${process.env.HOSTFULLY_CLIENT_SECRET!.trim()}`,
+    "utf8",
+  ).toString("base64");
+  const res = await fetch(`${HOSTFULLY_OAUTH_BASE()}/api/auth/oauth/${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  const accessToken = String(data.accessToken ?? data.access_token ?? "");
+  const refreshToken = String(data.refreshToken ?? data.refresh_token ?? "");
+  if (!res.ok || !accessToken || !refreshToken) {
+    const detail =
+      (typeof data.message === "string" && data.message) ||
+      (typeof data.error === "string" && data.error) ||
+      `HTTP ${res.status}`;
+    throw new Error(`Hostfully ${path} failed: ${detail}`);
+  }
+  return { accessToken, refreshToken, obtainedAt: new Date().toISOString() };
+}
+
+/**
+ * Refresh a Hostfully OAuth token pair. IMPORTANT: Hostfully rotates the
+ * refresh token on every call — the caller MUST persist the returned pair
+ * immediately or the grant is lost.
+ */
+export async function refreshHostfullyTokens(refreshToken: string) {
+  return hostfullyTokenRequest("token-refresh", { refreshToken });
 }

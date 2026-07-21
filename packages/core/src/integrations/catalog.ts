@@ -16,6 +16,8 @@ export type ProviderMeta = {
   icon: string;
   bg: string;
   auth: AuthKind;
+  /** Provider also supports a one-click OAuth connect (partner app) */
+  oauthOption?: boolean;
   fields: FieldDef[];
   /** Sync is implemented against a live API */
   syncLive: boolean;
@@ -65,6 +67,9 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
     icon: "🏡",
     bg: "#00a699",
     auth: "api_key",
+    oauthOption: true,
+    setupHint:
+      "One-click connect needs Hostfully partner app credentials: set HOSTFULLY_CLIENT_ID and HOSTFULLY_CLIENT_SECRET (apply at dev.hostfully.com). Agency API keys keep working as a fallback.",
     fields: [
       {
         key: "apiKey",

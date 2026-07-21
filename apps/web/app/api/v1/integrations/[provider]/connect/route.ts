@@ -21,7 +21,8 @@ export async function POST(req: Request, { params }: Ctx) {
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
 
   try {
-    if (meta.auth === "oauth") {
+    const wantsOAuth = meta.auth === "oauth" || (meta.oauthOption && body.mode === "oauth");
+    if (wantsOAuth) {
       if (!oauthConfigured(provider)) {
         return NextResponse.json(
           {

@@ -3,6 +3,7 @@ import { Prisma } from "@guestflow/db";
 import { encryptJson } from "../crypto/credentials";
 import { getProviderMeta } from "./catalog";
 import { readIntegrationCredentials, verifyProviderCredentials } from "./verify";
+import { refreshHostfullyTokens } from "./oauth";
 
 export async function connectWithCredentials(opts: {
   orgId: string;
@@ -137,7 +138,24 @@ export async function syncIntegration(orgId: string, provider: string) {
   try {
     if (provider === "hostfully") {
       const { HostfullyPmsProvider } = await import("./hostfully");
-      const pms = new HostfullyPmsProvider(creds as { apiKey: string; agencyUid?: string });
+      let hostfullyCreds = creds as {
+        apiKey?: string;
+        accessToken?: string;
+        refreshToken?: string;
+        agencyUid?: string;
+        oauth?: boolean;
+      };
+      if (hostfullyCreds.oauth && hostfullyCreds.refreshToken) {
+        // Access tokens last 24h and refresh tokens rotate — refresh
+        // before every sync and persist the new pair immediately.
+        const fresh = await refreshHostfullyTokens(hostfullyCreds.refreshToken);
+        hostfullyCreds = { ...hostfullyCreds, ...fresh };
+        await prisma.integration.update({
+          where: { id: row.id },
+          data: { credentials: encryptJson(hostfullyCreds) as Prisma.InputJsonValue },
+        });
+      }
+      const pms = new HostfullyPmsProvider(hostfullyCreds);
       await pms.syncInquiries(new Date(Date.now() - 7 * 864e5));
     } else if (provider === "hostaway") {
       const { HostawayPmsProvider } = await import("./hostaway");

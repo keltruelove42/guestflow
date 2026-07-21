@@ -13,7 +13,7 @@ export async function GET(req: Request, { params }: Ctx) {
   const meta = getProviderMeta(provider);
   const appUrl = process.env.APP_URL?.replace(/\/$/, "") || "http://localhost:3000";
 
-  if (!meta || meta.auth !== "oauth") {
+  if (!meta || (meta.auth !== "oauth" && !meta.oauthOption)) {
     return NextResponse.redirect(`${appUrl}/integrations?error=unknown_provider`);
   }
 

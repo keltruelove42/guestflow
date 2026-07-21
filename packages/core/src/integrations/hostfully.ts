@@ -1,6 +1,10 @@
 import type { PmsBooking, PmsInquiry, PmsProvider } from "./types";
 
-type HostfullyCreds = { apiKey: string; agencyUid?: string };
+type HostfullyCreds = {
+  apiKey?: string;
+  accessToken?: string;
+  agencyUid?: string;
+};
 
 /**
  * Live Hostfully PMS adapter (docs/08).
@@ -12,20 +16,48 @@ export class HostfullyPmsProvider implements PmsProvider {
   constructor(private readonly creds: HostfullyCreds) {}
 
   private headers(): Record<string, string> {
-    return {
-      "X-HOSTFULLY-APIKEY": this.creds.apiKey,
+    const base: Record<string, string> = {
       Accept: "application/json",
       "Content-Type": "application/json",
     };
+    if (this.creds.accessToken) {
+      // OAuth partner connect (works on every Hostfully tier)
+      base.Authorization = `Bearer ${this.creds.accessToken}`;
+    } else if (this.creds.apiKey) {
+      base["X-HOSTFULLY-APIKEY"] = this.creds.apiKey;
+    }
+    return base;
+  }
+
+  private leadPaths(query: string): string[] {
+    // OAuth tokens are for API v3; agency API keys use v2 paths.
+    return this.creds.accessToken
+      ? [
+          `https://platform.hostfully.com/api/v3/leads?${query}`,
+          `https://api.hostfully.com/v3/leads?${query}`,
+        ]
+      : [
+          `https://api.hostfully.com/v2/leads?${query}`,
+          `https://api.hostfully.com/api/leads?${query}`,
+        ];
+  }
+
+  private bookingPaths(query: string): string[] {
+    return this.creds.accessToken
+      ? [
+          `https://platform.hostfully.com/api/v3/bookings?${query}`,
+          `https://api.hostfully.com/v3/bookings?${query}`,
+        ]
+      : [
+          `https://api.hostfully.com/v2/appointments?${query}`,
+          `https://api.hostfully.com/api/appointments?${query}`,
+        ];
   }
 
   async syncInquiries(since: Date): Promise<PmsInquiry[]> {
     const sinceIso = since.toISOString();
     // Hostfully leads / inquiries endpoint varies by plan — try common paths
-    const paths = [
-      `https://api.hostfully.com/v2/leads?updatedSince=${encodeURIComponent(sinceIso)}`,
-      `https://api.hostfully.com/api/leads?updatedSince=${encodeURIComponent(sinceIso)}`,
-    ];
+    const paths = this.leadPaths(`updatedSince=${encodeURIComponent(sinceIso)}`);
 
     for (const url of paths) {
       const res = await fetch(url, { headers: this.headers() });
@@ -42,10 +74,7 @@ export class HostfullyPmsProvider implements PmsProvider {
 
   async syncBookings(since: Date): Promise<PmsBooking[]> {
     const sinceIso = since.toISOString();
-    const paths = [
-      `https://api.hostfully.com/v2/appointments?updatedSince=${encodeURIComponent(sinceIso)}`,
-      `https://api.hostfully.com/api/appointments?updatedSince=${encodeURIComponent(sinceIso)}`,
-    ];
+    const paths = this.bookingPaths(`updatedSince=${encodeURIComponent(sinceIso)}`);
 
     for (const url of paths) {
       const res = await fetch(url, { headers: this.headers() });

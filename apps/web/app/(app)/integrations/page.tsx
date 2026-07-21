@@ -27,6 +27,7 @@ type Integration = {
   docsUrl: string | null;
   setupHint: string | null;
   oauthReady: boolean;
+  oauthOption?: boolean;
   status: string;
   lastSyncAt: string | null;
   lastError: string | null;
@@ -307,6 +308,28 @@ function ConnectModal({
 
   const isOauth = integration.auth === "oauth";
 
+  async function oauthConnect() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/v1/integrations/${integration.provider}/connect`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "oauth" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Connect failed");
+      if (data.oauthUrl) {
+        window.location.href = data.oauthUrl as string;
+        return;
+      }
+      throw new Error("No authorization URL returned");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Connect failed");
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-card border border-[var(--border)] bg-surface shadow-xl">
@@ -360,7 +383,29 @@ function ConnectModal({
               )}
             </div>
           ) : (
-            integration.fields.map((f) => (
+            <>
+              {integration.oauthOption && (
+                <div className="space-y-2 rounded-control border border-[var(--border)] bg-surface-2/60 p-3">
+                  <button
+                    type="button"
+                    disabled={busy || !integration.oauthReady}
+                    className="w-full rounded-control bg-accent px-3 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                    onClick={() => void oauthConnect()}
+                  >
+                    {busy ? "Redirecting…" : `🔗 Connect with ${integration.name}`}
+                  </button>
+                  <p className="text-[11px] leading-snug text-muted">
+                    {integration.oauthReady
+                      ? `Recommended — you'll approve access on ${integration.name}. Works on every ${integration.name} plan, no API key needed.`
+                      : (integration.setupHint ?? "One-click connect is not configured yet.")}
+                  </p>
+                  <div className="flex items-center gap-2 pt-1 text-[11px] uppercase tracking-wide text-muted">
+                    <span className="h-px flex-1 bg-[var(--border)]" /> or enter credentials
+                    <span className="h-px flex-1 bg-[var(--border)]" />
+                  </div>
+                </div>
+              )}
+              {integration.fields.map((f) => (
               <label key={f.key} className="block text-xs font-medium text-ink-2">
                 {f.label}
                 {f.required ? " *" : ""}
@@ -377,7 +422,8 @@ function ConnectModal({
                 />
                 {f.help && <span className="mt-1 block text-[11px] text-muted">{f.help}</span>}
               </label>
-            ))
+              ))}
+            </>
           )}
 
           {integration.provider === "twilio" && (
