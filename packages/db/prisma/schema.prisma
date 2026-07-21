@@ -1,7 +1,10 @@
 // packages/db/prisma/schema.prisma — verbatim from docs/03-data-model.md
 generator client {
+  // Engine type: default (library) on Vercel — its bundler has first-class
+  // support for tracing the native engine. Local/sandbox dev sets
+  // PRISMA_CLIENT_ENGINE_TYPE=client at generate time to use the WASM engine
+  // (no native binary downloads needed).
   provider        = "prisma-client-js"
-  engineType      = "client"
   previewFeatures = ["queryCompiler", "driverAdapters"]
 }
 
