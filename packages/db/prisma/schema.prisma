@@ -1,6 +1,8 @@
 // packages/db/prisma/schema.prisma — verbatim from docs/03-data-model.md
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  engineType      = "client"
+  previewFeatures = ["queryCompiler", "driverAdapters"]
 }
 
 datasource db {

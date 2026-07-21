@@ -12,7 +12,9 @@ export function DemoDataBanner() {
     queryKey: ["demo-counts"],
     queryFn: async () => {
       const res = await fetch("/api/v1/org/clear-demo");
-      if (!res.ok) return { total: 0 };
+      if (!res.ok) {
+        return { total: 0, leads: 0, properties: 0, campaigns: 0, sequences: 0 };
+      }
       return res.json() as Promise<{
         total: number;
         leads: number;
