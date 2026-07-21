@@ -27,6 +27,17 @@ pnpm test          # packages/core vitest
 pnpm dev:mobile    # Expo tab placeholders
 ```
 
+## Deploy to the web (Vercel)
+
+One-click from GitHub: import this repo on [Vercel](https://vercel.com/new), set **Root Directory** to `apps/web`, add `DATABASE_URL` + `APP_URL` + `CREDENTIALS_KEY`, deploy, then run `pnpm db:setup:prod` once against production Postgres.
+
+Full steps: [`docs/11-deploy-vercel.md`](./docs/11-deploy-vercel.md).
+
+```bash
+pnpm deploy:build      # local production build
+pnpm deploy:vercel     # CLI deploy (requires vercel login)
+```
+
 ## Monorepo
 
 | Path | Role |

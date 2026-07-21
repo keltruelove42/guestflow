@@ -12,7 +12,10 @@
     "db:generate": "pnpm --filter @guestflow/db generate",
     "db:push": "pnpm --filter @guestflow/db push",
     "db:seed": "pnpm --filter @guestflow/db seed",
-    "db:studio": "pnpm --filter @guestflow/db studio"
+    "db:studio": "pnpm --filter @guestflow/db studio",
+    "db:setup:prod": "bash scripts/db-setup-prod.sh",
+    "deploy:build": "bash scripts/vercel-build.sh",
+    "deploy:vercel": "vercel --prod --cwd apps/web"
   },
   "devDependencies": {
     "turbo": "^2.3.3",

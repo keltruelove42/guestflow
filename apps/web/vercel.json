@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "cd ../.. && corepack enable && pnpm install --filter @guestflow/web...",
+  "buildCommand": "cd ../.. && bash scripts/vercel-build.sh",
+  "ignoreCommand": "npx turbo-ignore --fallback=HEAD^1"
+}
