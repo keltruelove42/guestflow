@@ -1,0 +1,387 @@
+// packages/db/prisma/schema.prisma — verbatim from docs/03-data-model.md
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- tenancy & auth ----------
+model Org {
+  id                 String        @id @default(cuid())
+  name               String
+  mode               OrgMode       @default(DEMO)
+  timezone           String        @default("America/New_York")
+  quietStart         Int           @default(21)
+  quietEnd           Int           @default(9)
+  abandonmentMinutes Int           @default(60)
+  demoClearedAt      DateTime? // set when user clears seed/demo rows
+  users              User[]
+  properties         Property[]
+  leads              Lead[]
+  campaigns          Campaign[]
+  sequences          Sequence[]
+  integrations       Integration[]
+  createdAt          DateTime      @default(now())
+}
+
+enum OrgMode {
+  DEMO
+  LIVE
+}
+
+model User {
+  id             String   @id
+  orgId          String
+  org            Org      @relation(fields: [orgId], references: [id])
+  email          String   @unique
+  name           String?
+  role           Role     @default(OWNER)
+  expoPushTokens String[]
+  createdAt      DateTime @default(now())
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+// ---------- properties ----------
+model Property {
+  id               String              @id @default(cuid())
+  orgId            String
+  org              Org                 @relation(fields: [orgId], references: [id])
+  name             String
+  location         String?
+  bedrooms         Int?
+  type             PropertyType        @default(SHORT_TERM)
+  photoUrl         String?
+  directBookingUrl String?
+  knowledgeBase    String?             @db.Text
+  archived         Boolean             @default(false)
+  isDemo           Boolean             @default(false) // seed/demo — clearable without touching real rows
+  leads            Lead[]
+  campaigns        Campaign[]
+  availability     AvailabilityBlock[]
+  createdAt        DateTime            @default(now())
+
+  @@index([orgId, archived])
+  @@index([orgId, isDemo])
+}
+
+enum PropertyType {
+  SHORT_TERM
+  LONG_TERM
+  BOTH
+}
+
+/// Manual / synced date blocks — calendar shows these as unavailable
+model AvailabilityBlock {
+  id         String           @id @default(cuid())
+  orgId      String
+  propertyId String
+  property   Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  startDate  DateTime         @db.Date
+  endDate    DateTime         @db.Date // inclusive end (checkout night stays available)
+  kind       AvailabilityKind @default(BLOCKED)
+  note       String?
+  isDemo     Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+
+  @@index([propertyId, startDate, endDate])
+  @@index([orgId])
+}
+
+enum AvailabilityKind {
+  BOOKED
+  BLOCKED
+  HOLD
+}
+
+// ---------- leads (CRM core) ----------
+model Lead {
+  id             String     @id @default(cuid())
+  orgId          String
+  org            Org        @relation(fields: [orgId], references: [id])
+  propertyId     String?
+  property       Property?  @relation(fields: [propertyId], references: [id])
+  name           String
+  email          String?
+  phone          String?
+  address        String?
+  travelDates    String?
+  partySize      String?
+  source         LeadSource
+  campaignId     String?
+  campaign       Campaign?  @relation(fields: [campaignId], references: [id])
+  externalRef    String?
+  stage          Stage      @default(NEW)
+  emailConsent   Boolean    @default(false)
+  smsConsent     Boolean    @default(false)
+  emailConsentAt DateTime?
+  smsConsentAt   DateTime?
+  unsubscribedAt DateTime?
+  smsStoppedAt   DateTime?
+  needsAttention Boolean    @default(false)
+  isDemo         Boolean    @default(false)
+  events         LeadEvent[]
+  notes          Note[]
+  enrollments    Enrollment[]
+  bookings       Booking[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([orgId, externalRef])
+  @@index([orgId, stage])
+  @@index([orgId, source])
+  @@index([orgId, propertyId])
+  @@index([orgId, email])
+  @@index([orgId, phone])
+  @@index([orgId, isDemo])
+}
+
+enum LeadSource {
+  META
+  TIKTOK
+  PINTEREST
+  DIRECT_SITE
+  WIFI
+  MANUAL
+  IMPORT
+}
+
+enum Stage {
+  NEW
+  CONTACTED
+  ENGAGED
+  QUOTED
+  BOOKED
+  LOST
+}
+
+model LeadEvent {
+  id         String        @id @default(cuid())
+  orgId      String
+  leadId     String
+  lead       Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type       LeadEventType
+  channel    Channel?
+  title      String
+  body       String?       @db.Text
+  meta       Json?
+  occurredAt DateTime      @default(now())
+
+  @@index([leadId, occurredAt])
+  @@index([orgId, occurredAt])
+}
+
+enum LeadEventType {
+  CAPTURED
+  INQUIRY_STARTED
+  INQUIRY_ABANDONED
+  EMAIL_SENT
+  SMS_SENT
+  EMAIL_SCHEDULED_SKIPPED
+  REPLIED
+  AI_REPLY_SENT
+  MANUAL_MESSAGE
+  QUOTE_SENT
+  BOOKED
+  LOST_MARKED
+  STAGE_CHANGED
+  ENROLLED
+  SEQUENCE_PAUSED
+  SEQUENCE_STOPPED
+  SEQUENCE_COMPLETED
+  NOTE_ADDED
+  IMPORTED
+  OPTED_OUT
+  CALL_DUE
+}
+
+enum Channel {
+  EMAIL
+  SMS
+  CALL
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  orgId     String
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  authorId  String?
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+// ---------- campaigns & lead forms ----------
+model Campaign {
+  id                   String         @id @default(cuid())
+  orgId                String
+  org                  Org            @relation(fields: [orgId], references: [id])
+  propertyId           String?
+  property             Property?      @relation(fields: [propertyId], references: [id])
+  platform             AdPlatform
+  name                 String
+  status               CampaignStatus @default(DRAFT)
+  objective            String         @default("Lead generation")
+  dailyBudgetCents     Int
+  audience             Json
+  leadForm             Json
+  autoEnrollSequenceId String?
+  externalCampaignId   String?
+  spendCents           Int            @default(0)
+  impressions          Int            @default(0)
+  clicks               Int            @default(0)
+  leadsCount           Int            @default(0)
+  startedAt            DateTime?
+  isDemo               Boolean        @default(false)
+  leads                Lead[]
+  createdAt            DateTime       @default(now())
+
+  @@index([orgId, status])
+  @@index([orgId, isDemo])
+}
+
+enum AdPlatform {
+  META
+  TIKTOK
+  PINTEREST
+}
+
+enum CampaignStatus {
+  DRAFT
+  IN_REVIEW
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+// ---------- sequences & automation ----------
+model Sequence {
+  id          String           @id @default(cuid())
+  orgId       String
+  org         Org              @relation(fields: [orgId], references: [id])
+  name        String
+  trigger     SequenceTrigger
+  active      Boolean          @default(true)
+  isDemo      Boolean          @default(false)
+  steps       SequenceStep[]
+  enrollments Enrollment[]
+  createdAt   DateTime         @default(now())
+
+  @@index([orgId, isDemo])
+}
+
+enum SequenceTrigger {
+  AD_LEAD_CAPTURED
+  INQUIRY_ABANDONED
+  QUOTE_UNACCEPTED_48H
+  CHECKOUT_PLUS_90D
+  MANUAL_ONLY
+}
+
+model SequenceStep {
+  id           String    @id @default(cuid())
+  sequenceId   String
+  sequence     Sequence  @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  order        Int
+  delayMinutes Int
+  channel      Channel
+  subject      String?
+  body         String    @db.Text
+
+  @@unique([sequenceId, order])
+}
+
+model Enrollment {
+  id           String             @id @default(cuid())
+  orgId        String
+  leadId       String
+  lead         Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  sequenceId   String
+  sequence     Sequence           @relation(fields: [sequenceId], references: [id])
+  status       EnrollmentStatus   @default(ACTIVE)
+  currentStep  Int                @default(0)
+  pausedReason String?
+  scheduled    ScheduledMessage[]
+  createdAt    DateTime           @default(now())
+  completedAt  DateTime?
+
+  @@unique([leadId, sequenceId, createdAt])
+  @@index([leadId, status])
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PAUSED
+  STOPPED
+  COMPLETED
+}
+
+model ScheduledMessage {
+  id             String          @id @default(cuid())
+  orgId          String
+  enrollmentId   String
+  enrollment     Enrollment      @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  stepId         String
+  channel        Channel
+  sendAt         DateTime
+  status         ScheduledStatus @default(PENDING)
+  idempotencyKey String          @unique
+  attempts       Int             @default(0)
+  lastError      String?
+  sentAt         DateTime?
+
+  @@index([status, sendAt])
+}
+
+enum ScheduledStatus {
+  PENDING
+  SENT
+  SKIPPED
+  CANCELED
+  FAILED
+}
+
+// ---------- bookings & attribution ----------
+model Booking {
+  id                   String    @id @default(cuid())
+  orgId                String
+  leadId               String
+  lead                 Lead      @relation(fields: [leadId], references: [id])
+  propertyId           String?
+  amountCents          Int?
+  bookedAt             DateTime  @default(now())
+  checkoutAt           DateTime?
+  attributedCampaignId String?
+  attributedSequenceId String?
+  externalRef          String?
+
+  @@index([orgId, bookedAt])
+}
+
+// ---------- integrations ----------
+model Integration {
+  id          String             @id @default(cuid())
+  orgId       String
+  org         Org                @relation(fields: [orgId], references: [id])
+  provider    String
+  status      IntegrationStatus  @default(DISCONNECTED)
+  credentials Json?
+  config      Json?
+  lastSyncAt  DateTime?
+  lastError   String?
+  isDemo      Boolean            @default(false)
+
+  @@unique([orgId, provider])
+}
+
+enum IntegrationStatus {
+  DISCONNECTED
+  CONNECTED
+  ERROR
+}

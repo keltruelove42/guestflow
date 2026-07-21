@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: guestflow
+      POSTGRES_PASSWORD: guestflow
+      POSTGRES_DB: guestflow
+    volumes:
+      - guestflow_pg:/var/lib/postgresql/data
+
+volumes:
+  guestflow_pg:

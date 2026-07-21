@@ -1,0 +1,21 @@
+{
+  "name": "guestflow",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo run dev --filter=@guestflow/web",
+    "dev:web": "turbo run dev --filter=@guestflow/web",
+    "dev:mobile": "pnpm --filter @guestflow/mobile start",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "db:generate": "pnpm --filter @guestflow/db generate",
+    "db:push": "pnpm --filter @guestflow/db push",
+    "db:seed": "pnpm --filter @guestflow/db seed",
+    "db:studio": "pnpm --filter @guestflow/db studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@guestflow/core",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "echo ok"
+  },
+  "dependencies": {
+    "@guestflow/db": "workspace:*",
+    "@guestflow/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

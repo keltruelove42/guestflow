@@ -1,0 +1,50 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "media",
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./lib/**/*.{ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        page: "var(--page)",
+        surface: "var(--surface)",
+        "surface-2": "var(--surface-2)",
+        ink: "var(--ink)",
+        "ink-2": "var(--ink-2)",
+        muted: "var(--muted)",
+        grid: "var(--grid)",
+        border: "var(--border)",
+        accent: "var(--accent)",
+        good: "var(--good)",
+        warn: "var(--warn)",
+        serious: "var(--serious)",
+        critical: "var(--critical)",
+        "good-text": "var(--good-text)",
+        s1: "var(--s1)",
+        s2: "var(--s2)",
+        s3: "var(--s3)",
+        s4: "var(--s4)",
+        s5: "var(--s5)",
+        s6: "var(--s6)",
+        s7: "var(--s7)",
+        s8: "var(--s8)",
+      },
+      borderRadius: {
+        card: "14px",
+        control: "8px",
+        pill: "99px",
+      },
+      fontFamily: {
+        sans: [
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+        ],
+      },
+    },
+  },
+  plugins: [],
+};

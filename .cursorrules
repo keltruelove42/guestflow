@@ -1,0 +1,31 @@
+# GuestFlow — Cursor rules (copy this file to the repo root)
+
+## What this project is
+Marketing + CRM platform for short/long-term rentals: captures leads from Meta/TikTok/Pinterest lead ads and abandoned direct-booking inquiries (Hostfully/Hostaway), manages them in a pipeline CRM, and converts them with automated email/SMS sequences plus an AI reply assistant. Full spec lives in /docs — read the relevant doc before implementing any feature. The clickable prototype /docs/prototype/guestflow.html is the visual and behavioral source of truth.
+
+## Architecture rules (non-negotiable)
+- Monorepo: pnpm workspaces + Turborepo. apps/web (Next.js App Router), apps/mobile (Expo), packages/{shared,db,core,api-client}.
+- ALL business logic lives in packages/core as pure, unit-tested functions. API routes and screens are thin adapters. If a rule (consent, scheduling, dedupe, stage transitions, attribution) appears in a route or component, move it to core.
+- packages/shared zod schemas are the single source of truth for API contracts; web and mobile consume them via packages/api-client. Never hand-write a fetch in an app.
+- Every table row carries orgId and every query is org-scoped. No exceptions.
+- Every automated or user action that affects a lead writes a LeadEvent. The timeline and activity feed are queries over LeadEvent, never derived elsewhere.
+- External systems only via the provider interfaces in packages/core/src/integrations (docs/08). Every provider has a mock; demo mode must always work end-to-end with zero external accounts.
+
+## Domain invariants (docs/05 — test these, never bypass)
+- All lead contact fields are optional. Channel selection resolves at send time: email-first/SMS-first with fallback; missing channel SKIPS and advances, never blocks.
+- No SMS without smsConsent && !smsStoppedAt; no email without emailConsent && !unsubscribedAt; checked at send time. Every marketing email gets an unsubscribe link (renderer enforces).
+- Quiet hours (org-configurable, default 21:00–09:00) DEFER sends, never drop them.
+- Inbound reply or manual/AI send → pause active enrollments + needsAttention. BOOKED/LOST → stop enrollments, cancel pending. STOP/unsubscribe → per-channel opt-out.
+- Sends are idempotent (idempotencyKey = enrollmentId:stepId); webhook handlers are signature-verified and retry-safe (externalRef uniqueness).
+
+## UI rules
+- Match /docs/prototype/guestflow.html: layout, hierarchy, copy tone, empty states, pills, drawer. Design tokens and fixed source/stage colors are in docs/06-web-app.md — source colors are per-entity constants, never assigned by position.
+- Web: Tailwind + shadcn/ui + TanStack Query. Mobile: NativeWind + expo-router, same tokens. Dark mode via prefers-color-scheme / useColorScheme.
+- The dashboard chart is hand-built inline SVG per docs/06 (fixed stack order, 2px gaps, rounded tops, totals labeled, hover tooltip, legend). No chart library.
+
+## Process
+- Follow docs/10-build-plan.md milestone order; keep the app runnable at every commit.
+- New core logic ⇒ Vitest unit test in the same PR. The engine checklist in docs/05 must stay green.
+- Keep the seed script (packages/db/src/seed.ts) faithful to the prototype demo data — it is the demo, fixture, and pitch.
+- TypeScript strict; no any without a comment; zod-validate every external payload (webhooks, CSV, OAuth callbacks).
+- Unresolved product question: pick the simplest option consistent with the docs and leave a `// DECISION:` comment.
