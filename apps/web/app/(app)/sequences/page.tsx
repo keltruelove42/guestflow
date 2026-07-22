@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useVertical } from "@/components/vertical-provider";
+import { UpgradeChip } from "@/components/upgrade";
 import { SequenceTrigger } from "@guestflow/shared";
 
 type Step = {
@@ -427,7 +428,10 @@ function VariablesModal({ onClose }: { onClose: () => void }) {
             </div>
             <p className="mt-1 text-xs text-ink-2">
               Create your own, like discount_code or showroom_address, then use{" "}
-              {"{{discount_code}}"} in any step.
+              {"{{discount_code}}"} in any step.{" "}
+              <span className="whitespace-nowrap">
+                Unlimited custom variables <UpgradeChip />
+              </span>
             </p>
             <div className="mt-3 space-y-2">
               {rows.map((row, i) => (

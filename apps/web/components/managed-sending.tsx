@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { UpgradeChip } from "@/components/upgrade";
 
 /**
  * Go-live wizard: white-labeled sending. The customer gets their own
@@ -53,6 +54,7 @@ export function ManagedSendingCard() {
         <span className="rounded-pill bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-2 py-0.5 text-[11px] text-accent">
           No accounts needed
         </span>
+        <UpgradeChip />
       </div>
       <p className="mt-1.5 max-w-2xl text-xs text-ink-2">
         Your follow-ups can come from your own email domain and your own phone number. We set

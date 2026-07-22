@@ -201,6 +201,74 @@ function BillingInner() {
         ))}
       </div>
 
+      <div className="rounded-card border border-[var(--border)] bg-surface p-5">
+        <h2 className="text-sm font-semibold">Add-ons</h2>
+        <p className="mt-1 text-xs text-muted">
+          Humans from our team, on your side. Works with any plan.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {[
+            {
+              icon: "📞",
+              name: "Coda Concierge",
+              sub: "Your BDR for hire",
+              price: "from $499/mo",
+              desc: "Our reps call your hot leads within minutes, qualify them, and book them straight onto your calendar.",
+              featured: true,
+            },
+            {
+              icon: "🤍",
+              name: "White-Glove Setup",
+              sub: "We build your workspace",
+              price: "$199 one time",
+              desc: "Lead migration, integrations connected, sequences tailored to your business.",
+            },
+            {
+              icon: "🧭",
+              name: "Growth Consulting",
+              sub: "Monthly strategy session",
+              price: "$299/mo",
+              desc: "Funnel review, follow-up tuning, and a written action plan every month.",
+            },
+            {
+              icon: "🛠️",
+              name: "Professional Services",
+              sub: "On-demand expert hours",
+              price: "$89/hr",
+              desc: "Copywriting, custom reporting, integration work. No retainer.",
+            },
+          ].map((a) => (
+            <div
+              key={a.name}
+              className={`rounded-control border p-3.5 ${
+                a.featured ? "border-accent" : "border-[var(--border)]"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="text-sm font-semibold">
+                    {a.icon} {a.name}
+                  </div>
+                  <div className="text-[11px] text-muted">{a.sub}</div>
+                </div>
+                <span className="shrink-0 text-xs font-bold text-accent">{a.price}</span>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-ink-2">{a.desc}</p>
+              <a
+                href={`mailto:hello@leadcoda.app?subject=${encodeURIComponent(`Add-on: ${a.name}`)}`}
+                className={`mt-2.5 inline-block rounded-control px-3 py-1.5 text-xs font-medium ${
+                  a.featured
+                    ? "bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white"
+                    : "border border-[var(--border)]"
+                }`}
+              >
+                {a.featured ? "⚡ Get Concierge" : "Add"}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <p className="text-xs text-muted">
         Payments are processed by Stripe. Card details never touch LeadCoda servers. Need
         Enterprise?{" "}

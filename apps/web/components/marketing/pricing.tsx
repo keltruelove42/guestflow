@@ -120,11 +120,11 @@ const ADDONS = [
   },
   {
     icon: "📞",
-    name: "LeadCoda Calls",
+    name: "Coda Concierge",
     price: "from $499",
     per: "per month",
-    desc: "BDR for hire. When a hot lead comes in, our reps call them within minutes, qualify them, and book them straight onto your calendar. Up to 100 called leads a month.",
-    note: "Outsourced SDR teams start around $2,500/mo. Ours starts at $499.",
+    desc: "Your BDR for hire. When a hot lead comes in, our reps call them within minutes, qualify them, and book them straight onto your calendar. Up to 100 called leads a month.",
+    note: "Outsourced SDR teams start around $2,500/mo. Concierge starts at $499.",
   },
 ];
 

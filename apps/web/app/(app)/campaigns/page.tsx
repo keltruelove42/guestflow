@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdPlatform, type VerticalPack } from "@guestflow/shared";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { useVertical } from "@/components/vertical-provider";
+import { UpgradeChip } from "@/components/upgrade";
 
 type Campaign = {
   id: string;
@@ -151,7 +152,10 @@ export default function CampaignsPage() {
         <p className="max-w-xl text-sm text-ink-2">
           Launch lead-generation ads with instant forms. People submit without leaving Instagram,
           Facebook, TikTok or Pinterest, and land in your CRM with a welcome sequence already
-          running.
+          running.{" "}
+          <span className="whitespace-nowrap text-xs text-muted">
+            Unlimited active campaigns <UpgradeChip />
+          </span>
         </p>
         <div className="flex gap-2">
           <button

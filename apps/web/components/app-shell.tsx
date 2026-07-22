@@ -11,6 +11,7 @@ import { VerticalProvider, useVertical } from "@/components/vertical-provider";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { cn } from "@/lib/utils";
 import { LogoLockup } from "@/components/brand/logo";
+import { SidebarUpgrade } from "@/components/upgrade";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: "◈", tour: "nav-dashboard" },
@@ -195,6 +196,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+        <SidebarUpgrade />
         <div className="border-t border-[var(--border)] p-3">
           <div className="truncate text-xs text-ink-2">{me?.name ?? me?.email}</div>
           <div className="mt-0.5 flex items-center justify-between">
