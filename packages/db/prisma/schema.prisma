@@ -43,6 +43,7 @@ enum OrgMode {
 enum Vertical {
   RENTALS
   TRADES
+  BEAUTY
 }
 
 model User {

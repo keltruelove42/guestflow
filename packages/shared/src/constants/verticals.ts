@@ -4,7 +4,7 @@
  * identical for every vertical; packs supply vocabulary, labels, and copy.
  */
 
-export type VerticalId = "RENTALS" | "TRADES";
+export type VerticalId = "RENTALS" | "TRADES" | "BEAUTY";
 
 export type VerticalPack = {
   id: VerticalId;
@@ -148,6 +148,55 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
         "Follow-ups start automatically the moment an inquiry comes in or an estimate goes quiet. Replies pause the sequence and flag the lead for you; a won job stops it.",
     },
     featuredIntegrations: ["meta", "twilio", "klaviyo", "stripe"],
+  },
+
+  BEAUTY: {
+    id: "BEAUTY",
+    label: "Salon & beauty",
+    pickerDesc: "Hair, nails, lashes, massage & wellness",
+    icon: "💅",
+    context: {
+      singular: "Service",
+      plural: "Services",
+      icon: "✨",
+      showInNav: true,
+      examples: ["Balayage & color", "Gel manicure", "90-min deep tissue"],
+    },
+    fields: {
+      timeframe: "Preferred time",
+      detail: "Service details",
+    },
+    stageLabels: {
+      NEW: "New",
+      CONTACTED: "Contacted",
+      ENGAGED: "Engaged",
+      QUOTED: "Consult offered",
+      BOOKED: "Booked",
+      LOST: "Lost",
+    },
+    kpis: {
+      newLeads: "New leads · 30 days",
+      costPerLead: "Blended cost per lead",
+      replyRate: "Follow-up reply rate",
+      recovered: "Recovered bookings",
+      revenueCaption: "attributed revenue",
+    },
+    wonLabel: "Booked",
+    copy: {
+      welcomeTagline:
+        "Fill your book and keep it full. Capture new-client inquiries, follow up automatically, and bring regulars back on schedule.",
+      welcomeBullets: [
+        "Capture new-client inquiries",
+        "Automate rebooking nudges",
+        "Text & email from one inbox",
+      ],
+      loginBlurb: "Capture inquiries, follow up automatically, and keep your book full.",
+      leadsPageHint:
+        "Every contact field is optional at capture — LeadCoda picks the best follow-up channel from whatever it has. Open a lead to text or email them.",
+      followupsDesc:
+        "Follow-ups start automatically when an inquiry comes in or a booking is left unfinished. Replies pause the sequence and flag the lead for you; a booked appointment stops it.",
+    },
+    featuredIntegrations: ["meta", "tiktok", "klaviyo", "twilio"],
   },
 };
 

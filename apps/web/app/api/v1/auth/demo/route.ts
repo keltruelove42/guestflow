@@ -23,7 +23,9 @@ export async function POST(req: Request) {
       orgName:
         vertical === "TRADES"
           ? `${name ?? email.split("@")[0]}'s Services`
-          : `${name ?? email.split("@")[0]}'s Stays`,
+          : vertical === "BEAUTY"
+            ? `${name ?? email.split("@")[0]}'s Studio`
+            : `${name ?? email.split("@")[0]}'s Stays`,
       vertical,
     });
     user = await prisma.user.findUniqueOrThrow({

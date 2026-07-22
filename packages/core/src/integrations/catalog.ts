@@ -19,7 +19,7 @@ export type ProviderMeta = {
   /** Provider also supports a one-click OAuth connect (partner app) */
   oauthOption?: boolean;
   /** Restrict to specific verticals (undefined = all) */
-  verticals?: Array<"RENTALS" | "TRADES">;
+  verticals?: Array<"RENTALS" | "TRADES" | "BEAUTY">;
   /** Listed to gauge demand — not connectable yet */
   comingSoon?: boolean;
   fields: FieldDef[];
@@ -302,6 +302,78 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
     fields: [],
     syncLive: false,
     verticals: ["TRADES"],
+    comingSoon: true,
+  },
+  {
+    provider: "square_appts",
+    name: "Square Appointments",
+    desc: "Sync bookings and client profiles from Square.",
+    icon: "◼️",
+    bg: "#000000",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["BEAUTY"],
+    comingSoon: true,
+  },
+  {
+    provider: "vagaro",
+    name: "Vagaro",
+    desc: "Pull Vagaro appointments and client inquiries into follow-ups.",
+    icon: "💇",
+    bg: "#f14a8a",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["BEAUTY"],
+    comingSoon: true,
+  },
+  {
+    provider: "mindbody",
+    name: "Mindbody",
+    desc: "Sync Mindbody clients and visits for win-back campaigns.",
+    icon: "🧘",
+    bg: "#ff5436",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["BEAUTY"],
+    comingSoon: true,
+  },
+  {
+    provider: "booksy",
+    name: "Booksy",
+    desc: "Capture Booksy booking requests and no-show rescues.",
+    icon: "📅",
+    bg: "#00a3ad",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["BEAUTY"],
+    comingSoon: true,
+  },
+  {
+    provider: "fresha",
+    name: "Fresha",
+    desc: "Bring Fresha clients into LeadCoda rebooking sequences.",
+    icon: "🌸",
+    bg: "#6950f3",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["BEAUTY"],
+    comingSoon: true,
+  },
+  {
+    provider: "glossgenius",
+    name: "GlossGenius",
+    desc: "Sync GlossGenius bookings and client lists.",
+    icon: "💎",
+    bg: "#111827",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["BEAUTY"],
     comingSoon: true,
   },
   {
