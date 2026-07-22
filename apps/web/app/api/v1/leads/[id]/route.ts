@@ -41,3 +41,68 @@ export async function GET(_req: Request, { params }: Ctx) {
 
   return NextResponse.json({ ...lead, pendingMessages });
 }
+
+const STAGES = ["NEW", "CONTACTED", "ENGAGED", "QUOTED", "BOOKED", "LOST"];
+
+export async function PATCH(req: Request, { params }: Ctx) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const existing = await prisma.lead.findFirst({
+    where: { id: params.id, orgId: session.orgId },
+    select: { id: true, stage: true },
+  });
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const body = (await req.json().catch(() => ({}))) as {
+    stage?: string;
+    tags?: string[];
+    ownerId?: string | null;
+    dealValueCents?: number | null;
+    followUpAt?: string | null;
+    needsAttention?: boolean;
+  };
+
+  const data: Record<string, unknown> = {};
+  if (body.stage !== undefined) {
+    const stage = String(body.stage).toUpperCase();
+    if (!STAGES.includes(stage)) {
+      return NextResponse.json({ error: "Invalid stage" }, { status: 400 });
+    }
+    data.stage = stage;
+  }
+  if (body.tags !== undefined) {
+    if (!Array.isArray(body.tags)) {
+      return NextResponse.json({ error: "tags must be an array" }, { status: 400 });
+    }
+    data.tags = body.tags
+      .map((t) => String(t).trim())
+      .filter(Boolean)
+      .slice(0, 20);
+  }
+  if (body.ownerId !== undefined) data.ownerId = body.ownerId || null;
+  if (body.dealValueCents !== undefined) {
+    data.dealValueCents =
+      body.dealValueCents == null ? null : Math.max(0, Math.round(body.dealValueCents));
+  }
+  if (body.followUpAt !== undefined) {
+    data.followUpAt = body.followUpAt ? new Date(body.followUpAt) : null;
+  }
+  if (body.needsAttention !== undefined) data.needsAttention = Boolean(body.needsAttention);
+
+  const updated = await prisma.lead.update({ where: { id: existing.id }, data });
+
+  if (data.stage && data.stage !== existing.stage) {
+    await prisma.leadEvent.create({
+      data: {
+        orgId: session.orgId,
+        leadId: existing.id,
+        type: data.stage === "LOST" ? "LOST_MARKED" : "STAGE_CHANGED",
+        title: `Stage changed: ${existing.stage} → ${data.stage}`,
+        occurredAt: new Date(),
+      },
+    });
+  }
+
+  return NextResponse.json(updated);
+}

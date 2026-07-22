@@ -141,6 +141,10 @@ model Lead {
   campaign       Campaign?  @relation(fields: [campaignId], references: [id])
   externalRef    String?
   stage          Stage      @default(NEW)
+  tags           String[]   @default([])
+  ownerId        String?
+  dealValueCents Int?
+  followUpAt     DateTime?
   emailConsent   Boolean    @default(false)
   smsConsent     Boolean    @default(false)
   emailConsentAt DateTime?

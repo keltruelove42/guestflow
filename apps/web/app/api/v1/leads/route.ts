@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@guestflow/db";
+import { scoreLead, needsNextStep } from "@guestflow/core";
 import { getSession } from "@/lib/auth";
 
 export async function GET(req: Request) {
@@ -28,9 +29,34 @@ export async function GET(req: Request) {
         include: { sequence: true },
         take: 1,
       },
+      events: { orderBy: { occurredAt: "desc" }, take: 1 },
     },
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json(leads);
+  const now = new Date();
+  const enriched = leads.map((l) => {
+    const lastEvent = l.events[0] ?? null;
+    const heat = scoreLead({
+      stage: l.stage,
+      needsAttention: l.needsAttention,
+      createdAt: l.createdAt,
+      lastEventAt: lastEvent?.occurredAt ?? null,
+      lastEventType: lastEvent?.type ?? null,
+      hasActiveEnrollment: l.enrollments.some((e) => e.status === "ACTIVE"),
+      dealValueCents: l.dealValueCents,
+      followUpAt: l.followUpAt,
+      now,
+    });
+    const missingNextStep = needsNextStep({
+      stage: l.stage,
+      needsAttention: l.needsAttention,
+      hasActiveEnrollment: l.enrollments.some((e) => e.status === "ACTIVE"),
+      followUpAt: l.followUpAt,
+    });
+    const { events: _events, ...rest } = l;
+    return { ...rest, lastEventAt: lastEvent?.occurredAt ?? null, heat, missingNextStep };
+  });
+
+  return NextResponse.json(enriched);
 }

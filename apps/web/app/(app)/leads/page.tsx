@@ -6,23 +6,14 @@ import { useSearchParams } from "next/navigation";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { ImportLeadsModal } from "@/components/import-leads-modal";
 import { useVertical } from "@/components/vertical-provider";
+import { HeatDot, LeadsBoard, LeadsToday, type BoardLead } from "@/components/leads-views";
 
-type Lead = {
-  id: string;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  stage: string;
-  source: string;
+type Lead = BoardLead & {
   travelDates: string | null;
   emailConsent: boolean;
   smsConsent: boolean;
   unsubscribedAt: string | null;
   smsStoppedAt: string | null;
-  isDemo?: boolean;
-  property?: { name: string } | null;
-  enrollments: Array<{ sequence: { name: string }; currentStep: number }>;
-  createdAt: string;
 };
 
 type LeadDetail = Omit<Lead, "enrollments"> & {
@@ -64,6 +55,9 @@ export default function LeadsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const [view, setView] = useState<"board" | "table" | "today">("board");
+  const [smartView, setSmartView] = useState<string>("all");
+  const [checked, setChecked] = useState<Set<string>>(new Set());
   const pack = useVertical();
 
   useEffect(() => {
@@ -86,6 +80,58 @@ export default function LeadsPage() {
       const res = await fetch("/api/v1/messaging/status");
       if (!res.ok) throw new Error("Failed");
       return res.json() as Promise<DeliveryStatus>;
+    },
+  });
+
+  const patchLead = useMutation({
+    mutationFn: async ({ id, body }: { id: string; body: Record<string, unknown> }) => {
+      const res = await fetch(`/api/v1/leads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error ?? "Update failed");
+      }
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["leads"] }),
+    onError: (e) => {
+      setToast(e instanceof Error ? e.message : "Update failed");
+      setTimeout(() => setToast(null), 4000);
+    },
+  });
+
+  const bulk = useMutation({
+    mutationFn: async (body: Record<string, unknown>) => {
+      const res = await fetch("/api/v1/leads/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...body, ids: Array.from(checked) }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error ?? "Bulk action failed");
+      return d as { count: number; enrolled: number };
+    },
+    onSuccess: (d) => {
+      setChecked(new Set());
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      setToast(`Updated ${d.count} lead(s)${d.enrolled ? `, enrolled ${d.enrolled}` : ""}.`);
+      setTimeout(() => setToast(null), 4000);
+    },
+    onError: (e) => {
+      setToast(e instanceof Error ? e.message : "Bulk action failed");
+      setTimeout(() => setToast(null), 4000);
+    },
+  });
+
+  const { data: allSequences = [] } = useQuery({
+    queryKey: ["sequences"],
+    queryFn: async () => {
+      const res = await fetch("/api/v1/sequences");
+      if (!res.ok) return [];
+      return res.json() as Promise<Array<{ id: string; name: string; active: boolean }>>;
     },
   });
 
@@ -169,8 +215,135 @@ export default function LeadsPage() {
         </div>
       )}
 
+      {/* View tabs + smart filters */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="inline-flex items-center gap-1 rounded-pill border border-[var(--border)] bg-surface p-1">
+          {(
+            [
+              ["board", "▦ Pipeline"],
+              ["table", "☰ Table"],
+              ["today", "⚡ Work Today"],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setView(key)}
+              className={`rounded-pill px-3 py-1.5 text-xs font-medium ${
+                view === key ? "bg-accent text-white" : "text-ink-2"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {(
+            [
+              ["all", "All"],
+              ["hot", "🔥 Hot"],
+              ["attention", "💬 Needs reply"],
+              ["new7", "🆕 New this week"],
+              ["nonext", "⚠ No next step"],
+              ["cold", "🧊 Going cold"],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setSmartView(key)}
+              className={`rounded-pill px-2.5 py-1 text-[11px] ${
+                smartView === key
+                  ? "bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] font-medium text-accent"
+                  : "bg-surface-2 text-ink-2"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {view === "board" && (
+        <LeadsBoard
+          leads={applySmartView(leads, smartView)}
+          pack={pack}
+          onStageChange={(id, stage) => patchLead.mutate({ id, body: { stage } })}
+        />
+      )}
+
+      {view === "today" && (
+        <LeadsToday
+          leads={applySmartView(leads, smartView)}
+          onSnooze={(id, days) =>
+            patchLead.mutate({
+              id,
+              body: { followUpAt: new Date(Date.now() + days * 864e5).toISOString() },
+            })
+          }
+        />
+      )}
+
+      {/* Bulk action bar */}
+      {view === "table" && checked.size > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-card border border-accent bg-surface px-3 py-2 text-xs">
+          <span className="font-medium">{checked.size} selected</span>
+          <select
+            className="rounded-control border border-[var(--border)] bg-page px-2 py-1"
+            defaultValue=""
+            onChange={(e) => {
+              if (e.target.value) bulk.mutate({ stage: e.target.value });
+              e.target.value = "";
+            }}
+          >
+            <option value="">Set stage…</option>
+            {Object.entries(pack.stageLabels).map(([k, v]) => (
+              <option key={k} value={k}>
+                {v}
+              </option>
+            ))}
+          </select>
+          <select
+            className="rounded-control border border-[var(--border)] bg-page px-2 py-1"
+            defaultValue=""
+            onChange={(e) => {
+              if (e.target.value) bulk.mutate({ enrollSequenceId: e.target.value });
+              e.target.value = "";
+            }}
+          >
+            <option value="">Enroll in sequence…</option>
+            {allSequences
+              .filter((s) => s.active)
+              .map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+          </select>
+          <button
+            type="button"
+            className="rounded-control border border-[var(--border)] px-2 py-1"
+            onClick={() => {
+              const tag = window.prompt("Tag to add to selected leads:");
+              if (tag?.trim()) bulk.mutate({ addTags: [tag.trim()] });
+            }}
+          >
+            + Tag
+          </button>
+          <button
+            type="button"
+            className="ml-auto text-muted"
+            onClick={() => setChecked(new Set())}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* Mobile: tappable card list (thumb-friendly, no cramped table) */}
-      <div className="overflow-hidden rounded-card border border-[var(--border)] bg-surface md:hidden">
+      <div
+        className={`overflow-hidden rounded-card border border-[var(--border)] bg-surface md:hidden ${view !== "table" ? "hidden" : ""}`}
+      >
         {isLoading && <p className="p-4 text-sm text-muted">Loading…</p>}
         {!isLoading && leads.length === 0 && (
           <p className="p-4 text-sm text-muted">No leads yet.</p>
@@ -215,10 +388,26 @@ export default function LeadsPage() {
       </div>
 
       {/* Desktop: full table */}
-      <div className="hidden overflow-hidden rounded-card border border-[var(--border)] bg-surface md:block">
+      <div
+        className={`overflow-hidden rounded-card border border-[var(--border)] bg-surface ${view === "table" ? "hidden md:block" : "hidden"}`}
+      >
         <table className="w-full text-left text-sm">
           <thead className="border-b border-[var(--border)] bg-surface-2 text-xs text-muted">
             <tr>
+              <th className="w-8 px-3 py-2.5">
+                <input
+                  type="checkbox"
+                  checked={checked.size > 0 && checked.size === leads.length}
+                  onChange={(e) =>
+                    setChecked(
+                      e.target.checked
+                        ? new Set(applySmartView(leads, smartView).map((l) => l.id))
+                        : new Set(),
+                    )
+                  }
+                />
+              </th>
+              <th className="px-4 py-2.5 font-medium">Heat</th>
               <th className="px-4 py-2.5 font-medium">Name</th>
               <th className="px-4 py-2.5 font-medium">Email</th>
               <th className="px-4 py-2.5 font-medium">Phone</th>
@@ -232,19 +421,19 @@ export default function LeadsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-muted">
+                <td colSpan={10} className="px-4 py-8 text-center text-muted">
                   Loading…
                 </td>
               </tr>
             )}
             {!isLoading && leads.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-muted">
+                <td colSpan={10} className="px-4 py-8 text-center text-muted">
                   No leads yet.
                 </td>
               </tr>
             )}
-            {leads.map((l) => {
+            {applySmartView(leads, smartView).map((l) => {
               const contact = l.email ?? l.phone ?? "not provided (optional)";
               const enr = l.enrollments[0];
               return (
@@ -253,6 +442,21 @@ export default function LeadsPage() {
                   className="cursor-pointer border-b border-[var(--border)] last:border-0 hover:bg-surface-2/50"
                   onClick={() => setSelectedId(l.id)}
                 >
+                  <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={checked.has(l.id)}
+                      onChange={(e) => {
+                        const next = new Set(checked);
+                        if (e.target.checked) next.add(l.id);
+                        else next.delete(l.id);
+                        setChecked(next);
+                      }}
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <HeatDot heat={l.heat} />
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 font-medium">
                       {l.name}
@@ -311,6 +515,29 @@ export default function LeadsPage() {
       )}
     </div>
   );
+}
+
+function applySmartView<T extends BoardLead>(leads: T[], view: string): T[] {
+  const now = Date.now();
+  switch (view) {
+    case "hot":
+      return leads.filter((l) => l.heat.temp === "hot");
+    case "attention":
+      return leads.filter((l) => l.needsAttention);
+    case "new7":
+      return leads.filter((l) => now - new Date(l.createdAt).getTime() < 7 * 864e5);
+    case "nonext":
+      return leads.filter((l) => l.missingNextStep);
+    case "cold":
+      return leads.filter(
+        (l) =>
+          l.stage !== "BOOKED" &&
+          l.stage !== "LOST" &&
+          (!l.lastEventAt || now - new Date(l.lastEventAt).getTime() > 7 * 864e5),
+      );
+    default:
+      return leads;
+  }
 }
 
 function LeadDrawer({
