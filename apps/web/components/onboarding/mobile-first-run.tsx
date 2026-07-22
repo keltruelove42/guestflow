@@ -49,7 +49,7 @@ export function MobileFirstRun() {
           Welcome{name} 👋
         </h2>
         <p className="mt-1 text-sm text-ink-2">
-          GuestFlow on your phone is built for staying on top of things:
+          LeadCoda on your phone is built for staying on top of things:
         </p>
         <ul className="mt-3 space-y-2.5 text-sm">
           <li className="flex items-center gap-3">

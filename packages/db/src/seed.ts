@@ -30,6 +30,7 @@ export async function seedDemoOrg(opts?: {
   userId?: string;
   email?: string;
   userName?: string;
+  vertical?: "RENTALS" | "TRADES";
 }) {
   const userId = opts?.userId ?? DEMO_USER_ID;
   const email = opts?.email ?? DEMO_EMAIL;
@@ -57,10 +58,12 @@ export async function seedDemoOrg(opts?: {
     await prisma.org.delete({ where: { id: orgId } });
   }
 
+  const vertical = opts?.vertical ?? "RENTALS";
   const org = await prisma.org.create({
     data: {
       name: opts?.orgName ?? "Taylor's Stays",
       mode: OrgMode.DEMO,
+      vertical,
       timezone: "America/New_York",
     },
   });
@@ -75,7 +78,7 @@ export async function seedDemoOrg(opts?: {
     },
   });
 
-  await seedDemoContent(org.id);
+  await seedDemoContent(org.id, vertical);
 
   return { org, userId, email };
 }
@@ -85,7 +88,14 @@ export async function seedDemoOrg(opts?: {
  * inside an EXISTING org. Used by first-login seeding and by
  * "Restore demo data" after a clear. All rows are tagged isDemo.
  */
-export async function seedDemoContent(orgId: string) {
+export async function seedDemoContent(
+  orgId: string,
+  vertical: "RENTALS" | "TRADES" = "RENTALS",
+) {
+  if (vertical === "TRADES") {
+    const { seedTradesContent } = await import("./seedTrades");
+    return seedTradesContent(orgId);
+  }
   const org = { id: orgId };
 
   // Template sequences are permanent (they survive "Clear demo data"),

@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { ImportLeadsModal } from "@/components/import-leads-modal";
+import { useVertical } from "@/components/vertical-provider";
 
 type Lead = {
   id: string;
@@ -63,6 +64,7 @@ export default function LeadsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const pack = useVertical();
 
   useEffect(() => {
     if (openId) setSelectedId(openId);
@@ -116,8 +118,7 @@ export default function LeadsPage() {
     <div className="space-y-4">
       <div className="hidden flex-wrap items-start justify-between gap-3 md:flex">
         <p className="max-w-xl text-sm text-ink-2">
-          Every contact field is optional at capture — GuestFlow picks the best follow-up channel
-          from whatever it has. Open a lead to send email or SMS.
+          {pack.copy.leadsPageHint}
         </p>
         <div className="flex gap-2">
           <button
@@ -204,7 +205,7 @@ export default function LeadsPage() {
                 )}
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
-                <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[10px]">{l.stage}</span>
+                <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[10px]">{pack.stageLabels[l.stage] ?? l.stage}</span>
                 <span className="text-[10px] text-muted">{l.source}</span>
               </div>
               <span className="text-muted">›</span>
@@ -222,8 +223,8 @@ export default function LeadsPage() {
               <th className="px-4 py-2.5 font-medium">Email</th>
               <th className="px-4 py-2.5 font-medium">Phone</th>
               <th className="px-4 py-2.5 font-medium">Source</th>
-              <th className="px-4 py-2.5 font-medium">Property</th>
-              <th className="px-4 py-2.5 font-medium">Dates</th>
+              <th className="px-4 py-2.5 font-medium">{pack.context.singular}</th>
+              <th className="px-4 py-2.5 font-medium">{pack.fields.timeframe}</th>
               <th className="px-4 py-2.5 font-medium">Stage</th>
               <th className="px-4 py-2.5 font-medium">Sequence</th>
             </tr>
@@ -275,7 +276,7 @@ export default function LeadsPage() {
                   <td className="px-4 py-3 text-ink-2">{l.travelDates ?? "—"}</td>
                   <td className="px-4 py-3">
                     <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs">
-                      {l.stage}
+                      {pack.stageLabels[l.stage] ?? l.stage}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-ink-2">

@@ -13,8 +13,12 @@ export async function POST() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
+    const org = await prisma.org.findUniqueOrThrow({
+      where: { id: session.orgId },
+      select: { vertical: true },
+    });
     await clearDemoData(session.orgId);
-    await seedDemoContent(session.orgId);
+    await seedDemoContent(session.orgId, org.vertical);
     await prisma.org.update({
       where: { id: session.orgId },
       data: { demoClearedAt: null },

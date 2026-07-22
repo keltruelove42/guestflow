@@ -1,10 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useVertical } from "@/components/vertical-provider";
 import { useState } from "react";
 
 export function DemoDataBanner() {
   const qc = useQueryClient();
+  const pack = useVertical();
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -103,7 +105,7 @@ export function DemoDataBanner() {
         <b className="text-ink">Demo data</b>
         <span className="hidden md:inline">
           {" — "}
-          {counts.leads} leads · {counts.properties} properties · {counts.campaigns} campaigns.
+          {counts.leads} leads · {counts.properties} {pack.context.plural.toLowerCase()} · {counts.campaigns} campaigns.
           Templates and anything you add yourself are kept when you clear.
         </span>
         <span className="md:hidden"> · {counts.total} rows</span>

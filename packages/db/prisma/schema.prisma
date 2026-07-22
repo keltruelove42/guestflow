@@ -19,6 +19,7 @@ model Org {
   id                 String        @id @default(cuid())
   name               String
   mode               OrgMode       @default(DEMO)
+  vertical           Vertical      @default(RENTALS)
   timezone           String        @default("America/New_York")
   quietStart         Int           @default(21)
   quietEnd           Int           @default(9)
@@ -36,6 +37,12 @@ model Org {
 enum OrgMode {
   DEMO
   LIVE
+}
+
+/// Industry vertical — selects terminology, templates, and demo data
+enum Vertical {
+  RENTALS
+  TRADES
 }
 
 model User {

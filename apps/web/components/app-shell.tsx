@@ -7,6 +7,7 @@ import { useState } from "react";
 import { DemoDataBanner } from "@/components/demo-banner";
 import { MobileTabBar } from "@/components/mobile-nav";
 import { OnboardingRoot } from "@/components/onboarding";
+import { VerticalProvider, useVertical } from "@/components/vertical-provider";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,17 @@ const NAV = [
   { href: "/properties", label: "Properties", icon: "🏘️", tour: "nav-properties" },
   { href: "/integrations", label: "Integrations", icon: "🔌", tour: "nav-integrations" },
 ] as const;
+
+/** Per-vertical label/icon overrides for nav items */
+function navItemFor(
+  item: (typeof NAV)[number],
+  pack: ReturnType<typeof useVertical>,
+): { label: string; icon: string } {
+  if (item.href === "/properties") {
+    return { label: pack.context.plural, icon: pack.context.icon };
+  }
+  return { label: item.label, icon: item.icon };
+}
 
 type Property = { id: string; name: string };
 
@@ -79,6 +91,7 @@ function SimulateButton() {
 }
 
 function ShellInner({ children }: { children: React.ReactNode }) {
+  const pack = useVertical();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -116,13 +129,14 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     },
   });
 
+  const navMatch = NAV.find((n) => pathname.startsWith(n.href));
   const title =
-    NAV.find((n) => pathname.startsWith(n.href))?.label ??
+    (navMatch ? navItemFor(navMatch, pack).label : undefined) ??
     (pathname.startsWith("/followups")
       ? "Follow-ups"
       : pathname.startsWith("/more")
         ? "More"
-        : "GuestFlow");
+        : "LeadCoda");
 
   function setProperty(id: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -142,12 +156,13 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen bg-page text-ink">
       <aside className="hidden w-56 shrink-0 flex-col border-r border-[var(--border)] bg-surface md:flex">
         <div className="px-4 py-5">
-          <div className="text-lg font-semibold tracking-tight">GuestFlow</div>
+          <div className="text-lg font-semibold tracking-tight">LeadCoda</div>
           <div className="mt-0.5 truncate text-xs text-muted">{me?.orgName ?? "…"}</div>
         </div>
         <nav className="flex flex-1 flex-col gap-0.5 px-2">
           {NAV.map((item) => {
             const active = pathname.startsWith(item.href);
+            const { label: navLabel, icon: navIcon } = navItemFor(item, pack);
             const count =
               item.href === "/leads"
                 ? leads.length
@@ -166,8 +181,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                     : "text-ink-2 hover:bg-surface-2/70 hover:text-ink",
                 )}
               >
-                <span className="w-5 text-center text-xs opacity-80">{item.icon}</span>
-                <span className="flex-1">{item.label}</span>
+                <span className="w-5 text-center text-xs opacity-80">{navIcon}</span>
+                <span className="flex-1">{navLabel}</span>
                 {count != null && (
                   <span className="rounded-pill bg-surface-2 px-1.5 text-[10px] tabular-nums text-muted">
                     {count}
@@ -205,7 +220,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               onChange={(e) => setProperty(e.target.value)}
               aria-label="Filter by property"
             >
-              <option value="all">All properties</option>
+              <option value="all">{`All ${pack.context.plural.toLowerCase()}`}</option>
               {properties.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
@@ -227,8 +242,10 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <OnboardingRoot>
-      <ShellInner>{children}</ShellInner>
-    </OnboardingRoot>
+    <VerticalProvider>
+      <OnboardingRoot>
+        <ShellInner>{children}</ShellInner>
+      </OnboardingRoot>
+    </VerticalProvider>
   );
 }

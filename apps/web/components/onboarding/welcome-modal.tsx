@@ -1,9 +1,11 @@
 "use client";
 
 import { useOnboarding } from "./onboarding-provider";
+import { useVertical } from "@/components/vertical-provider";
 
 export function WelcomeModal() {
   const { ready, facts, local, dismissWelcome } = useOnboarding();
+  const pack = useVertical();
 
   if (!ready || local.welcomeDismissed) return null;
 
@@ -33,22 +35,22 @@ export function WelcomeModal() {
           }}
         >
           <p className="text-xs font-medium uppercase tracking-wide text-accent">
-            Welcome to GuestFlow
+            Welcome to LeadCoda
           </p>
           <h2 id="welcome-title" className="mt-1 text-2xl font-semibold tracking-tight">
             Glad you&apos;re here{name}
           </h2>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-ink-2">
-            Capture leads from ads and your booking site, follow up automatically, and reply from
-            one inbox. We&apos;ll walk you to your first wins — you can skip or close anytime.
+            {pack.copy.welcomeTagline} We&apos;ll walk you to your first wins — you can skip or
+            close anytime.
           </p>
         </div>
 
         <div className="grid gap-2 px-6 py-5 sm:grid-cols-3">
           {[
-            { icon: "📣", label: "Launch lead ads" },
-            { icon: "🔁", label: "Automate follow-ups" },
-            { icon: "✉️", label: "Send email & SMS" },
+            { icon: "📣", label: pack.copy.welcomeBullets[0] },
+            { icon: "🔁", label: pack.copy.welcomeBullets[1] },
+            { icon: "✉️", label: pack.copy.welcomeBullets[2] },
           ].map((item) => (
             <div
               key={item.label}

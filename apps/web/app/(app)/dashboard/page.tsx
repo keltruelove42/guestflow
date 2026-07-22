@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { WeeklyLeadsChart, type WeekRow } from "@/components/dashboard/weekly-chart";
 import { SourceBars } from "@/components/dashboard/source-bars";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
+import { useVertical } from "@/components/vertical-provider";
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
 import {
   activityIcon,
@@ -50,6 +51,7 @@ function DashboardInner() {
   const property = searchParams.get("property");
   const qs = property ? `propertyId=${property}` : "";
   const onboarding = useOnboardingOptional();
+  const pack = useVertical();
 
   const { data: kpis, isLoading: kpisLoading } = useQuery({
     queryKey: ["dashboard-kpis", property],
@@ -115,7 +117,7 @@ function DashboardInner() {
       {/* KPI tiles */}
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <KpiTile
-          label="New leads · 30 days"
+          label={pack.kpis.newLeads}
           value={kpisLoading ? "—" : String(kpis?.newLeads30d ?? 0)}
           delta={
             kpis ? (
@@ -134,7 +136,7 @@ function DashboardInner() {
           }
         />
         <KpiTile
-          label="Blended cost per lead"
+          label={pack.kpis.costPerLead}
           value={
             kpisLoading
               ? "—"
@@ -153,7 +155,7 @@ function DashboardInner() {
           }
         />
         <KpiTile
-          label="Follow-up reply rate"
+          label={pack.kpis.replyRate}
           value={kpisLoading ? "—" : `${kpis?.replyRatePct ?? 0}%`}
           delta={
             <span className="text-muted">
@@ -162,7 +164,7 @@ function DashboardInner() {
           }
         />
         <KpiTile
-          label="Recovered bookings"
+          label={pack.kpis.recovered}
           value={kpisLoading ? "—" : String(kpis?.recoveredBookings ?? 0)}
           delta={
             <span style={{ color: "var(--good-text)" }} className="font-medium tabular-nums">
@@ -281,7 +283,7 @@ function DashboardInner() {
               <p className="text-xs text-muted">
                 {nextStep
                   ? `Next: ${nextStep.title}`
-                  : "Finish the checklist to activate GuestFlow."}
+                  : "Finish the checklist to activate LeadCoda."}
               </p>
             </div>
             <div className="flex gap-2">

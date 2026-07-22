@@ -15,11 +15,16 @@ export async function POST(req: Request) {
 
   if (!user) {
     // First login: create org + seed demo data (docs/06 post-login bootstrap)
+    const vertical = parsed.data.vertical ?? "RENTALS";
     const seeded = await seedDemoOrg({
       email,
       userName: name ?? email.split("@")[0] ?? "Host",
       userId: `user_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`,
-      orgName: `${name ?? email.split("@")[0]}'s Stays`,
+      orgName:
+        vertical === "TRADES"
+          ? `${name ?? email.split("@")[0]}'s Services`
+          : `${name ?? email.split("@")[0]}'s Stays`,
+      vertical,
     });
     user = await prisma.user.findUniqueOrThrow({
       where: { id: seeded.userId },

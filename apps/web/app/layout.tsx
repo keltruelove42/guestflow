@@ -3,8 +3,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "GuestFlow",
-  description: "Marketing + CRM for short and long-term rentals",
+  title: "LeadCoda",
+  description: "Capture leads, follow up automatically, win more business",
 };
 
 export const viewport: Viewport = {

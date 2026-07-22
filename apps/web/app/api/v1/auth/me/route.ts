@@ -13,5 +13,6 @@ export async function GET() {
     orgId: user.orgId,
     orgMode: user.org.mode,
     orgName: user.org.name,
+    vertical: user.org.vertical,
   });
 }

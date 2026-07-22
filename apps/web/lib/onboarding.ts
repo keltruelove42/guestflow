@@ -3,7 +3,7 @@
 export const ONBOARDING_STEPS = [
   {
     id: "welcome",
-    title: "Meet GuestFlow",
+    title: "Meet LeadCoda",
     description: "See how ads, CRM, and follow-ups fit together.",
     href: "/dashboard",
     points: 10,
@@ -11,8 +11,8 @@ export const ONBOARDING_STEPS = [
   },
   {
     id: "property",
-    title: "Review your properties",
-    description: "Confirm the rentals you want to promote.",
+    title: "Review your offerings",
+    description: "Confirm what you offer and promote.",
     href: "/properties",
     points: 15,
     tipTarget: "nav-properties",

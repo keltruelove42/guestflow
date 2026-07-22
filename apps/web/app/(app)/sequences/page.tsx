@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useVertical } from "@/components/vertical-provider";
 import { SequenceTrigger } from "@guestflow/shared";
 
 type Step = {
@@ -69,6 +70,7 @@ export default function SequencesPage() {
     null,
   );
 
+  const pack = useVertical();
   const { data: sequences = [], isLoading } = useQuery({
     queryKey: ["sequences"],
     queryFn: async () => {
@@ -95,9 +97,7 @@ export default function SequencesPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <p className="max-w-xl text-sm leading-relaxed text-ink-2">
-          Follow-ups start automatically the moment a lead is captured or an inquiry is abandoned.
-          Replies pause the sequence and flag the lead for you; bookings stop it. Demo mode logs
-          sends instead of delivering.
+          {pack.copy.followupsDesc} Demo mode logs sends instead of delivering.
         </p>
         <button
           type="button"
