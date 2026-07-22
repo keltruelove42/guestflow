@@ -1,4 +1,4 @@
 Contact: mailto:security@leadcoda.com
 Expires: 2027-07-22T00:00:00.000Z
 Preferred-Languages: en
-Policy: https://guestflow-web-tawny.vercel.app/security
+Policy: https://leadcoda.app/security
