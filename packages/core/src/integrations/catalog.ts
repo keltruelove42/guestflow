@@ -19,7 +19,7 @@ export type ProviderMeta = {
   /** Provider also supports a one-click OAuth connect (partner app) */
   oauthOption?: boolean;
   /** Restrict to specific verticals (undefined = all) */
-  verticals?: Array<"RENTALS" | "TRADES" | "BEAUTY">;
+  verticals?: Array<"RENTALS" | "TRADES" | "BEAUTY" | "DEALERSHIPS">;
   /** Listed to gauge demand — not connectable yet */
   comingSoon?: boolean;
   fields: FieldDef[];
@@ -374,6 +374,78 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
     fields: [],
     syncLive: false,
     verticals: ["BEAUTY"],
+    comingSoon: true,
+  },
+  {
+    provider: "autotrader",
+    name: "Autotrader",
+    desc: "Pull Autotrader listing inquiries straight into your pipeline.",
+    icon: "🚙",
+    bg: "#ee3b23",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["DEALERSHIPS"],
+    comingSoon: true,
+  },
+  {
+    provider: "cargurus",
+    name: "CarGurus",
+    desc: "Capture CarGurus leads and price-drop watchers automatically.",
+    icon: "🚘",
+    bg: "#00a4a6",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["DEALERSHIPS"],
+    comingSoon: true,
+  },
+  {
+    provider: "cars_com",
+    name: "Cars.com",
+    desc: "Sync Cars.com email and chat leads into one follow-up inbox.",
+    icon: "🚗",
+    bg: "#6d1ed4",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["DEALERSHIPS"],
+    comingSoon: true,
+  },
+  {
+    provider: "boat_trader",
+    name: "Boat Trader",
+    desc: "Bring Boat Trader inquiries into LeadCoda follow-ups.",
+    icon: "🛥️",
+    bg: "#0059a6",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["DEALERSHIPS"],
+    comingSoon: true,
+  },
+  {
+    provider: "vinsolutions",
+    name: "VinSolutions",
+    desc: "Two-way sync with your VinSolutions CRM contacts and deals.",
+    icon: "📊",
+    bg: "#cc0000",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["DEALERSHIPS"],
+    comingSoon: true,
+  },
+  {
+    provider: "dealersocket",
+    name: "DealerSocket",
+    desc: "Sync DealerSocket customers and opportunities for win-backs.",
+    icon: "🔌",
+    bg: "#f26722",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["DEALERSHIPS"],
     comingSoon: true,
   },
   {

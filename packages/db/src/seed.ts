@@ -30,7 +30,7 @@ export async function seedDemoOrg(opts?: {
   userId?: string;
   email?: string;
   userName?: string;
-  vertical?: "RENTALS" | "TRADES" | "BEAUTY";
+  vertical?: "RENTALS" | "TRADES" | "BEAUTY" | "DEALERSHIPS";
 }) {
   const userId = opts?.userId ?? DEMO_USER_ID;
   const email = opts?.email ?? DEMO_EMAIL;
@@ -90,7 +90,7 @@ export async function seedDemoOrg(opts?: {
  */
 export async function seedDemoContent(
   orgId: string,
-  vertical: "RENTALS" | "TRADES" | "BEAUTY" = "RENTALS",
+  vertical: "RENTALS" | "TRADES" | "BEAUTY" | "DEALERSHIPS" = "RENTALS",
 ) {
   if (vertical === "TRADES") {
     const { seedTradesContent } = await import("./seedTrades");
@@ -99,6 +99,10 @@ export async function seedDemoContent(
   if (vertical === "BEAUTY") {
     const { seedBeautyContent } = await import("./seedBeauty");
     return seedBeautyContent(orgId);
+  }
+  if (vertical === "DEALERSHIPS") {
+    const { seedDealershipsContent } = await import("./seedDealerships");
+    return seedDealershipsContent(orgId);
   }
   const org = { id: orgId };
 

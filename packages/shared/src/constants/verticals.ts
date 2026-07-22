@@ -4,7 +4,7 @@
  * identical for every vertical; packs supply vocabulary, labels, and copy.
  */
 
-export type VerticalId = "RENTALS" | "TRADES" | "BEAUTY";
+export type VerticalId = "RENTALS" | "TRADES" | "BEAUTY" | "DEALERSHIPS";
 
 export type VerticalPack = {
   id: VerticalId;
@@ -197,6 +197,55 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
         "Follow-ups start automatically when an inquiry comes in or a booking is left unfinished. Replies pause the sequence and flag the lead for you; a booked appointment stops it.",
     },
     featuredIntegrations: ["meta", "tiktok", "klaviyo", "twilio"],
+  },
+
+  DEALERSHIPS: {
+    id: "DEALERSHIPS",
+    label: "Auto & marine dealers",
+    pickerDesc: "Car, truck, boat & powersports dealerships",
+    icon: "🚗",
+    context: {
+      singular: "Vehicle",
+      plural: "Inventory",
+      icon: "🚙",
+      showInNav: true,
+      examples: ["2023 Ford F-150 XLT", "Certified pre-owned SUVs", "Sea Ray SPX 210"],
+    },
+    fields: {
+      timeframe: "Purchase timeframe",
+      detail: "Trade-in & financing",
+    },
+    stageLabels: {
+      NEW: "New",
+      CONTACTED: "Contacted",
+      ENGAGED: "Engaged",
+      QUOTED: "Offer sent",
+      BOOKED: "Sold",
+      LOST: "Lost",
+    },
+    kpis: {
+      newLeads: "New leads · 30 days",
+      costPerLead: "Blended cost per lead",
+      replyRate: "Follow-up reply rate",
+      recovered: "Recovered deals",
+      revenueCaption: "attributed revenue",
+    },
+    wonLabel: "Sold",
+    copy: {
+      welcomeTagline:
+        "Speed wins deals. Capture inquiries from every listing site, reply in seconds automatically, and get shoppers on the lot.",
+      welcomeBullets: [
+        "Capture every inquiry",
+        "Automate test-drive follow-ups",
+        "Text & email from one inbox",
+      ],
+      loginBlurb: "Capture inquiries, follow up in seconds, and move more units.",
+      leadsPageHint:
+        "Every contact field is optional at capture. LeadCoda picks the best follow-up channel from whatever it has. Open a lead to text or email them.",
+      followupsDesc:
+        "Follow-ups start automatically the moment an inquiry comes in or an offer goes quiet. Replies pause the sequence and flag the lead for you; a sold deal stops it.",
+    },
+    featuredIntegrations: ["meta", "twilio", "klaviyo", "stripe"],
   },
 };
 

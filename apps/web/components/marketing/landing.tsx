@@ -43,7 +43,7 @@ const INDUSTRIES = [
     icon: "🚗",
     name: "Auto & marine dealers",
     blurb: "Turn test-drive requests into signed deals.",
-    live: false,
+    live: true,
   },
   {
     icon: "🏨",

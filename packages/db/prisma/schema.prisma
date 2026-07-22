@@ -44,6 +44,7 @@ enum Vertical {
   RENTALS
   TRADES
   BEAUTY
+  DEALERSHIPS
 }
 
 model User {

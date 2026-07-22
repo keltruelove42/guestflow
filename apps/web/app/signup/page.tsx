@@ -15,7 +15,6 @@ const NAVY = {
 
 const COMING_SOON = [
   { icon: "🏠", label: "Real estate" },
-  { icon: "🚗", label: "Auto & marine dealers" },
   { icon: "🏨", label: "Hotels & B&Bs" },
 ];
 
