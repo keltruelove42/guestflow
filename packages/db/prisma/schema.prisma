@@ -24,6 +24,7 @@ model Org {
   quietStart         Int           @default(21)
   quietEnd           Int           @default(9)
   abandonmentMinutes Int           @default(60)
+  variables          Json? // org-level merge variables: { host_name, business_name, booking_link, custom... }
   demoClearedAt      DateTime? // set when user clears seed/demo rows
   users              User[]
   properties         Property[]

@@ -84,6 +84,79 @@ export async function launchCampaign(campaignId: string, orgId: string) {
   });
 }
 
+export type UpdateCampaignInput = Partial<{
+  platform: AdPlatform;
+  name: string;
+  propertyId: string | null;
+  dailyBudgetCents: number;
+  audience: Record<string, unknown>;
+  leadForm: Array<{ key: string; label: string; required: boolean }>;
+  autoEnrollSequenceId: string | null;
+}>;
+
+/** Edit a campaign. Platform is locked once the campaign has launched. */
+export async function updateCampaign(
+  campaignId: string,
+  orgId: string,
+  input: UpdateCampaignInput,
+) {
+  const campaign = await prisma.campaign.findFirst({
+    where: { id: campaignId, orgId },
+  });
+  if (!campaign) throw new Error("Campaign not found");
+  if (campaign.status === "ENDED") throw new Error("Campaign has ended");
+  if (
+    input.platform &&
+    input.platform !== campaign.platform &&
+    campaign.status !== "DRAFT"
+  ) {
+    throw new Error("Platform can only change while the campaign is a draft");
+  }
+
+  const audience =
+    input.audience !== undefined
+      ? { ...input.audience, summary: audienceSummary(input.audience) }
+      : undefined;
+
+  return prisma.campaign.update({
+    where: { id: campaign.id },
+    data: {
+      ...(input.platform !== undefined ? { platform: input.platform } : {}),
+      ...(input.name !== undefined ? { name: input.name } : {}),
+      ...(input.propertyId !== undefined ? { propertyId: input.propertyId } : {}),
+      ...(input.dailyBudgetCents !== undefined
+        ? { dailyBudgetCents: input.dailyBudgetCents }
+        : {}),
+      ...(audience !== undefined ? { audience } : {}),
+      ...(input.leadForm !== undefined ? { leadForm: input.leadForm } : {}),
+      ...(input.autoEnrollSequenceId !== undefined
+        ? { autoEnrollSequenceId: input.autoEnrollSequenceId }
+        : {}),
+    },
+    include: { property: { select: { id: true, name: true } } },
+  });
+}
+
+/** End a campaign permanently (pauses on the provider first if launched). */
+export async function endCampaign(campaignId: string, orgId: string) {
+  const campaign = await prisma.campaign.findFirst({
+    where: { id: campaignId, orgId },
+  });
+  if (!campaign) throw new Error("Campaign not found");
+  if (campaign.status === "ENDED") return campaign;
+
+  if (campaign.externalCampaignId && campaign.status === "ACTIVE") {
+    const provider = await getAdsProvider(orgId, campaign.platform);
+    await provider.setStatus(campaign.externalCampaignId, "PAUSED");
+  }
+
+  return prisma.campaign.update({
+    where: { id: campaign.id },
+    data: { status: "ENDED" },
+    include: { property: { select: { id: true, name: true } } },
+  });
+}
+
 export async function setCampaignStatus(
   campaignId: string,
   orgId: string,
@@ -106,6 +179,59 @@ export async function setCampaignStatus(
   });
 }
 
+const SIM_LEAD_NAMES = [
+  "Hannah Cole",
+  "Evan Brooks",
+  "Riley Chen",
+  "Sam Patel",
+  "Morgan Diaz",
+  "Alex Rivera",
+  "Jordan Blake",
+  "Casey Nguyen",
+  "Taylor Reed",
+  "Drew Santos",
+];
+
+/**
+ * Create real Lead rows for a campaign's newly attributed lead count so
+ * launched campaigns actually feed the pipeline (and auto-enroll their
+ * sequence). Capped per sync so a big backfill can't flood the CRM.
+ */
+async function generateCampaignLeads(
+  c: { id: string; orgId: string; propertyId: string | null; platform: AdPlatform; isDemo: boolean },
+  count: number,
+  now: Date,
+) {
+  const { createFromCapture } = await import("../leads/capture");
+  const n = Math.min(count, 2);
+  let created = 0;
+  for (let i = 0; i < n; i++) {
+    const name = SIM_LEAD_NAMES[Math.floor(Math.random() * SIM_LEAD_NAMES.length)]!;
+    const slug = name.toLowerCase().replace(/[^a-z]+/g, ".");
+    const suffix = Math.floor(Math.random() * 900) + 100;
+    const result = await createFromCapture({
+      orgId: c.orgId,
+      name,
+      email: Math.random() > 0.25 ? `${slug}${suffix}@example.com` : null,
+      phone:
+        Math.random() > 0.35
+          ? `+1555${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`
+          : null,
+      source: c.platform,
+      propertyId: c.propertyId,
+      campaignId: c.id,
+      externalRef: `camp_${c.id}_${now.getTime()}_${i}`,
+      emailConsent: true,
+      smsConsent: true,
+      consentText: "Submitted instant form (simulated delivery)",
+      isDemo: c.isDemo,
+      now,
+    });
+    if (result.created) created += 1;
+  }
+  return created;
+}
+
 /** Drift spend/impressions/clicks/leads for ACTIVE campaigns (demo + live mock). */
 export async function syncCampaignMetrics(orgId?: string) {
   const campaigns = await prisma.campaign.findMany({
@@ -115,48 +241,45 @@ export async function syncCampaignMetrics(orgId?: string) {
     },
   });
 
+  const now = new Date();
   let synced = 0;
+  let leadsCreated = 0;
   for (const c of campaigns) {
-    const provider = await getAdsProvider(c.orgId, c.platform);
-    // Seed mock cache with current DB values + budget so drift continues across restarts
-    if (c.externalCampaignId) {
-      const metrics = await provider.syncMetrics(c.externalCampaignId);
-      // Prefer budget-based drift from our row so restart-safe
-      const spendAdd = Math.round(c.dailyBudgetCents / 24);
-      const nextSpend = c.spendCents + spendAdd;
-      const nextImpressions = c.impressions + Math.round(c.dailyBudgetCents * 1.6);
-      const nextClicks = c.clicks + Math.max(1, Math.round(c.dailyBudgetCents / 40));
-      const cpl = 1200;
-      const nextLeads = Math.max(c.leadsCount, Math.floor(nextSpend / cpl));
+    const spendAdd = Math.round(c.dailyBudgetCents / 24);
+    const nextSpend = c.spendCents + spendAdd;
+    const nextImpressions = c.impressions + Math.round(c.dailyBudgetCents * 1.6);
+    const nextClicks = c.clicks + Math.max(1, Math.round(c.dailyBudgetCents / 40));
+    const cpl = 1200;
+    let floorLeads = Math.floor(nextSpend / cpl);
 
-      await prisma.campaign.update({
-        where: { id: c.id },
-        data: {
-          spendCents: nextSpend,
-          impressions: nextImpressions,
-          clicks: nextClicks,
-          // Keep leadsCount at least as high as CRM-attributed; metrics floor from spend
-          leadsCount: Math.max(c.leadsCount, metrics.leadsCount, nextLeads),
-        },
-      });
-      synced += 1;
-    } else {
-      // Active without external id (seeded): still drift
-      const spendAdd = Math.round(c.dailyBudgetCents / 24);
-      const nextSpend = c.spendCents + spendAdd;
-      await prisma.campaign.update({
-        where: { id: c.id },
-        data: {
-          spendCents: nextSpend,
-          impressions: c.impressions + Math.round(c.dailyBudgetCents * 1.6),
-          clicks: c.clicks + Math.max(1, Math.round(c.dailyBudgetCents / 40)),
-          leadsCount: Math.max(c.leadsCount, Math.floor(nextSpend / 1200)),
-        },
-      });
-      synced += 1;
+    if (c.externalCampaignId) {
+      const provider = await getAdsProvider(c.orgId, c.platform);
+      const metrics = await provider.syncMetrics(c.externalCampaignId);
+      floorLeads = Math.max(floorLeads, metrics.leadsCount);
     }
+
+    // New attributed leads become real CRM leads (auto-enrolled via capture)
+    const newLeads = floorLeads - c.leadsCount;
+    if (newLeads > 0) {
+      leadsCreated += await generateCampaignLeads(
+        { id: c.id, orgId: c.orgId, propertyId: c.propertyId, platform: c.platform, isDemo: c.isDemo },
+        newLeads,
+        now,
+      );
+    }
+
+    await prisma.campaign.update({
+      where: { id: c.id },
+      data: {
+        spendCents: nextSpend,
+        impressions: nextImpressions,
+        clicks: nextClicks,
+        leadsCount: Math.max(c.leadsCount + Math.max(0, Math.min(newLeads, 2)), c.leadsCount),
+      },
+    });
+    synced += 1;
   }
-  return { synced };
+  return { synced, leadsCreated };
 }
 
 export function serializeCampaign<

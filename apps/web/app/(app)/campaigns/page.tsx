@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AdPlatform } from "@guestflow/shared";
+import { AdPlatform, type VerticalPack } from "@guestflow/shared";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
+import { useVertical } from "@/components/vertical-provider";
 
 type Campaign = {
   id: string;
@@ -17,6 +18,8 @@ type Campaign = {
   clicks: number;
   costPerLeadCents: number | null;
   audienceSummary: string;
+  audience?: Record<string, unknown>;
+  autoEnrollSequenceId?: string | null;
   leadForm: Array<{ key: string; label: string; required: boolean }>;
   isDemo: boolean;
   property: { id: string; name: string } | null;
@@ -54,25 +57,16 @@ const PLATFORMS = [
   },
 ] as const;
 
-const INTERESTS = [
-  "Lake vacations",
-  "Cabin rentals",
-  "Beach trips",
-  "Family travel",
-  "Hiking",
-  "Weddings",
-  "Remote work",
-  "Pet-friendly travel",
-];
-
-const FIELD_DEFS = [
-  { key: "name", label: "Full name", requiredLocked: true },
-  { key: "email", label: "Email", requiredLocked: false },
-  { key: "phone", label: "Phone", requiredLocked: false },
-  { key: "address", label: "Address", requiredLocked: false },
-  { key: "dates", label: "Travel dates", requiredLocked: false },
-  { key: "party", label: "Party size", requiredLocked: false },
-] as const;
+function fieldDefs(pack: VerticalPack) {
+  return [
+    { key: "name", label: "Full name", requiredLocked: true },
+    { key: "email", label: "Email", requiredLocked: false },
+    { key: "phone", label: "Phone", requiredLocked: false },
+    { key: "address", label: "Address", requiredLocked: false },
+    { key: "dates", label: pack.fields.timeframe, requiredLocked: false },
+    { key: "party", label: pack.fields.detail, requiredLocked: false },
+  ] as const;
+}
 
 const SMART = [
   { id: "abandoned", label: "Abandoned-inquiry lookalike (1%)", defaultOn: true },
@@ -83,7 +77,9 @@ const SMART = [
 export default function CampaignsPage() {
   const qc = useQueryClient();
   const onboarding = useOnboardingOptional();
+  const pack = useVertical();
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Campaign | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -129,6 +125,21 @@ export default function CampaignsPage() {
     mutationFn: async () => {
       const res = await fetch("/api/v1/campaigns/sync-metrics", { method: "POST" });
       if (!res.ok) throw new Error("Sync failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["campaigns"] });
+      qc.invalidateQueries({ queryKey: ["leads"] });
+    },
+  });
+
+  const end = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/v1/campaigns/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error ?? "Could not end campaign");
+      }
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["campaigns"] }),
@@ -200,7 +211,7 @@ export default function CampaignsPage() {
             </div>
             <h2 className="mt-2 text-base font-semibold">{c.name}</h2>
             <p className="mt-1 text-xs text-ink-2">
-              {c.property?.name ?? "All properties"} · $
+              {c.property?.name ?? `All ${pack.context.plural.toLowerCase()}`} · $
               {(c.dailyBudgetCents / 100).toFixed(0)}/day
             </p>
             {c.audienceSummary && (
@@ -262,6 +273,29 @@ export default function CampaignsPage() {
               >
                 Lead form preview
               </button>
+              {c.status !== "ENDED" && (
+                <button
+                  type="button"
+                  className="rounded-control border border-[var(--border)] px-2.5 py-1.5 text-xs"
+                  onClick={() => setEditTarget(c)}
+                >
+                  Edit
+                </button>
+              )}
+              {(c.status === "ACTIVE" || c.status === "PAUSED") && (
+                <button
+                  type="button"
+                  className="rounded-control border border-[var(--border)] px-2.5 py-1.5 text-xs text-critical"
+                  disabled={end.isPending}
+                  onClick={() => {
+                    if (window.confirm(`End "${c.name}"? This can't be undone.`)) {
+                      end.mutate(c.id);
+                    }
+                  }}
+                >
+                  End
+                </button>
+              )}
             </div>
           </article>
         ))}
@@ -269,6 +303,7 @@ export default function CampaignsPage() {
 
       {wizardOpen && (
         <CampaignWizard
+          pack={pack}
           onClose={() => setWizardOpen(false)}
           onLaunched={() => {
             setWizardOpen(false);
@@ -279,6 +314,20 @@ export default function CampaignsPage() {
               "Campaign launched (demo). In live mode this would submit to the platform Marketing API for review.",
             );
             setTimeout(() => setToast(null), 5500);
+          }}
+        />
+      )}
+
+      {editTarget && (
+        <CampaignWizard
+          pack={pack}
+          initial={editTarget}
+          onClose={() => setEditTarget(null)}
+          onLaunched={() => {
+            setEditTarget(null);
+            qc.invalidateQueries({ queryKey: ["campaigns"] });
+            setToast("Campaign updated.");
+            setTimeout(() => setToast(null), 4000);
           }}
         />
       )}
@@ -297,36 +346,67 @@ export default function CampaignsPage() {
 }
 
 function CampaignWizard({
+  pack,
+  initial,
   onClose,
   onLaunched,
 }: {
+  pack: VerticalPack;
+  initial?: Campaign;
   onClose: () => void;
   onLaunched: () => void;
 }) {
+  const isEdit = Boolean(initial);
+  const aud = (initial?.audience ?? {}) as Record<string, unknown>;
+  const FIELD_DEFS = fieldDefs(pack);
+  const INTERESTS = pack.adInterests;
+
   const [step, setStep] = useState(1);
-  const [platform, setPlatform] = useState<string>(AdPlatform.META);
-  const [propertyId, setPropertyId] = useState("");
-  const [name, setName] = useState("");
-  const [locations, setLocations] = useState("Atlanta + Charlotte metro");
-  const [ageRange, setAgeRange] = useState("28-55");
-  const [interests, setInterests] = useState<string[]>([
-    "Lake vacations",
-    "Cabin rentals",
-  ]);
-  const [smart, setSmart] = useState<string[]>(
-    SMART.filter((s) => s.defaultOn).map((s) => s.id),
+  const [platform, setPlatform] = useState<string>(initial?.platform ?? AdPlatform.META);
+  const [propertyId, setPropertyId] = useState(initial?.property?.id ?? "");
+  const [name, setName] = useState(initial?.name ?? "");
+  const [locations, setLocations] = useState(
+    typeof aud.locations === "string" && aud.locations
+      ? aud.locations
+      : "Atlanta + Charlotte metro",
   );
-  const [budget, setBudget] = useState(20);
-  const [schedule, setSchedule] = useState("continuous");
-  const [fields, setFields] = useState<Record<string, boolean>>({
-    name: true,
-    email: true,
-    phone: true,
-    address: false,
-    dates: true,
-    party: false,
-  });
-  const [sequenceId, setSequenceId] = useState("");
+  const [ageRange, setAgeRange] = useState(
+    typeof aud.ageRange === "string" && aud.ageRange ? aud.ageRange : "28-55",
+  );
+  const [interests, setInterests] = useState<string[]>(
+    Array.isArray(aud.interests) ? (aud.interests as string[]) : INTERESTS.slice(0, 2),
+  );
+  const [smart, setSmart] = useState<string[]>(
+    Array.isArray(aud.smartAudiences)
+      ? SMART.filter((s) => (aud.smartAudiences as string[]).includes(s.label)).map(
+          (s) => s.id,
+        )
+      : SMART.filter((s) => s.defaultOn).map((s) => s.id),
+  );
+  const [budget, setBudget] = useState(
+    initial ? Math.max(5, Math.round(initial.dailyBudgetCents / 100)) : 20,
+  );
+  const [schedule, setSchedule] = useState(
+    typeof aud.schedule === "string" && aud.schedule ? aud.schedule : "continuous",
+  );
+  const [fields, setFields] = useState<Record<string, boolean>>(
+    initial?.leadForm?.length
+      ? Object.fromEntries(
+          FIELD_DEFS.map((f) => [
+            f.key,
+            initial.leadForm.some((lf) => lf.key === f.key),
+          ]),
+        )
+      : {
+          name: true,
+          email: true,
+          phone: true,
+          address: false,
+          dates: true,
+          party: false,
+        },
+  );
+  const [sequenceId, setSequenceId] = useState(initial?.autoEnrollSequenceId ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -371,7 +451,7 @@ function CampaignWizard({
     setError(null);
     try {
       if (!name.trim()) throw new Error("Campaign name is required");
-      if (!selectedPropertyId) throw new Error("Select a property");
+      if (!selectedPropertyId) throw new Error(`Select a ${pack.context.singular.toLowerCase()}`);
 
       const leadForm = FIELD_DEFS.filter((f) => fields[f.key] || f.requiredLocked).map((f) => ({
         key: f.key,
@@ -381,25 +461,41 @@ function CampaignWizard({
 
       const smartLabels = SMART.filter((s) => smart.includes(s.id)).map((s) => s.label);
 
+      const payload = {
+        platform,
+        name: name.trim(),
+        propertyId: selectedPropertyId,
+        dailyBudgetCents: Math.round(budget * 100),
+        audience: {
+          locations,
+          ageRange,
+          interests,
+          smartAudiences: smartLabels,
+          schedule,
+          summary: `${locations} · ${ageRange} · ${interests.join(", ") || "broad"}`,
+        },
+        leadForm,
+        autoEnrollSequenceId: enrollSeqId || null,
+      };
+
+      if (isEdit) {
+        const res = await fetch(`/api/v1/campaigns/${initial!.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.error ?? "Could not update campaign");
+        }
+        onLaunched();
+        return;
+      }
+
       const createRes = await fetch("/api/v1/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          platform,
-          name: name.trim(),
-          propertyId: selectedPropertyId,
-          dailyBudgetCents: Math.round(budget * 100),
-          audience: {
-            locations,
-            ageRange,
-            interests,
-            smartAudiences: smartLabels,
-            schedule,
-            summary: `${locations} · ${ageRange} · ${interests.join(", ") || "broad"}`,
-          },
-          leadForm,
-          autoEnrollSequenceId: enrollSeqId || null,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!createRes.ok) {
         const d = await createRes.json().catch(() => ({}));
@@ -427,7 +523,9 @@ function CampaignWizard({
       <div className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-card border border-[var(--border)] bg-surface shadow-xl">
         <div className="border-b border-[var(--border)] px-5 py-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">New lead campaign · step {step} of 4</h3>
+            <h3 className="font-semibold">
+              {isEdit ? "Edit campaign" : "New lead campaign"} · step {step} of 4
+            </h3>
             <button type="button" className="text-sm text-muted" onClick={onClose}>
               Close
             </button>
@@ -454,7 +552,11 @@ function CampaignWizard({
                   <button
                     key={p.key}
                     type="button"
-                    onClick={() => setPlatform(p.key)}
+                    disabled={isEdit && initial?.status !== "DRAFT" && platform !== p.key}
+                    onClick={() => {
+                      if (isEdit && initial?.status !== "DRAFT") return;
+                      setPlatform(p.key);
+                    }}
                     className={`rounded-card border p-3 text-left ${
                       platform === p.key
                         ? "border-accent bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
@@ -468,7 +570,7 @@ function CampaignWizard({
                 ))}
               </div>
               <label className="block text-xs font-medium text-ink-2">
-                Property to promote
+                {pack.context.singular} to promote
                 <select
                   className="mt-1 w-full rounded-control border border-[var(--border)] bg-page px-3 py-2 text-sm"
                   value={selectedPropertyId}
@@ -713,7 +815,13 @@ function CampaignWizard({
               className="rounded-control bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
               onClick={launch}
             >
-              {saving ? "Launching…" : "Launch campaign"}
+              {saving
+                ? isEdit
+                  ? "Saving…"
+                  : "Launching…"
+                : isEdit
+                  ? "Save changes"
+                  : "Launch campaign"}
             </button>
           )}
         </div>

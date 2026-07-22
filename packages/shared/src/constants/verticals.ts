@@ -29,6 +29,10 @@ export type VerticalPack = {
   };
   /** Pipeline stage display labels (keys = Stage enum) */
   stageLabels: Record<string, string>;
+  /** Sequence trigger captions in this industry's language (keys = SequenceTrigger enum) */
+  triggerLabels: Record<string, string>;
+  /** Suggested ad-audience interests for the campaign builder */
+  adInterests: string[];
   /** Dashboard KPI card titles */
   kpis: {
     newLeads: string;
@@ -76,6 +80,23 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
       BOOKED: "Booked",
       LOST: "Lost",
     },
+    triggerLabels: {
+      AD_LEAD_CAPTURED: "New lead captured from a connected ad platform",
+      INQUIRY_ABANDONED: "Booking inquiry started but not finished",
+      QUOTE_UNACCEPTED_48H: "Quote sent but not accepted within 48 hours",
+      CHECKOUT_PLUS_90D: "90 days after checkout",
+      MANUAL_ONLY: "Manual enrollment only",
+    },
+    adInterests: [
+      "Lake vacations",
+      "Cabin rentals",
+      "Beach trips",
+      "Family travel",
+      "Hiking",
+      "Weddings",
+      "Remote work",
+      "Pet-friendly travel",
+    ],
     kpis: {
       newLeads: "New leads · 30 days",
       costPerLead: "Blended cost per lead",
@@ -125,6 +146,23 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
       BOOKED: "Won",
       LOST: "Lost",
     },
+    triggerLabels: {
+      AD_LEAD_CAPTURED: "New job inquiry captured from an ad",
+      INQUIRY_ABANDONED: "Estimate request started but not finished",
+      QUOTE_UNACCEPTED_48H: "Estimate sent but no answer within 48 hours",
+      CHECKOUT_PLUS_90D: "90 days after the job wrapped",
+      MANUAL_ONLY: "Manual enrollment only",
+    },
+    adInterests: [
+      "Home improvement",
+      "Home ownership",
+      "DIY",
+      "Kitchen remodel",
+      "Bathroom remodel",
+      "HVAC",
+      "Landscaping",
+      "Real estate",
+    ],
     kpis: {
       newLeads: "New leads · 30 days",
       costPerLead: "Blended cost per lead",
@@ -174,6 +212,23 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
       BOOKED: "Booked",
       LOST: "Lost",
     },
+    triggerLabels: {
+      AD_LEAD_CAPTURED: "New client inquiry captured from an ad",
+      INQUIRY_ABANDONED: "Online booking started but not finished",
+      QUOTE_UNACCEPTED_48H: "Consult offered but no booking within 48 hours",
+      CHECKOUT_PLUS_90D: "90 days since their last visit",
+      MANUAL_ONLY: "Manual enrollment only",
+    },
+    adInterests: [
+      "Hair care",
+      "Nails",
+      "Skincare",
+      "Massage",
+      "Wellness",
+      "Bridal",
+      "Fashion",
+      "Self care",
+    ],
     kpis: {
       newLeads: "New leads · 30 days",
       costPerLead: "Blended cost per lead",
@@ -223,6 +278,23 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
       BOOKED: "Sold",
       LOST: "Lost",
     },
+    triggerLabels: {
+      AD_LEAD_CAPTURED: "New vehicle inquiry captured from an ad",
+      INQUIRY_ABANDONED: "Credit application started but not finished",
+      QUOTE_UNACCEPTED_48H: "Offer sent but no response within 48 hours",
+      CHECKOUT_PLUS_90D: "90 days after purchase",
+      MANUAL_ONLY: "Manual enrollment only",
+    },
+    adInterests: [
+      "Trucks",
+      "SUVs",
+      "Car shopping",
+      "Boating",
+      "Fishing",
+      "Off-roading",
+      "Motorcycles",
+      "Family vehicles",
+    ],
     kpis: {
       newLeads: "New leads · 30 days",
       costPerLead: "Blended cost per lead",

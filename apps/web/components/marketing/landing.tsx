@@ -37,7 +37,7 @@ const INDUSTRIES = [
     icon: "🏠",
     name: "Real estate",
     blurb: "Follow up on every listing inquiry before the other agent does.",
-    live: false,
+    live: true,
   },
   {
     icon: "🚗",
@@ -49,7 +49,7 @@ const INDUSTRIES = [
     icon: "🏨",
     name: "Hotels & B&Bs",
     blurb: "Convert direct-booking inquiries into stays.",
-    live: false,
+    live: true,
   },
 ];
 
@@ -314,7 +314,7 @@ export function LandingPage() {
         <div className="grid items-center gap-12 md:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
-              ⚡ The follow-up CRM for businesses that run on bookings
+              ⚡ LeadCoda brings every lead to its close
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight md:text-[3.4rem]">
               Never lose another lead to{" "}
@@ -420,11 +420,6 @@ export function LandingPage() {
             >
               <div className="flex items-start justify-between">
                 <span className="text-2xl">{ind.icon}</span>
-                {!ind.live && (
-                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-slate-400">
-                    Coming soon
-                  </span>
-                )}
               </div>
               <h3 className="mt-3 font-bold">{ind.name}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{ind.blurb}</p>

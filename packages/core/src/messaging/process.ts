@@ -150,6 +150,10 @@ export async function processScheduledMessage(
     travelDates: lead.travelDates,
     quoteLink: lead.property?.directBookingUrl,
     unsubLink,
+    orgVariables:
+      org.variables && typeof org.variables === "object" && !Array.isArray(org.variables)
+        ? (org.variables as Record<string, string>)
+        : null,
     now,
     appUrl,
   });

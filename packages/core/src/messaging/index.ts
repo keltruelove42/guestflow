@@ -3,6 +3,8 @@ export * from "./quietHours";
 export {
   renderMessage,
   renderMergeTags,
+  sanitizeVariables,
+  RESERVED_TAGS,
   seasonFor,
   escapeHtml,
   MERGE_TAGS,
