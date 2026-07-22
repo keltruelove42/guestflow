@@ -308,9 +308,8 @@ export function LandingPage() {
               .
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-300">
-              LeadCoda captures every inquiry, follows up by text and email automatically, and
-              hands you the conversation the moment a human should take over. You close, it
-              chases.
+              LeadCoda captures every inquiry, follows up automatically, and hands you the
+              conversation the moment a human should take over. You close, it chases.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
