@@ -28,6 +28,7 @@ type Integration = {
   setupHint: string | null;
   oauthReady: boolean;
   oauthOption?: boolean;
+  comingSoon?: boolean;
   status: string;
   lastSyncAt: string | null;
   lastError: string | null;
@@ -228,13 +229,19 @@ function IntegrationsInner() {
                       </button>
                     </>
                   ) : (
-                    <button
-                      type="button"
-                      className="rounded-control bg-accent px-2.5 py-1 text-[11px] font-medium text-white"
-                      onClick={() => setModal(i)}
-                    >
-                      Connect
-                    </button>
+                    i.comingSoon ? (
+                      <span className="rounded-pill bg-surface-2 px-2.5 py-1 text-[11px] font-medium text-muted">
+                        Coming soon
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="rounded-control bg-accent px-2.5 py-1 text-[11px] font-medium text-white"
+                        onClick={() => setModal(i)}
+                      >
+                        Connect
+                      </button>
+                    )
                   )}
                 </div>
               </div>

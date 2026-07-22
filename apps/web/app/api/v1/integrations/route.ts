@@ -7,13 +7,21 @@ export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const rows = await prisma.integration.findMany({
-    where: { orgId: session.orgId },
-  });
+  const [rows, org] = await Promise.all([
+    prisma.integration.findMany({ where: { orgId: session.orgId } }),
+    prisma.org.findUniqueOrThrow({
+      where: { id: session.orgId },
+      select: { vertical: true },
+    }),
+  ]);
   const byProvider = new Map(rows.map((r) => [r.provider, r]));
 
+  const visible = PROVIDER_CATALOG.filter(
+    (c) => !c.verticals || c.verticals.includes(org.vertical),
+  );
+
   return NextResponse.json(
-    PROVIDER_CATALOG.map((c) => {
+    visible.map((c) => {
       const row = byProvider.get(c.provider);
       return {
         provider: c.provider,
@@ -27,6 +35,7 @@ export async function GET() {
         docsUrl: c.docsUrl ?? null,
         setupHint: c.setupHint ?? null,
         oauthOption: c.oauthOption ?? false,
+        comingSoon: c.comingSoon ?? false,
         oauthReady:
           c.auth === "oauth" || c.oauthOption ? oauthConfigured(c.provider) : true,
         id: row?.id ?? null,

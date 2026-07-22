@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useVertical } from "@/components/vertical-provider";
 import { PropertyType } from "@guestflow/shared";
 
 type Property = {
@@ -50,6 +51,7 @@ export default function PropertiesPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [calendarFor, setCalendarFor] = useState<Property | null>(null);
 
+  const pack = useVertical();
   const { data: properties = [], isLoading } = useQuery({
     queryKey: ["properties"],
     queryFn: async () => {
@@ -63,7 +65,7 @@ export default function PropertiesPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <p className="max-w-xl text-sm text-ink-2">
-          Scope campaigns, leads, and follow-ups to a property. Open the calendar to see booked,
+          {`Scope campaigns, leads, and follow-ups to a ${pack.context.singular.toLowerCase()}.`} Open the calendar to see booked,
           blocked, and hold dates.
         </p>
         <button
@@ -71,7 +73,7 @@ export default function PropertiesPage() {
           className="rounded-control bg-accent px-3 py-2 text-sm font-medium text-white"
           onClick={() => setShowAdd(true)}
         >
-          ＋ Add property
+          {`＋ Add ${pack.context.singular.toLowerCase()}`}
         </button>
       </div>
 
@@ -79,7 +81,7 @@ export default function PropertiesPage() {
         {isLoading && <p className="text-sm text-muted">Loading…</p>}
         {!isLoading && properties.length === 0 && (
           <p className="text-sm text-muted col-span-full">
-            No properties yet — add your first rental to get started.
+            {`No ${pack.context.plural.toLowerCase()} yet — add your first one to get started.`}
           </p>
         )}
         {properties.map((p) => (
@@ -161,6 +163,7 @@ function AddPropertyModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const pack = useVertical();
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [bedrooms, setBedrooms] = useState(2);
@@ -175,7 +178,8 @@ function AddPropertyModal({
     setError(null);
     try {
       if (!name.trim()) throw new Error("Name is required");
-      const res = await fetch("/api/v1/properties", {
+      const pack = useVertical();
+  const res = await fetch("/api/v1/properties", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -196,7 +200,7 @@ function AddPropertyModal({
               "Session expired — close this, sign out, and sign back in.",
           );
         }
-        throw new Error(data.error ?? "Could not add property");
+        throw new Error(data.error ?? "Could not add");
       }
       onSaved();
     } catch (e) {
@@ -210,7 +214,7 @@ function AddPropertyModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-card border border-[var(--border)] bg-surface shadow-xl">
         <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
-          <h3 className="font-semibold">Add a property</h3>
+          <h3 className="font-semibold">{`Add a ${pack.context.singular.toLowerCase()}`}</h3>
           <button type="button" className="text-sm text-muted" onClick={onClose}>
             Close
           </button>
@@ -285,7 +289,7 @@ function AddPropertyModal({
               className="rounded-control bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
               onClick={save}
             >
-              {saving ? "Adding…" : "Add property"}
+              {saving ? "Adding…" : `Add ${pack.context.singular.toLowerCase()}`}
             </button>
           </div>
         </div>

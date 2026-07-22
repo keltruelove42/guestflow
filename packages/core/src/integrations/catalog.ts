@@ -18,6 +18,10 @@ export type ProviderMeta = {
   auth: AuthKind;
   /** Provider also supports a one-click OAuth connect (partner app) */
   oauthOption?: boolean;
+  /** Restrict to specific verticals (undefined = all) */
+  verticals?: Array<"RENTALS" | "TRADES">;
+  /** Listed to gauge demand — not connectable yet */
+  comingSoon?: boolean;
   fields: FieldDef[];
   /** Sync is implemented against a live API */
   syncLive: boolean;
@@ -62,6 +66,7 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
   },
   {
     provider: "hostfully",
+    verticals: ["RENTALS"],
     name: "Hostfully",
     desc: "Import inquiries & quotes; detect abandoned inquiries automatically.",
     icon: "🏡",
@@ -92,6 +97,7 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
   },
   {
     provider: "hostaway",
+    verticals: ["RENTALS"],
     name: "Hostaway",
     desc: "Sync inquiries, reservations and guest profiles from Hostaway PMS.",
     icon: "🧭",
@@ -116,6 +122,7 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
   },
   {
     provider: "stayfi",
+    verticals: ["RENTALS"],
     name: "StayFi",
     desc: "Capture in-stay guest email & phone via WiFi splash pages.",
     icon: "📶",
@@ -133,6 +140,7 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
   },
   {
     provider: "ownerrez",
+    verticals: ["RENTALS"],
     name: "OwnerRez",
     desc: "Sync inquiries, quotes and guests from OwnerRez.",
     icon: "🔑",
@@ -157,6 +165,7 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
   },
   {
     provider: "lodgify",
+    verticals: ["RENTALS"],
     name: "Lodgify",
     desc: "Capture visitors who start but don't finish a booking.",
     icon: "🛎️",
@@ -175,7 +184,7 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
   {
     provider: "klaviyo",
     name: "Klaviyo",
-    desc: "Pull your Klaviyo contacts into GuestFlow leads; sync respects each profile's consent.",
+    desc: "Pull your Klaviyo contacts into LeadCoda leads; sync respects each profile's consent.",
     icon: "✉️",
     bg: "#0f172a",
     auth: "api_key",
@@ -222,6 +231,78 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
     ],
     syncLive: true,
     docsUrl: "https://www.twilio.com/docs/sms/a2p-10dlc",
+  },
+  {
+    provider: "google_lsa",
+    name: "Google Local Services",
+    desc: "Pull booked leads from Local Services Ads straight into your pipeline.",
+    icon: "📍",
+    bg: "#1a73e8",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["TRADES"],
+    comingSoon: true,
+  },
+  {
+    provider: "thumbtack",
+    name: "Thumbtack",
+    desc: "Capture Thumbtack leads and quote requests automatically.",
+    icon: "📌",
+    bg: "#009fd9",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["TRADES"],
+    comingSoon: true,
+  },
+  {
+    provider: "angi",
+    name: "Angi",
+    desc: "Sync Angi Ads & Leads into LeadCoda follow-ups.",
+    icon: "🛠️",
+    bg: "#ff6153",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["TRADES"],
+    comingSoon: true,
+  },
+  {
+    provider: "taskrabbit",
+    name: "TaskRabbit",
+    desc: "Bring TaskRabbit job requests into one follow-up inbox.",
+    icon: "🐇",
+    bg: "#0f9d58",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["TRADES"],
+    comingSoon: true,
+  },
+  {
+    provider: "encore",
+    name: "Encore",
+    desc: "Capture Encore booking inquiries and follow up automatically.",
+    icon: "🎯",
+    bg: "#6b4eff",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["TRADES"],
+    comingSoon: true,
+  },
+  {
+    provider: "jobber",
+    name: "Jobber",
+    desc: "Two-way sync with your Jobber clients and quotes.",
+    icon: "🧰",
+    bg: "#7db00e",
+    auth: "api_key",
+    fields: [],
+    syncLive: false,
+    verticals: ["TRADES"],
+    comingSoon: true,
   },
   {
     provider: "stripe",

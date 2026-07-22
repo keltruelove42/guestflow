@@ -118,7 +118,7 @@ export async function getEmailSender(orgId: string): Promise<EmailSender> {
   if (wantsLiveDelivery(mode) && resendConfigured()) {
     return new ResendEmailSender(
       process.env.RESEND_API_KEY!.trim(),
-      process.env.EMAIL_FROM?.trim() || "GuestFlow <onboarding@resend.dev>",
+      process.env.EMAIL_FROM?.trim() || "LeadCoda <onboarding@resend.dev>",
     );
   }
   return new LoggingEmailSender();

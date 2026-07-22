@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useVertical } from "@/components/vertical-provider";
 
 /**
  * Wraps screens that involve heavy configuration (builders, editors, OAuth).
@@ -11,11 +12,19 @@ export function DesktopOnly({
   title,
   description,
   children,
+  useContextNoun,
 }: {
   title: string;
   description: string;
   children: React.ReactNode;
+  /** Replace title/description with the vertical's context noun (Properties/Services) */
+  useContextNoun?: boolean;
 }) {
+  const pack = useVertical();
+  if (useContextNoun) {
+    title = `${pack.context.singular} management`;
+    description = `Setting up your ${pack.context.plural.toLowerCase()} works best with a bigger screen. They still filter every view on mobile.`;
+  }
   return (
     <>
       <div className="md:hidden">
