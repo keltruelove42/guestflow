@@ -279,7 +279,7 @@ function BillingInner() {
       <p className="text-xs text-muted">
         Payments are processed by Stripe. Card details never touch LeadCoda servers. Need
         Enterprise?{" "}
-        <a href="mailto:legal@leadcoda.com" className="text-accent">
+        <a href="mailto:legal@leadcoda.app" className="text-accent">
           Talk to us
         </a>
         .

@@ -136,7 +136,7 @@ export default function DpaPage() {
       <p>
         This DPA applies automatically to every customer as part of our
         Terms of Service. If your organization needs a countersigned copy for
-        its records or its own compliance program, email legal@leadcoda.com
+        its records or its own compliance program, email legal@leadcoda.app
         and we will provide one.
       </p>
     </LegalShell>

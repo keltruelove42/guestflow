@@ -201,8 +201,8 @@ export default function SecurityPage() {
           <h2 className="text-xl font-bold">Found something?</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-300">
             We welcome responsible disclosure. Email{" "}
-            <a href="mailto:security@leadcoda.com" className="text-sky-300 hover:underline">
-              security@leadcoda.com
+            <a href="mailto:security@leadcoda.app" className="text-sky-300 hover:underline">
+              security@leadcoda.app
             </a>{" "}
             and we will respond within two business days.
           </p>

@@ -32,7 +32,7 @@ export default function TermsPage() {
         You are responsible for your account credentials and for everything
         that happens in your workspace, including actions taken by team
         members you invite. Keep your password secure, use accurate account
-        information, and tell us promptly at legal@leadcoda.com if you
+        information, and tell us promptly at legal@leadcoda.app if you
         believe your account has been compromised. You must be at least 16
         years old and legally able to enter into a contract to use LeadCoda.
       </p>
@@ -83,7 +83,7 @@ export default function TermsPage() {
         cancellation takes effect at the end of the current period; we do not
         prorate partial periods. Annual plans come with a 30-day money-back
         guarantee: if you are unhappy within the first 30 days of an annual
-        subscription, email legal@leadcoda.com and we will refund it in
+        subscription, email legal@leadcoda.app and we will refund it in
         full. Prices may change with at least 30 days notice, and a price
         change never applies before your next renewal.
       </p>
@@ -163,9 +163,9 @@ export default function TermsPage() {
 
       <h2>Contact</h2>
       <p>
-        Questions about these terms can be sent to legal@leadcoda.com. For
+        Questions about these terms can be sent to legal@leadcoda.app. For
         privacy matters, see our Privacy Policy or write to
-        privacy@leadcoda.com.
+        privacy@leadcoda.app.
       </p>
     </LegalShell>
   );

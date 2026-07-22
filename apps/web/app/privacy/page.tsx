@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         send automated email and SMS follow-up, run ad campaigns, and track
         their pipeline. This policy explains what data we collect, how we use
         it, and the choices you have. We have tried to write it in plain
-        English. If anything is unclear, email us at privacy@leadcoda.com and
+        English. If anything is unclear, email us at privacy@leadcoda.app and
         a human will answer.
       </p>
 
@@ -98,7 +98,7 @@ export default function PrivacyPage() {
       <p>
         We keep your data for as long as your account is active. You can
         export your workspace data at any time, and you can ask us to delete
-        your account and everything in it by emailing privacy@leadcoda.com.
+        your account and everything in it by emailing privacy@leadcoda.app.
         Deletion requests are honored promptly, and deleted data rolls out of
         our encrypted backups within 35 days.
       </p>
@@ -112,7 +112,7 @@ export default function PrivacyPage() {
         for processing your account data are performance of our contract with
         you and our legitimate interest in operating and securing the
         service. To exercise any of these rights, contact
-        privacy@leadcoda.com. If you believe we have not resolved your
+        privacy@leadcoda.app. If you believe we have not resolved your
         concern, you may also lodge a complaint with your local supervisory
         authority.
       </p>
@@ -125,7 +125,7 @@ export default function PrivacyPage() {
         exercising those rights. We do not sell personal information and we
         do not share it for cross-context behavioral advertising, so there is
         nothing to opt out of on that front. Requests can be sent to
-        privacy@leadcoda.com.
+        privacy@leadcoda.app.
       </p>
 
       <h2>Security</h2>
@@ -136,14 +136,14 @@ export default function PrivacyPage() {
         providers, receive an additional layer of application-level
         encryption so they are never stored in plaintext. You can read more
         on our Security page, and you can report a vulnerability or concern
-        to security@leadcoda.com.
+        to security@leadcoda.app.
       </p>
 
       <h2>Children</h2>
       <p>
         LeadCoda is a business tool and is not intended for anyone under 16.
         We do not knowingly collect personal data from children. If you
-        believe a child has provided us data, contact privacy@leadcoda.com
+        believe a child has provided us data, contact privacy@leadcoda.app
         and we will delete it.
       </p>
 
@@ -158,8 +158,8 @@ export default function PrivacyPage() {
       <h2>Contact</h2>
       <p>
         Questions about privacy at LeadCoda can be sent to
-        privacy@leadcoda.com. For security matters, use
-        security@leadcoda.com. We aim to respond to every request within a
+        privacy@leadcoda.app. For security matters, use
+        security@leadcoda.app. We aim to respond to every request within a
         few business days.
       </p>
     </LegalShell>
