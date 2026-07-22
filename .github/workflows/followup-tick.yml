@@ -1,0 +1,23 @@
+name: Follow-up scheduler tick
+
+# Fires the LeadCoda scheduler so due follow-ups send on time.
+# GitHub schedules run at best-effort ~5-15 minute cadence, which is
+# plenty for follow-up sequences (delays are minutes to days).
+#
+# Setup: add a repository secret named CRON_SECRET whose value matches
+# the CRON_SECRET environment variable configured in Vercel.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call /api/jobs/tick
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://guestflow-web-tawny.vercel.app/api/jobs/tick"
