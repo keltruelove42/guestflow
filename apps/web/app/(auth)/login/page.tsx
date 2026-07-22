@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { VERTICAL_LIST, type VerticalId } from "@guestflow/shared";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("taylor@leadcoda.demo");
   const [name, setName] = useState("Taylor");
-  const [vertical, setVertical] = useState<VerticalId>("RENTALS");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +18,7 @@ export default function LoginPage() {
       const res = await fetch("/api/v1/auth/demo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, vertical }),
+        body: JSON.stringify({ email, name }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -66,32 +64,6 @@ export default function LoginPage() {
               autoComplete="email"
             />
           </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-ink-2">
-              What kind of business are you?
-            </label>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {VERTICAL_LIST.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  onClick={() => setVertical(v.id)}
-                  className={`rounded-control border px-3 py-2.5 text-left text-sm transition-colors ${
-                    vertical === v.id
-                      ? "border-accent bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
-                      : "border-[var(--border)] bg-page hover:bg-surface-2/60"
-                  }`}
-                >
-                  <span className="mr-1.5">{v.icon}</span>
-                  <span className="font-medium">{v.label}</span>
-                  <span className="mt-0.5 block text-[11px] text-muted">{v.pickerDesc}</span>
-                </button>
-              ))}
-            </div>
-            <p className="mt-1.5 text-[11px] text-muted">
-              More industries coming soon — this tailors your workspace, templates, and demo data.
-            </p>
-          </div>
           {error && <p className="text-sm text-critical">{error}</p>}
           <button
             type="submit"
@@ -102,7 +74,14 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-xs leading-relaxed text-muted">
+        <p className="mt-4 text-center text-xs text-muted">
+          New to LeadCoda?{" "}
+          <a href="/signup" className="text-accent hover:underline">
+            Start your free trial
+          </a>
+        </p>
+
+        <p className="mt-4 text-xs leading-relaxed text-muted">
           First sign-in creates your workspace and loads industry demo data (campaigns,
           sequences, and leads). Supabase magic-link / Google auth can be enabled via env vars later.
         </p>
