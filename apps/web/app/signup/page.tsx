@@ -25,6 +25,7 @@ export default function SignupPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState<VerticalId | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,10 +39,10 @@ export default function SignupPage() {
     setBusy(vertical);
     setError(null);
     try {
-      const res = await fetch("/api/v1/auth/demo", {
+      const res = await fetch("/api/v1/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, vertical }),
+        body: JSON.stringify({ email, name, password, vertical }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -109,6 +110,17 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
+                className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                style={{ borderColor: NAVY.border }}
+              />
+              <input
+                type="password"
+                required
+                minLength={8}
+                placeholder="Password (8+ characters)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
                 style={{ borderColor: NAVY.border }}
               />

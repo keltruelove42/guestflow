@@ -8,3 +8,4 @@ export * from "./dashboard";
 export * from "./crypto/credentials";
 
 export * from "./appointments";
+export * from "./crypto/passwords";

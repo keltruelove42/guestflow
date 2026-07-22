@@ -4,6 +4,18 @@ import { prisma, seedDemoOrg } from "@guestflow/db";
 import { SESSION_COOKIE, signSession } from "@/lib/session";
 
 export async function POST(req: Request) {
+  // SECURITY: passwordless demo login is a development convenience only.
+  // In production it is disabled unless explicitly re-enabled.
+  const allowed =
+    process.env.NODE_ENV === "development" ||
+    process.env.ALLOW_DEMO_LOGIN === "true";
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Demo login is disabled. Use /signup or /login" },
+      { status: 403 },
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = loginDemoSchema.safeParse(body);
   if (!parsed.success) {

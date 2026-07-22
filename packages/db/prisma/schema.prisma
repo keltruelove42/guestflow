@@ -31,6 +31,7 @@ model Org {
   bookingSlug        String?       @unique
   bookingSettings    Json? // { enabled, slotMinutes, bufferMinutes, startHour, endHour, days: [1..5] }
   appointments       Appointment[]
+  invitations        Invitation[]
   demoClearedAt      DateTime? // set when user clears seed/demo rows
   users              User[]
   properties         Property[]
@@ -65,8 +66,22 @@ model User {
   email          String   @unique
   name           String?
   role           Role     @default(OWNER)
+  passwordHash   String?
   expoPushTokens String[]
   createdAt      DateTime @default(now())
+}
+
+model Invitation {
+  id         String    @id @default(cuid())
+  orgId      String
+  org        Org       @relation(fields: [orgId], references: [id])
+  email      String
+  token      String    @unique
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([orgId])
 }
 
 enum Role {

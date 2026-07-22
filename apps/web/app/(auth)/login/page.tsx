@@ -6,8 +6,8 @@ import { LogoLockup } from "@/components/brand/logo";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("taylor@leadcoda.demo");
-  const [name, setName] = useState("Taylor");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,10 +16,10 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/v1/auth/demo", {
+      const res = await fetch("/api/v1/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name }),
+        body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -40,20 +40,11 @@ export default function LoginPage() {
         <div className="mb-8">
           <LogoLockup size={34} textClass="text-2xl" />
           <p className="mt-2 text-sm text-ink-2">
-            Capture leads, follow up automatically, and win more business, demo mode ready.
+            Welcome back. Sign in to your workspace.
           </p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-ink-2">Name</label>
-            <input
-              className="w-full rounded-control border border-[var(--border)] bg-page px-3 py-2 text-sm text-ink outline-none focus:border-accent"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoComplete="name"
-            />
-          </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-ink-2">Email</label>
             <input
@@ -65,26 +56,33 @@ export default function LoginPage() {
               autoComplete="email"
             />
           </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-ink-2">Password</label>
+            <input
+              type="password"
+              required
+              minLength={8}
+              className="w-full rounded-control border border-[var(--border)] bg-page px-3 py-2 text-sm text-ink outline-none focus:border-accent"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
           {error && <p className="text-sm text-critical">{error}</p>}
           <button
             type="submit"
             disabled={loading}
             className="w-full rounded-control bg-accent px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
           >
-            {loading ? "Signing in…" : "Continue in demo mode"}
+            {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
 
         <p className="mt-4 text-center text-xs text-muted">
           New to LeadCoda?{" "}
           <a href="/signup" className="text-accent hover:underline">
-            Start your free trial
+            Start a free trial
           </a>
-        </p>
-
-        <p className="mt-4 text-xs leading-relaxed text-muted">
-          First sign-in creates your workspace and loads industry demo data (campaigns,
-          sequences, and leads). Supabase magic-link / Google auth can be enabled via env vars later.
         </p>
       </div>
     </div>

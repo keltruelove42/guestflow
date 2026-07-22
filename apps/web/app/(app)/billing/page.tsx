@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 
 const PLANS = [
@@ -202,6 +202,8 @@ function BillingInner() {
         ))}
       </div>
 
+      <TeamCard />
+
       <div className="rounded-card border border-[var(--border)] bg-surface p-5">
         <h2 className="text-sm font-semibold">Add-ons</h2>
         <p className="mt-1 text-xs text-muted">
@@ -288,6 +290,130 @@ function BillingInner() {
       {error && <p className="text-sm text-critical">{error}</p>}
 
       {conciergeOpen && <ConciergeModal onClose={() => setConciergeOpen(false)} />}
+    </div>
+  );
+}
+
+function TeamCard() {
+  const [email, setEmail] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const queryKey = ["org-team"];
+  const qcLocal = useQueryClient();
+
+  const { data } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const res = await fetch("/api/v1/org/invites");
+      if (!res.ok) throw new Error("Failed");
+      return res.json() as Promise<{
+        users: Array<{ id: string; name: string | null; email: string }>;
+        invites: Array<{ id: string; email: string; token: string }>;
+      }>;
+    },
+  });
+
+  const invite = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/v1/org/invites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error ?? "Invite failed");
+      return d as { link: string };
+    },
+    onSuccess: (d) => {
+      setEmail("");
+      setInviteLink(d.link);
+      setFeedback("Invite created. Send them the link below if the email does not arrive.");
+      qcLocal.invalidateQueries({ queryKey });
+    },
+    onError: (e) => {
+      setInviteLink(null);
+      setFeedback(e instanceof Error ? e.message : "Invite failed");
+    },
+  });
+
+  const revoke = useMutation({
+    mutationFn: async (id: string) => {
+      await fetch(`/api/v1/org/invites?id=${id}`, { method: "DELETE" });
+    },
+    onSuccess: () => qcLocal.invalidateQueries({ queryKey }),
+  });
+
+  return (
+    <div className="rounded-card border border-[var(--border)] bg-surface p-5">
+      <h2 className="text-sm font-semibold">Team</h2>
+      <p className="mt-1 text-xs text-muted">
+        Teammates share this workspace: same leads, sequences, and calendar.
+      </p>
+
+      <div className="mt-3 space-y-1.5">
+        {(data?.users ?? []).map((u) => (
+          <div
+            key={u.id}
+            className="flex items-center justify-between rounded-control bg-surface-2 px-3 py-2 text-sm"
+          >
+            <span>
+              {u.name ?? u.email}
+              <span className="ml-2 text-xs text-muted">{u.email}</span>
+            </span>
+          </div>
+        ))}
+        {(data?.invites ?? []).map((i) => (
+          <div
+            key={i.id}
+            className="flex items-center justify-between rounded-control border border-dashed border-[var(--border)] px-3 py-2 text-sm"
+          >
+            <span className="text-ink-2">
+              {i.email}
+              <span className="ml-2 rounded-pill bg-surface-2 px-1.5 text-[10px] text-muted">
+                invited
+              </span>
+            </span>
+            <button
+              type="button"
+              className="text-xs text-critical"
+              onClick={() => revoke.mutate(i.id)}
+            >
+              Revoke
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-3 flex gap-2">
+        <input
+          type="email"
+          placeholder="teammate@company.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full rounded-control border border-[var(--border)] bg-page px-3 py-2 text-sm"
+        />
+        <button
+          type="button"
+          disabled={invite.isPending || !email.trim()}
+          className="shrink-0 rounded-control bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
+          onClick={() => invite.mutate()}
+        >
+          {invite.isPending ? "Inviting…" : "Invite"}
+        </button>
+      </div>
+      {feedback && <p className="mt-2 text-xs text-ink-2">{feedback}</p>}
+      {inviteLink && (
+        <div className="mt-1.5 flex items-center gap-2 text-xs">
+          <code className="truncate rounded bg-surface-2 px-2 py-1">{inviteLink}</code>
+          <button
+            type="button"
+            className="shrink-0 text-accent"
+            onClick={() => navigator.clipboard.writeText(inviteLink)}
+          >
+            Copy
+          </button>
+        </div>
+      )}
     </div>
   );
 }
