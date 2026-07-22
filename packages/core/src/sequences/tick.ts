@@ -140,5 +140,65 @@ export async function tick(opts?: {
     }
   }
 
+  // Phase 5: appointment reminders (24h ahead, once per appointment)
+  const upcoming = await prisma.appointment.findMany({
+    where: {
+      status: "SCHEDULED",
+      reminderSentAt: null,
+      leadId: { not: null },
+      startAt: { gte: now, lte: new Date(now.getTime() + 24 * 36e5) },
+    },
+    include: { lead: true },
+    take: 50,
+  });
+  for (const appt of upcoming) {
+    const lead = appt.lead;
+    if (!lead) continue;
+    try {
+      const when = appt.startAt.toLocaleString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+      const first = lead.name.trim().split(/\s+/)[0] || "there";
+      if (lead.phone && lead.smsConsent && !lead.smsStoppedAt) {
+        const { getSmsSender } = await import("../integrations");
+        const sender = await getSmsSender(appt.orgId);
+        await sender.send({
+          to: lead.phone,
+          body: `Hi ${first}! Friendly reminder about your ${appt.title} on ${when}. Reply here if you need to reschedule. (Reply STOP to opt out)`,
+        });
+      } else if (lead.email && lead.emailConsent && !lead.unsubscribedAt) {
+        const { getEmailSender } = await import("../integrations");
+        const sender = await getEmailSender(appt.orgId);
+        await sender.send({
+          to: lead.email,
+          subject: `Reminder: ${appt.title} on ${when}`,
+          text: `Hi ${first},\n\nA friendly reminder about your ${appt.title} scheduled for ${when}. Reply to this email if you need to reschedule.\n\nSee you soon!`,
+          html: `Hi ${first},<br/><br/>A friendly reminder about your ${appt.title} scheduled for <b>${when}</b>. Reply to this email if you need to reschedule.<br/><br/>See you soon!`,
+        });
+      } else {
+        // No reachable channel; mark so we do not retry forever
+      }
+      await prisma.appointment.update({
+        where: { id: appt.id },
+        data: { reminderSentAt: now },
+      });
+      await prisma.leadEvent.create({
+        data: {
+          orgId: appt.orgId,
+          leadId: lead.id,
+          type: "APPOINTMENT_BOOKED",
+          title: `Reminder sent: ${appt.title}`,
+          occurredAt: now,
+        },
+      });
+    } catch (err) {
+      console.error("[tick] appointment reminder failed", appt.id, err);
+    }
+  }
+
   return result;
 }

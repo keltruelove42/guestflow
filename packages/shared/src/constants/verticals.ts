@@ -593,6 +593,63 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
   },
 };
 
+export type AppointmentType = {
+  key: string;
+  label: string;
+  minutes: number;
+  icon: string;
+};
+
+/** Bookable appointment types, in each industry's language. */
+export function getAppointmentTypes(id: VerticalId | string | null | undefined): AppointmentType[] {
+  switch (id) {
+    case "TRADES":
+      return [
+        { key: "estimate", label: "Estimate visit", minutes: 60, icon: "📐" },
+        { key: "job", label: "Job slot", minutes: 120, icon: "🔧" },
+        { key: "call", label: "Phone consult", minutes: 15, icon: "📞" },
+      ];
+    case "BEAUTY":
+      return [
+        { key: "appointment", label: "Appointment", minutes: 60, icon: "💅" },
+        { key: "consult", label: "Consultation", minutes: 15, icon: "💬" },
+      ];
+    case "DEALERSHIPS":
+      return [
+        { key: "testdrive", label: "Test drive", minutes: 30, icon: "🚗" },
+        { key: "appraisal", label: "Trade-in appraisal", minutes: 30, icon: "📋" },
+        { key: "delivery", label: "Vehicle delivery", minutes: 60, icon: "🔑" },
+      ];
+    case "SAAS":
+      return [
+        { key: "demo", label: "Product demo", minutes: 30, icon: "🖥️" },
+        { key: "onboarding", label: "Onboarding call", minutes: 45, icon: "🚀" },
+        { key: "call", label: "Intro call", minutes: 15, icon: "📞" },
+      ];
+    case "ECOMMERCE":
+      return [
+        { key: "consult", label: "Virtual consult", minutes: 20, icon: "🛍️" },
+        { key: "call", label: "Support call", minutes: 15, icon: "📞" },
+      ];
+    case "REALESTATE":
+      return [
+        { key: "showing", label: "Showing", minutes: 30, icon: "🏠" },
+        { key: "consult", label: "Listing consult", minutes: 45, icon: "📋" },
+        { key: "call", label: "Buyer intro call", minutes: 15, icon: "📞" },
+      ];
+    case "HOTELS":
+      return [
+        { key: "tour", label: "Property tour", minutes: 30, icon: "🏨" },
+        { key: "call", label: "Planning call", minutes: 15, icon: "📞" },
+      ];
+    default: // RENTALS
+      return [
+        { key: "tour", label: "Property tour", minutes: 30, icon: "🏡" },
+        { key: "call", label: "Planning call", minutes: 15, icon: "📞" },
+      ];
+  }
+}
+
 export const VERTICAL_LIST: VerticalPack[] = Object.values(VERTICAL_PACKS);
 
 export const DEFAULT_VERTICAL: VerticalId = "RENTALS";

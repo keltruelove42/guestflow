@@ -18,6 +18,7 @@ const NAV = [
   { href: "/campaigns", label: "Ad Campaigns", icon: "📣", tour: "nav-campaigns" },
   { href: "/sequences", label: "Follow-ups", icon: "🔁", tour: "nav-sequences" },
   { href: "/properties", label: "Properties", icon: "🏘️", tour: "nav-properties" },
+  { href: "/calendar", label: "Calendar", icon: "📅", tour: "nav-calendar" },
   { href: "/integrations", label: "Integrations", icon: "🔌", tour: "nav-integrations" },
   { href: "/billing", label: "Billing", icon: "💳", tour: "nav-billing" },
 ] as const;
