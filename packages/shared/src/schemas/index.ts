@@ -100,7 +100,18 @@ export type SendMessageInput = z.infer<typeof sendMessageSchema>;
 export const loginDemoSchema = z.object({
   email: z.string().email(),
   name: z.string().optional(),
-  vertical: z.enum(["RENTALS", "TRADES", "BEAUTY", "DEALERSHIPS"]).optional(),
+  vertical: z
+    .enum([
+      "RENTALS",
+      "TRADES",
+      "BEAUTY",
+      "DEALERSHIPS",
+      "SAAS",
+      "ECOMMERCE",
+      "REALESTATE",
+      "HOTELS",
+    ])
+    .optional(),
 });
 export type LoginDemoInput = z.infer<typeof loginDemoSchema>;
 

@@ -13,10 +13,7 @@ const NAVY = {
   border: "rgba(255,255,255,0.09)",
 };
 
-const COMING_SOON = [
-  { icon: "🏠", label: "Real estate" },
-  { icon: "🏨", label: "Hotels & B&Bs" },
-];
+const COMING_SOON: Array<{ icon: string; label: string }> = [];
 
 /**
  * Free trial signup, industry standard, two steps:

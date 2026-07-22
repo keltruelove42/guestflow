@@ -25,12 +25,22 @@ function daysAgo(days: number, hours = 0): Date {
 const DEMO_USER_ID = "demo-user-guestflow";
 const DEMO_EMAIL = "taylor@guestflow.demo";
 
+export type SeedVertical =
+  | "RENTALS"
+  | "TRADES"
+  | "BEAUTY"
+  | "DEALERSHIPS"
+  | "SAAS"
+  | "ECOMMERCE"
+  | "REALESTATE"
+  | "HOTELS";
+
 export async function seedDemoOrg(opts?: {
   orgName?: string;
   userId?: string;
   email?: string;
   userName?: string;
-  vertical?: "RENTALS" | "TRADES" | "BEAUTY" | "DEALERSHIPS";
+  vertical?: SeedVertical;
 }) {
   const userId = opts?.userId ?? DEMO_USER_ID;
   const email = opts?.email ?? DEMO_EMAIL;
@@ -90,7 +100,7 @@ export async function seedDemoOrg(opts?: {
  */
 export async function seedDemoContent(
   orgId: string,
-  vertical: "RENTALS" | "TRADES" | "BEAUTY" | "DEALERSHIPS" = "RENTALS",
+  vertical: SeedVertical = "RENTALS",
 ) {
   if (vertical === "TRADES") {
     const { seedTradesContent } = await import("./seedTrades");
@@ -103,6 +113,22 @@ export async function seedDemoContent(
   if (vertical === "DEALERSHIPS") {
     const { seedDealershipsContent } = await import("./seedDealerships");
     return seedDealershipsContent(orgId);
+  }
+  if (vertical === "SAAS") {
+    const { seedSaasContent } = await import("./seedSaas");
+    return seedSaasContent(orgId);
+  }
+  if (vertical === "ECOMMERCE") {
+    const { seedEcommerceContent } = await import("./seedEcommerce");
+    return seedEcommerceContent(orgId);
+  }
+  if (vertical === "REALESTATE") {
+    const { seedRealEstateContent } = await import("./seedRealEstate");
+    return seedRealEstateContent(orgId);
+  }
+  if (vertical === "HOTELS") {
+    const { seedHotelsContent } = await import("./seedHotels");
+    return seedHotelsContent(orgId);
   }
   const org = { id: orgId };
 

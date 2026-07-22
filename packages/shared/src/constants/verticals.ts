@@ -4,7 +4,15 @@
  * identical for every vertical; packs supply vocabulary, labels, and copy.
  */
 
-export type VerticalId = "RENTALS" | "TRADES" | "BEAUTY" | "DEALERSHIPS";
+export type VerticalId =
+  | "RENTALS"
+  | "TRADES"
+  | "BEAUTY"
+  | "DEALERSHIPS"
+  | "SAAS"
+  | "ECOMMERCE"
+  | "REALESTATE"
+  | "HOTELS";
 
 export type VerticalPack = {
   id: VerticalId;
@@ -318,6 +326,270 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
         "Follow-ups start automatically the moment an inquiry comes in or an offer goes quiet. Replies pause the sequence and flag the lead for you; a sold deal stops it.",
     },
     featuredIntegrations: ["meta", "twilio", "klaviyo", "stripe"],
+  },
+
+  SAAS: {
+    id: "SAAS",
+    label: "B2B SaaS & software",
+    pickerDesc: "SaaS startups, agencies & software vendors",
+    icon: "💻",
+    context: {
+      singular: "Product",
+      plural: "Products",
+      icon: "🧩",
+      showInNav: true,
+      examples: ["Starter Plan", "Pro Plan", "Enterprise"],
+    },
+    fields: {
+      timeframe: "Evaluation timeline",
+      detail: "Company & team size",
+    },
+    stageLabels: {
+      NEW: "New",
+      CONTACTED: "Contacted",
+      ENGAGED: "Engaged",
+      QUOTED: "Proposal sent",
+      BOOKED: "Closed won",
+      LOST: "Closed lost",
+    },
+    triggerLabels: {
+      AD_LEAD_CAPTURED: "New signup or demo request captured",
+      INQUIRY_ABANDONED: "Trial started but went quiet",
+      QUOTE_UNACCEPTED_48H: "Proposal sent but no response within 48 hours",
+      CHECKOUT_PLUS_90D: "90 days after purchase (expansion check-in)",
+      MANUAL_ONLY: "Manual enrollment only",
+    },
+    adInterests: [
+      "SaaS",
+      "Startups",
+      "Small business",
+      "Marketing tools",
+      "Productivity",
+      "Entrepreneurship",
+      "Remote work",
+      "B2B services",
+    ],
+    kpis: {
+      newLeads: "New leads · 30 days",
+      costPerLead: "Blended cost per lead",
+      replyRate: "Follow-up reply rate",
+      recovered: "Recovered deals",
+      revenueCaption: "attributed revenue",
+    },
+    wonLabel: "Closed won",
+    copy: {
+      welcomeTagline:
+        "Turn trials into paying teams. Capture signups and demo requests, follow up automatically, and step in when a deal warms up.",
+      welcomeBullets: [
+        "Capture every signup & demo request",
+        "Automate trial and proposal follow-ups",
+        "Email & text from one inbox",
+      ],
+      loginBlurb: "Capture signups, follow up automatically, and close more deals.",
+      leadsPageHint:
+        "Every contact field is optional at capture. LeadCoda picks the best follow-up channel from whatever it has. Open a lead to email or text them.",
+      followupsDesc:
+        "Follow-ups start automatically when a signup comes in or a trial goes quiet. Replies pause the sequence and flag the lead for you; a closed deal stops it.",
+    },
+    featuredIntegrations: ["meta", "klaviyo", "stripe", "twilio"],
+  },
+
+  ECOMMERCE: {
+    id: "ECOMMERCE",
+    label: "D2C & ecommerce",
+    pickerDesc: "Online stores and direct-to-consumer brands",
+    icon: "🛍️",
+    context: {
+      singular: "Product",
+      plural: "Products",
+      icon: "📦",
+      showInNav: true,
+      examples: ["Best-Seller Bundle", "Subscription Box", "New Arrivals Drop"],
+    },
+    fields: {
+      timeframe: "Last order / intent",
+      detail: "Cart & preferences",
+    },
+    stageLabels: {
+      NEW: "New",
+      CONTACTED: "Contacted",
+      ENGAGED: "Engaged",
+      QUOTED: "Offer sent",
+      BOOKED: "Purchased",
+      LOST: "Lost",
+    },
+    triggerLabels: {
+      AD_LEAD_CAPTURED: "New lead captured from an ad",
+      INQUIRY_ABANDONED: "Cart abandoned at checkout",
+      QUOTE_UNACCEPTED_48H: "Offer sent but not redeemed within 48 hours",
+      CHECKOUT_PLUS_90D: "90 days after purchase (replenishment)",
+      MANUAL_ONLY: "Manual enrollment only",
+    },
+    adInterests: [
+      "Online shopping",
+      "Beauty products",
+      "Fashion",
+      "Home goods",
+      "Fitness gear",
+      "Subscription boxes",
+      "Wellness",
+      "Sustainable brands",
+    ],
+    kpis: {
+      newLeads: "New leads · 30 days",
+      costPerLead: "Blended cost per lead",
+      replyRate: "Follow-up reply rate",
+      recovered: "Recovered carts",
+      revenueCaption: "attributed revenue",
+    },
+    wonLabel: "Purchased",
+    copy: {
+      welcomeTagline:
+        "Rescue abandoned carts and bring buyers back. Capture leads from ads, follow up automatically, and turn browsers into repeat customers.",
+      welcomeBullets: [
+        "Rescue abandoned carts",
+        "Automate welcome & winback flows",
+        "Email & text from one inbox",
+      ],
+      loginBlurb: "Capture leads, rescue carts, and grow repeat purchases.",
+      leadsPageHint:
+        "Every contact field is optional at capture. LeadCoda picks the best follow-up channel from whatever it has. Open a lead to email or text them.",
+      followupsDesc:
+        "Follow-ups start automatically when a lead comes in or a cart is abandoned. Replies pause the sequence and flag the lead for you; a purchase stops it.",
+    },
+    featuredIntegrations: ["meta", "tiktok", "klaviyo", "stripe"],
+  },
+
+  REALESTATE: {
+    id: "REALESTATE",
+    label: "Real estate",
+    pickerDesc: "Agents, teams & brokerages",
+    icon: "🏠",
+    context: {
+      singular: "Listing",
+      plural: "Listings",
+      icon: "🏘️",
+      showInNav: true,
+      examples: ["412 Maple Grove Ln", "The Wilder Lofts #204"],
+    },
+    fields: {
+      timeframe: "Buying / selling timeline",
+      detail: "Budget & preferences",
+    },
+    stageLabels: {
+      NEW: "New",
+      CONTACTED: "Contacted",
+      ENGAGED: "Engaged",
+      QUOTED: "Showing scheduled",
+      BOOKED: "Under contract",
+      LOST: "Lost",
+    },
+    triggerLabels: {
+      AD_LEAD_CAPTURED: "New listing inquiry captured from an ad",
+      INQUIRY_ABANDONED: "Listing inquiry started but not finished",
+      QUOTE_UNACCEPTED_48H: "Showing offered but not booked within 48 hours",
+      CHECKOUT_PLUS_90D: "90 days after closing (referral check-in)",
+      MANUAL_ONLY: "Manual enrollment only",
+    },
+    adInterests: [
+      "Home buying",
+      "Real estate",
+      "First-time buyers",
+      "Mortgage",
+      "Moving",
+      "Investment property",
+      "Open houses",
+      "Relocation",
+    ],
+    kpis: {
+      newLeads: "New leads · 30 days",
+      costPerLead: "Blended cost per lead",
+      replyRate: "Follow-up reply rate",
+      recovered: "Recovered clients",
+      revenueCaption: "attributed commission",
+    },
+    wonLabel: "Under contract",
+    copy: {
+      welcomeTagline:
+        "Answer every listing inquiry before the other agent does. Capture leads, follow up automatically, and win the showing.",
+      welcomeBullets: [
+        "Capture every listing inquiry",
+        "Automate showing follow-ups",
+        "Text & email from one inbox",
+      ],
+      loginBlurb: "Capture inquiries, follow up first, and win more clients.",
+      leadsPageHint:
+        "Every contact field is optional at capture. LeadCoda picks the best follow-up channel from whatever it has. Open a lead to text or email them.",
+      followupsDesc:
+        "Follow-ups start automatically the moment an inquiry comes in or a showing goes quiet. Replies pause the sequence and flag the lead for you; going under contract stops it.",
+    },
+    featuredIntegrations: ["meta", "twilio", "klaviyo", "stripe"],
+  },
+
+  HOTELS: {
+    id: "HOTELS",
+    label: "Hotels & B&Bs",
+    pickerDesc: "Boutique hotels, inns & bed and breakfasts",
+    icon: "🏨",
+    context: {
+      singular: "Room",
+      plural: "Rooms",
+      icon: "🛏️",
+      showInNav: true,
+      examples: ["King Suite with Fireplace", "Garden Queen Room"],
+    },
+    fields: {
+      timeframe: "Stay dates",
+      detail: "Guests & room preference",
+    },
+    stageLabels: {
+      NEW: "New",
+      CONTACTED: "Contacted",
+      ENGAGED: "Engaged",
+      QUOTED: "Quoted",
+      BOOKED: "Booked",
+      LOST: "Lost",
+    },
+    triggerLabels: {
+      AD_LEAD_CAPTURED: "New booking inquiry captured from an ad",
+      INQUIRY_ABANDONED: "Direct booking started but not finished",
+      QUOTE_UNACCEPTED_48H: "Quote sent but not accepted within 48 hours",
+      CHECKOUT_PLUS_90D: "90 days after checkout (return stay)",
+      MANUAL_ONLY: "Manual enrollment only",
+    },
+    adInterests: [
+      "Weekend getaways",
+      "Boutique hotels",
+      "Travel",
+      "Anniversaries",
+      "Spa retreats",
+      "Wine country",
+      "Local events",
+      "Romantic trips",
+    ],
+    kpis: {
+      newLeads: "New leads · 30 days",
+      costPerLead: "Blended cost per lead",
+      replyRate: "Follow-up reply rate",
+      recovered: "Recovered bookings",
+      revenueCaption: "attributed revenue",
+    },
+    wonLabel: "Booked",
+    copy: {
+      welcomeTagline:
+        "Turn lookers into direct bookings. Capture inquiries, rescue abandoned reservations, and bring past guests back.",
+      welcomeBullets: [
+        "Rescue abandoned bookings",
+        "Automate quote follow-ups",
+        "Bring past guests back",
+      ],
+      loginBlurb: "Capture inquiries, follow up automatically, and fill more rooms.",
+      leadsPageHint:
+        "Every contact field is optional at capture. LeadCoda picks the best follow-up channel from whatever it has. Open a lead to email or text them.",
+      followupsDesc:
+        "Follow-ups start automatically when an inquiry comes in or a booking is left unfinished. Replies pause the sequence and flag the lead for you; a confirmed booking stops it.",
+    },
+    featuredIntegrations: ["meta", "klaviyo", "twilio", "stripe"],
   },
 };
 

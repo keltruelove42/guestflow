@@ -46,6 +46,10 @@ enum Vertical {
   TRADES
   BEAUTY
   DEALERSHIPS
+  SAAS
+  ECOMMERCE
+  REALESTATE
+  HOTELS
 }
 
 model User {

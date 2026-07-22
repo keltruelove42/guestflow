@@ -51,6 +51,18 @@ const INDUSTRIES = [
     blurb: "Convert direct-booking inquiries into stays.",
     live: true,
   },
+  {
+    icon: "💻",
+    name: "B2B SaaS & software",
+    blurb: "Chase every trial and demo request until it closes.",
+    live: true,
+  },
+  {
+    icon: "🛍️",
+    name: "D2C & ecommerce",
+    blurb: "Rescue abandoned carts and bring buyers back for more.",
+    live: true,
+  },
 ];
 
 const FEATURES = [

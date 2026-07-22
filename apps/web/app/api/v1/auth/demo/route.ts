@@ -21,13 +21,27 @@ export async function POST(req: Request) {
       userName: name ?? email.split("@")[0] ?? "Host",
       userId: `user_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`,
       orgName:
-        vertical === "TRADES"
-          ? `${name ?? email.split("@")[0]}'s Services`
-          : vertical === "BEAUTY"
-            ? `${name ?? email.split("@")[0]}'s Studio`
-            : vertical === "DEALERSHIPS"
-              ? `${name ?? email.split("@")[0]}'s Dealership`
-              : `${name ?? email.split("@")[0]}'s Stays`,
+        (() => {
+          const base = name ?? email.split("@")[0];
+          switch (vertical) {
+            case "TRADES":
+              return `${base}'s Services`;
+            case "BEAUTY":
+              return `${base}'s Studio`;
+            case "DEALERSHIPS":
+              return `${base}'s Dealership`;
+            case "SAAS":
+              return `${base}'s Pipeline`;
+            case "ECOMMERCE":
+              return `${base}'s Store`;
+            case "REALESTATE":
+              return `${base}'s Realty`;
+            case "HOTELS":
+              return `${base}'s Inn`;
+            default:
+              return `${base}'s Stays`;
+          }
+        })(),
       vertical,
     });
     user = await prisma.user.findUniqueOrThrow({
