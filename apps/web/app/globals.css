@@ -89,3 +89,27 @@ body {
   border-color: var(--border);
 }
 
+
+/* ===== Mobile polish (iOS + Android) ===== */
+
+/* Stop iOS Safari from inflating text on rotation / rendering */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* iOS zooms the whole page when a focused input's font-size is < 16px.
+   Keep form controls at 16px on phones so focusing never zooms. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Momentum scrolling + no accidental horizontal pan in the app shell */
+body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}

@@ -265,7 +265,7 @@ export function LandingPage() {
 
   return (
     <div
-      className="min-h-screen text-white antialiased"
+      className="min-h-screen overflow-x-clip text-white antialiased"
       style={{ background: NAVY.page, fontFeatureSettings: '"ss01"' }}
     >
       {/* glow accents */}
@@ -314,7 +314,7 @@ export function LandingPage() {
 
       {/* ===== Hero ===== */}
       <section className="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-14 md:pt-20">
-        <div className="grid items-center gap-12 md:grid-cols-2">
+        <div className="grid items-center gap-12 md:grid-cols-2 [&>*]:min-w-0">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
               ⚡ LeadCoda brings every lead to its close

@@ -247,7 +247,7 @@ export function PricingPage() {
 
   return (
     <div
-      className="min-h-screen text-white antialiased"
+      className="min-h-screen overflow-x-clip text-white antialiased"
       style={{ background: NAVY.page, fontFeatureSettings: '"ss01"' }}
     >
       {/* glow accents */}
