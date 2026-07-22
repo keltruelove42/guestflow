@@ -19,6 +19,7 @@ const NAV = [
   { href: "/sequences", label: "Follow-ups", icon: "🔁", tour: "nav-sequences" },
   { href: "/properties", label: "Properties", icon: "🏘️", tour: "nav-properties" },
   { href: "/integrations", label: "Integrations", icon: "🔌", tour: "nav-integrations" },
+  { href: "/billing", label: "Billing", icon: "💳", tour: "nav-billing" },
 ] as const;
 
 /** Per-vertical label/icon overrides for nav items */

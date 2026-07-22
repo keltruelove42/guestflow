@@ -599,9 +599,18 @@ export function PricingPage() {
             <span className="font-semibold text-slate-300">LeadCoda</span>
             <span>· Follow-up that wins the booking.</span>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center gap-5">
             <Link href="/#industries" className="hover:text-slate-300">
               Industries
+            </Link>
+            <Link href="/security" className="hover:text-slate-300">
+              Security
+            </Link>
+            <Link href="/privacy" className="hover:text-slate-300">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-slate-300">
+              Terms
             </Link>
             <Link href="/login" className="hover:text-slate-300">
               Log in

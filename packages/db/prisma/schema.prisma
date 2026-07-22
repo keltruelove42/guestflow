@@ -25,6 +25,9 @@ model Org {
   quietEnd           Int           @default(9)
   abandonmentMinutes Int           @default(60)
   variables          Json? // org-level merge variables: { host_name, business_name, booking_link, custom... }
+  plan               String        @default("TRIAL") // TRIAL | STARTER | GROWTH | ENTERPRISE
+  stripeCustomerId   String?
+  stripeSubscriptionId String?
   demoClearedAt      DateTime? // set when user clears seed/demo rows
   users              User[]
   properties         Property[]

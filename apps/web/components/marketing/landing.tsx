@@ -510,6 +510,15 @@ export function LandingPage() {
             <Link href="/pricing" className="hover:text-slate-300">
               Pricing
             </Link>
+            <Link href="/security" className="hover:text-slate-300">
+              Security
+            </Link>
+            <Link href="/privacy" className="hover:text-slate-300">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-slate-300">
+              Terms
+            </Link>
             <Link href="/login" className="hover:text-slate-300">
               Log in
             </Link>
