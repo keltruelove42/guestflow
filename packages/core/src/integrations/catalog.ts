@@ -209,14 +209,15 @@ export const PROVIDER_CATALOG: ProviderMeta[] = [
     fields: [
       {
         key: "accountSid",
-        label: "Account SID",
+        label: "Account SID or API Key SID",
         type: "text",
         required: true,
-        placeholder: "AC…",
+        placeholder: "AC… or SK…",
+        help: "Account SID + Auth Token from the Console home, or an API Key (SK…) + its secret. Both work.",
       },
       {
         key: "authToken",
-        label: "Auth token",
+        label: "Auth token or API key secret",
         type: "password",
         required: true,
       },

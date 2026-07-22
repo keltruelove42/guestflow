@@ -23,15 +23,37 @@ export async function verifyProviderCredentials(
     if (provider === "twilio") {
       const parsed = parseTwilioCredentials(creds);
       if (!parsed) return { ok: false, error: "Missing SID, auth token, or from number" };
+      if (!/^\+\d{8,15}$/.test(parsed.fromNumber)) {
+        return {
+          ok: false,
+          error: "From number must be in +1XXXXXXXXXX format (your Twilio number)",
+        };
+      }
+      const { resolveTwilioAuth } = await import("./twilio");
+      let auth;
+      try {
+        auth = await resolveTwilioAuth(parsed);
+      } catch (e) {
+        return {
+          ok: false,
+          error: e instanceof Error ? e.message : "Twilio rejected these credentials",
+        };
+      }
       const res = await fetch(
-        `https://api.twilio.com/2010-04-01/Accounts/${parsed.accountSid}.json`,
+        `https://api.twilio.com/2010-04-01/Accounts/${auth.accountSid}.json`,
         {
           headers: {
-            Authorization: `Basic ${Buffer.from(`${parsed.accountSid}:${parsed.authToken}`).toString("base64")}`,
+            Authorization: `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`,
           },
         },
       );
-      if (!res.ok) return { ok: false, error: "Twilio rejected these credentials" };
+      if (!res.ok) {
+        return {
+          ok: false,
+          error:
+            "Twilio rejected these credentials. Use your Account SID (AC...) + Auth Token, or an API Key SID (SK...) + its secret",
+        };
+      }
       return { ok: true, detail: "Twilio account verified" };
     }
 

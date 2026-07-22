@@ -101,7 +101,7 @@ const FEATURES = [
   },
 ];
 
-function DemoModal({ onClose }: { onClose: () => void }) {
+export function DemoModal({ onClose }: { onClose: () => void }) {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", company: "" });
@@ -292,6 +292,9 @@ export function LandingPage() {
           <a href="#features" className="hover:text-white">
             Features
           </a>
+          <Link href="/pricing" className="hover:text-white">
+            Pricing
+          </Link>
         </nav>
         <div className="flex items-center gap-3">
           <Link href="/login" className="hidden text-sm text-slate-300 hover:text-white sm:block">
@@ -492,6 +495,9 @@ export function LandingPage() {
             <a href="#industries" className="hover:text-slate-300">
               Industries
             </a>
+            <Link href="/pricing" className="hover:text-slate-300">
+              Pricing
+            </Link>
             <Link href="/login" className="hover:text-slate-300">
               Log in
             </Link>
