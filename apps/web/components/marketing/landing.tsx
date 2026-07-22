@@ -54,6 +54,11 @@ const INDUSTRIES = [
 
 const FEATURES = [
   {
+    icon: "🗂️",
+    title: "A real CRM underneath",
+    desc: "Every lead gets a pipeline stage, full timeline, notes, and consent tracking. Your whole book of business in one place, with a live dashboard of how it's performing.",
+  },
+  {
     icon: "⚡",
     title: "Instant text-back",
     desc: "New inquiry? A friendly SMS goes out in under a minute, while your competitor is still checking voicemail.",
@@ -80,8 +85,18 @@ const FEATURES = [
   },
   {
     icon: "📊",
-    title: "Revenue you can point to",
-    desc: "Cost per lead, reply rates, and won revenue attributed to the exact campaign and sequence that did it.",
+    title: "A reporting dashboard, built in",
+    desc: "New leads per week, cost per lead, reply rates, lead sources, and won revenue attributed to the exact campaign and sequence that earned it.",
+  },
+  {
+    icon: "🧠",
+    title: "Knows your business",
+    desc: "Teach it your services, pricing, and policies once. Follow-ups and replies pull the right details automatically.",
+  },
+  {
+    icon: "📱",
+    title: "Runs from your pocket",
+    desc: "Reply to leads and check follow-ups from your phone. The heavy setup stays comfortable on desktop.",
   },
 ];
 
@@ -298,7 +313,7 @@ export function LandingPage() {
         <div className="grid items-center gap-12 md:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
-              ⚡ Built for businesses that run on bookings
+              ⚡ The follow-up CRM for businesses that run on bookings
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight md:text-[3.4rem]">
               Never lose another lead to{" "}
@@ -420,7 +435,7 @@ export function LandingPage() {
       {/* ===== Features ===== */}
       <section id="features" className="relative z-10 mx-auto max-w-6xl px-5 py-16">
         <h2 className="text-center text-3xl font-extrabold tracking-tight md:text-4xl">
-          Everything follow-up needs. Nothing it doesn&apos;t.
+          A full CRM, with follow-up superpowers.
         </h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => (

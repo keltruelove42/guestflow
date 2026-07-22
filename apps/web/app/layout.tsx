@@ -4,7 +4,7 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "LeadCoda",
-  description: "Capture leads, follow up automatically, win more business",
+  description: "The follow-up CRM: capture leads, follow up automatically, and win more business",
 };
 
 export const viewport: Viewport = {
