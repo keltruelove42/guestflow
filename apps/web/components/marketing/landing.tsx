@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { LogoMark } from "@/components/brand/logo";
 
 /* LeadCoda marketing site, dark navy (userpilot-style depth, hubspot-style
    simplicity). Self-contained: no app-theme CSS vars. */
@@ -276,10 +277,10 @@ export function LandingPage() {
       {/* ===== Nav ===== */}
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-sky-400 text-sm font-bold">
-            L
+          <LogoMark size={32} />
+          <span className="text-lg font-bold tracking-tight">
+            Lead<span className="text-sky-300">Coda</span>
           </span>
-          <span className="text-lg font-bold tracking-tight">LeadCoda</span>
         </div>
         <nav className="hidden items-center gap-7 text-sm text-slate-300 md:flex">
           <a href="#how" className="hover:text-white">
@@ -488,9 +489,7 @@ export function LandingPage() {
       <footer className="relative z-10 border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500 md:flex-row">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-sky-400 text-xs font-bold text-white">
-              L
-            </span>
+            <LogoMark size={22} />
             <span className="font-semibold text-slate-300">LeadCoda</span>
             <span>· Follow-up that wins the booking.</span>
           </div>

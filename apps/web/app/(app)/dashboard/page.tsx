@@ -329,11 +329,12 @@ function KpiTile({
   delta: ReactNode;
 }) {
   return (
-    <div className="rounded-card border border-[var(--border)] bg-surface px-4 py-3.5">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-muted">
+    <div className="relative overflow-hidden rounded-card border border-[var(--border)] bg-surface px-4 py-4 transition-shadow hover:shadow-lg">
+      <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#2563eb] to-[#38bdf8]" />
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted">
         {label}
       </div>
-      <div className="mt-1 text-[1.75rem] font-semibold leading-none tabular-nums tracking-tight">
+      <div className="mt-1.5 text-3xl font-extrabold leading-none tabular-nums tracking-tight">
         {value}
       </div>
       <div className="mt-2 text-[11px] leading-snug">{delta}</div>

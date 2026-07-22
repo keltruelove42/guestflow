@@ -10,6 +10,7 @@ import { OnboardingRoot } from "@/components/onboarding";
 import { VerticalProvider, useVertical } from "@/components/vertical-provider";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { cn } from "@/lib/utils";
+import { LogoLockup } from "@/components/brand/logo";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: "◈", tour: "nav-dashboard" },
@@ -156,8 +157,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen bg-page text-ink">
       <aside className="hidden w-56 shrink-0 flex-col border-r border-[var(--border)] bg-surface md:flex">
         <div className="px-4 py-5">
-          <div className="text-lg font-semibold tracking-tight">LeadCoda</div>
-          <div className="mt-0.5 truncate text-xs text-muted">{me?.orgName ?? "…"}</div>
+          <LogoLockup size={28} />
+          <div className="mt-1.5 truncate text-xs text-muted">{me?.orgName ?? "…"}</div>
         </div>
         <nav className="flex flex-1 flex-col gap-0.5 px-2">
           {NAV.map((item) => {

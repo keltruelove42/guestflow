@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { VERTICAL_LIST, type VerticalId } from "@guestflow/shared";
+import { LogoMark } from "@/components/brand/logo";
 
 const NAVY = {
   page: "#050b1e",
@@ -68,10 +69,10 @@ export default function SignupPage() {
       </div>
 
       <Link href="/" className="relative z-10 mb-8 flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-sky-400 text-sm font-bold">
-          L
+        <LogoMark size={32} />
+        <span className="text-lg font-bold tracking-tight">
+          Lead<span className="text-sky-300">Coda</span>
         </span>
-        <span className="text-lg font-bold tracking-tight">LeadCoda</span>
       </Link>
 
       <div

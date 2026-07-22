@@ -3,15 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --page: #f9f9f7;
-  --surface: #fcfcfb;
-  --surface-2: #f0efec;
-  --ink: #0b0b0b;
-  --ink-2: #52514e;
-  --muted: #898781;
-  --grid: #e1e0d9;
-  --border: rgba(11, 11, 11, 0.1);
-  --accent: #2a78d6;
+  /* LeadCoda brand: cool slate neutrals + Coda Blue */
+  --page: #f4f6fb;
+  --surface: #ffffff;
+  --surface-2: #e9eef7;
+  --ink: #0b1526;
+  --ink-2: #44506b;
+  --muted: #7b87a3;
+  --grid: #dde3ef;
+  --border: rgba(13, 32, 74, 0.1);
+  --accent: #2563eb;
   --good: #0ca30c;
   --warn: #fab219;
   --serious: #ec835a;
@@ -29,15 +30,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --page: #0d0d0d;
-    --surface: #1a1a19;
-    --surface-2: #242422;
-    --ink: #ffffff;
-    --ink-2: #c3c2b7;
-    --muted: #898781;
-    --grid: #2c2c2a;
-    --border: rgba(255, 255, 255, 0.1);
-    --accent: #3987e5;
+    /* Coda Navy dark theme */
+    --page: #0a1229;
+    --surface: #101b38;
+    --surface-2: #1a2747;
+    --ink: #f4f7ff;
+    --ink-2: #b8c3dd;
+    --muted: #7b87a3;
+    --grid: #223052;
+    --border: rgba(148, 173, 226, 0.16);
+    --accent: #4f83f1;
     --good-text: #7ddea0;
     --s1: #3987e5;
     --s2: #d95926;
@@ -54,7 +56,33 @@ html,
 body {
   background: var(--page);
   color: var(--ink);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+/* Brand elevation: every card floats softly off the page */
+@layer components {
+  .rounded-card {
+    box-shadow:
+      0 1px 2px rgba(15, 35, 90, 0.05),
+      0 10px 28px -14px rgba(15, 35, 90, 0.16);
+  }
+}
+@media (prefers-color-scheme: dark) {
+  @layer components {
+    .rounded-card {
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.35),
+        0 12px 30px -14px rgba(0, 0, 0, 0.55);
+    }
+  }
 }
 
 * {

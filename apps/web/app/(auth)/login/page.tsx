@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { LogoLockup } from "@/components/brand/logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-page px-4">
       <div className="w-full max-w-md rounded-card border border-[var(--border)] bg-surface p-8 shadow-sm">
         <div className="mb-8">
-          <div className="text-2xl font-semibold tracking-tight text-ink">LeadCoda</div>
+          <LogoLockup size={34} textClass="text-2xl" />
           <p className="mt-2 text-sm text-ink-2">
             Capture leads, follow up automatically, and win more business, demo mode ready.
           </p>
