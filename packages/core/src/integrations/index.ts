@@ -8,6 +8,7 @@ import {
   twilioCredsFromEnv,
 } from "./twilio";
 import { readIntegrationCredentials } from "./verify";
+import { managedEmailFrom, managedSmsCreds } from "./managed";
 import { HostfullyPmsProvider } from "./hostfully";
 import { HostawayPmsProvider } from "./hostaway";
 import type { AdsProvider, EmailSender, PmsProvider, SmsSender } from "./types";
@@ -133,6 +134,10 @@ async function resendFromIntegration(orgId: string) {
 }
 
 export async function getEmailSender(orgId: string): Promise<EmailSender> {
+  // Priority: managed domain (white-labeled) > org's own Resend key > env
+  const managed = await managedEmailFrom(orgId);
+  if (managed) return new ResendEmailSender(managed.apiKey, managed.from);
+
   // Use Resend whenever real credentials are connected (even in DEMO),
   // mirroring the Twilio behavior so Connect "just works".
   const fromIntegration = await resendFromIntegration(orgId);
@@ -151,6 +156,10 @@ export async function getEmailSender(orgId: string): Promise<EmailSender> {
 }
 
 export async function getSmsSender(orgId: string): Promise<SmsSender> {
+  // Priority: managed number (white-labeled) > org's own Twilio > env
+  const managed = await managedSmsCreds(orgId);
+  if (managed) return new TwilioSmsSender(managed);
+
   const mode = await getOrgMode(orgId);
   const integration = await prisma.integration.findUnique({
     where: { orgId_provider: { orgId, provider: "twilio" } },
@@ -175,8 +184,10 @@ export async function getSmsSender(orgId: string): Promise<SmsSender> {
 export async function getMessagingDeliveryStatus(orgId: string) {
   const mode = await getOrgMode(orgId);
   const live = wantsLiveDelivery(mode);
+  const managedEmail = await managedEmailFrom(orgId);
   const resendIntegration = await resendFromIntegration(orgId);
-  const emailLive = Boolean(resendIntegration) || (live && resendConfigured());
+  const emailLive =
+    Boolean(managedEmail) || Boolean(resendIntegration) || (live && resendConfigured());
 
   const integration = await prisma.integration.findUnique({
     where: { orgId_provider: { orgId, provider: "twilio" } },
@@ -185,19 +196,27 @@ export async function getMessagingDeliveryStatus(orgId: string) {
     integration?.status === "CONNECTED" && !integration.isDemo
       ? parseTwilioCredentials(readIntegrationCredentials(integration.credentials))
       : null;
-  const smsLive = Boolean(fromIntegration ?? (live ? twilioCredsFromEnv() : null));
+  const managedSms = await managedSmsCreds(orgId);
+  const smsLive = Boolean(
+    managedSms ?? fromIntegration ?? (live ? twilioCredsFromEnv() : null),
+  );
 
   return {
     orgMode: mode,
     sendMode: process.env.SEND_MODE?.trim().toLowerCase() || null,
     email: emailLive ? ("live" as const) : ("log" as const),
     sms: smsLive ? ("live" as const) : ("log" as const),
-    emailFrom: resendIntegration?.from ?? process.env.EMAIL_FROM?.trim() ?? null,
+    emailFrom:
+      managedEmail?.from ??
+      resendIntegration?.from ??
+      process.env.EMAIL_FROM?.trim() ??
+      null,
   };
 }
 
 export * from "./types";
 export * from "./catalog";
+export * from "./managed";
 export * from "./connect";
 export * from "./oauth";
 export * from "./verify";

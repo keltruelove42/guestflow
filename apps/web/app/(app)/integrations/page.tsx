@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
+import { ManagedSendingCard } from "@/components/managed-sending";
 import { relativeTime } from "@/lib/format";
 
 type FieldDef = {
@@ -126,6 +127,8 @@ function IntegrationsInner() {
         encrypted at rest. Demo badges are seed data, reconnect with your own credentials to go
         live.
       </p>
+
+      <ManagedSendingCard />
 
       {isLoading && <p className="text-sm text-muted">Loading…</p>}
 
