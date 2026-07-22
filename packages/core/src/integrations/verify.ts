@@ -102,7 +102,7 @@ export async function verifyProviderCredentials(
         return {
           ok: false,
           error:
-            "That looks like a public key — Klaviyo private API keys start with pk_ (Settings → API keys → Create Private API Key)",
+            "That looks like a public key. Klaviyo private API keys start with pk_ (Settings → API keys → Create Private API Key)",
         };
       }
       const res = await fetch("https://a.klaviyo.com/api/accounts/", {
@@ -128,7 +128,7 @@ export async function verifyProviderCredentials(
         ok: false,
         error: detail
           ? `Klaviyo: ${detail}`
-          : `Klaviyo rejected this API key (HTTP ${res.status}) — check it was copied fully and is a Private API Key`,
+          : `Klaviyo rejected this API key (HTTP ${res.status}). Check it was copied fully and is a Private API Key`,
       };
     }
 

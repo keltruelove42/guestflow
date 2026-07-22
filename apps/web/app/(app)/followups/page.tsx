@@ -24,7 +24,7 @@ type Lead = {
 /**
  * Mobile-first follow-ups view: what needs a human reply right now, plus a
  * one-tap way to fire everything that's due. (Sequence *editing* stays on
- * desktop — this screen is for completing follow-ups on the go.)
+ * desktop, this screen is for completing follow-ups on the go.)
  */
 export default function FollowupsPage() {
   const qc = useQueryClient();
@@ -90,7 +90,7 @@ export default function FollowupsPage() {
           {isLoading && <p className="p-4 text-sm text-muted">Loading…</p>}
           {!isLoading && attention.length === 0 && (
             <p className="p-4 text-sm text-muted">
-              Nothing waiting on you — automated follow-ups are handling it. 🎉
+              Nothing waiting on you, automated follow-ups are handling it. 🎉
             </p>
           )}
           {attention.map((a) => (
@@ -152,7 +152,7 @@ export default function FollowupsPage() {
           {tick.isPending ? "Sending…" : "Send due sequences now"}
         </button>
         <p className="mt-2 text-center text-xs text-muted md:hidden">
-          Build or edit sequences on desktop — this screen is for staying on top of them.
+          Build or edit sequences on desktop, this screen is for staying on top of them.
         </p>
       </section>
 

@@ -160,7 +160,7 @@ export default function LeadsPage() {
           {delivery.email === "log" && delivery.sms === "log" && (
             <span className="text-muted">
               {" "}
-              — set{" "}
+              - set{" "}
               <code className="rounded bg-surface px-1">SEND_MODE=live</code> plus{" "}
               <code className="rounded bg-surface px-1">RESEND_API_KEY</code> / Twilio env vars to
               deliver for real.
@@ -264,23 +264,23 @@ export default function LeadsPage() {
                     </div>
                   </td>
                   <td className="max-w-[220px] truncate px-4 py-3 text-ink-2">
-                    {l.email ?? "—"}
+                    {l.email ?? "-"}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-ink-2">{l.phone ?? "—"}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-ink-2">{l.phone ?? "-"}</td>
                   <td className="px-4 py-3">
                     <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs">
                       {l.source}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-ink-2">{l.property?.name ?? "—"}</td>
-                  <td className="px-4 py-3 text-ink-2">{l.travelDates ?? "—"}</td>
+                  <td className="px-4 py-3 text-ink-2">{l.property?.name ?? "-"}</td>
+                  <td className="px-4 py-3 text-ink-2">{l.travelDates ?? "-"}</td>
                   <td className="px-4 py-3">
                     <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs">
                       {pack.stageLabels[l.stage] ?? l.stage}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-xs text-ink-2">
-                    {enr ? `${enr.sequence.name} · step ${enr.currentStep + 1}` : "—"}
+                    {enr ? `${enr.sequence.name} · step ${enr.currentStep + 1}` : "-"}
                   </td>
                 </tr>
               );
@@ -329,7 +329,7 @@ function LeadDrawer({
   const [channel, setChannel] = useState<"EMAIL" | "SMS">("EMAIL");
   const [subject, setSubject] = useState("Following up on your stay");
   const [body, setBody] = useState(
-    "Hi {{first_name}},\n\nJust checking in about {{property}}. Happy to answer any questions or hold dates for you.\n\n— {{host_name}}",
+    "Hi {{first_name}},\n\nJust checking in about {{property}}. Happy to answer any questions or hold dates for you.\n\n- {{host_name}}",
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -369,7 +369,7 @@ function LeadDrawer({
       setError(null);
       await qc.invalidateQueries({ queryKey: ["lead", leadId] });
       await qc.invalidateQueries({ queryKey: ["leads"] });
-      onSent("Enrolled — first step scheduled.");
+      onSent("Enrolled, first step scheduled.");
     },
     onError: (e) => setError(e instanceof Error ? e.message : "Enroll failed"),
   });
@@ -399,7 +399,7 @@ function LeadDrawer({
       const mode =
         r.delivery === "live"
           ? "Delivered"
-          : "Logged (demo — not delivered externally)";
+          : "Logged (demo, not delivered externally)";
       onSent(`${r.channel} sent. ${mode}.`);
     },
     onError: (e) => setError(e instanceof Error ? e.message : "Send failed"),
@@ -439,14 +439,14 @@ function LeadDrawer({
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="rounded-control bg-surface-2 p-2">
                   <div className="text-muted">Email</div>
-                  <div className="mt-0.5 font-medium text-ink">{lead.email ?? "—"}</div>
+                  <div className="mt-0.5 font-medium text-ink">{lead.email ?? "-"}</div>
                   <div className="text-muted">
                     {canEmail ? "consent ok" : "cannot send"}
                   </div>
                 </div>
                 <div className="rounded-control bg-surface-2 p-2">
                   <div className="text-muted">Phone</div>
-                  <div className="mt-0.5 font-medium text-ink">{lead.phone ?? "—"}</div>
+                  <div className="mt-0.5 font-medium text-ink">{lead.phone ?? "-"}</div>
                   <div className="text-muted">{canSms ? "consent ok" : "cannot send"}</div>
                 </div>
               </div>

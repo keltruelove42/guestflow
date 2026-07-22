@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@guestflow/db";
 
-/** One-click email unsubscribe — compliance required. */
+/** One-click email unsubscribe, compliance required. */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const leadId = searchParams.get("leadId");

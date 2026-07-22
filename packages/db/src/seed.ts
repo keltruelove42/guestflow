@@ -1,5 +1,5 @@
 /**
- * Seed script — reproduces prototype demo data from docs/prototype/guestflow.html
+ * Seed script, reproduces prototype demo data from docs/prototype/guestflow.html
  */
 import {
   AdPlatform,
@@ -84,7 +84,7 @@ export async function seedDemoOrg(opts?: {
 }
 
 /**
- * (Re)create the demo dataset — properties, sequences, campaigns, leads —
+ * (Re)create the demo dataset, properties, sequences, campaigns, leads,
  * inside an EXISTING org. Used by first-login seeding and by
  * "Restore demo data" after a clear. All rows are tagged isDemo.
  */
@@ -158,7 +158,7 @@ export async function seedDemoContent(
     }),
   ]);
 
-  // Demo availability — blocked/booked ranges for the calendar
+  // Demo availability, blocked/booked ranges for the calendar
   function d(iso: string) {
     return new Date(iso + "T12:00:00.000Z");
   }
@@ -173,7 +173,7 @@ export async function seedDemoContent(
         endDate: d(`${y}-${m}-21`),
         kind: "BOOKED",
         isDemo: true,
-        note: "Aisha Bell — Sep stay (demo)",
+        note: "Aisha Bell. Sep stay (demo)",
       },
       {
         orgId: org.id,
@@ -191,7 +191,7 @@ export async function seedDemoContent(
         endDate: daysAgo(-11),
         kind: "HOLD",
         isDemo: true,
-        note: "Maya Thompson — hold pending quote",
+        note: "Maya Thompson, hold pending quote",
       },
       {
         orgId: org.id,
@@ -200,7 +200,7 @@ export async function seedDemoContent(
         endDate: d(`${y}-${m}-21`),
         kind: "HOLD",
         isDemo: true,
-        note: "Derek Alvarez — quote pending",
+        note: "Derek Alvarez, quote pending",
       },
       {
         orgId: org.id,
@@ -533,7 +533,7 @@ export async function seedDemoContent(
         orgId: org.id,
         propertyId: p1.id,
         platform: AdPlatform.META,
-        name: "Fall Lake Getaway — Instant Form",
+        name: "Fall Lake Getaway: Instant Form",
         status: CampaignStatus.ACTIVE,
         isDemo: true,
         dailyBudgetCents: 2500,
@@ -560,7 +560,7 @@ export async function seedDemoContent(
         orgId: org.id,
         propertyId: p2.id,
         platform: AdPlatform.META,
-        name: "Destin Beach Week — Retargeting",
+        name: "Destin Beach Week: Retargeting",
         status: CampaignStatus.ACTIVE,
         isDemo: true,
         dailyBudgetCents: 1800,
@@ -586,7 +586,7 @@ export async function seedDemoContent(
         orgId: org.id,
         propertyId: p1.id,
         platform: AdPlatform.TIKTOK,
-        name: "Cabin Tour Video — Lead Gen",
+        name: "Cabin Tour Video: Lead Gen",
         status: CampaignStatus.PAUSED,
         isDemo: true,
         dailyBudgetCents: 2000,
@@ -634,7 +634,7 @@ export async function seedDemoContent(
       orgId: org.id,
       propertyId: p3.id,
       platform: AdPlatform.META,
-      name: "Nashville Long-Term — Apply Now",
+      name: "Nashville Long-Term: Apply Now",
       status: CampaignStatus.DRAFT,
         isDemo: true,
       dailyBudgetCents: 1200,
@@ -837,21 +837,21 @@ export async function seedDemoContent(
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — Meta instant form",
+        title: "Lead captured: Meta instant form",
         body: "Campaign: Fall Lake Getaway. Fields: name, email, phone, dates.",
         occurredAt: daysAgo(6),
       },
       {
         type: LeadEventType.EMAIL_SENT,
         channel: Channel.EMAIL,
-        title: 'Email sent — "Welcome + area guide"',
+        title: 'Email sent: "Welcome + area guide"',
         body: "Thanks for your interest in Blue Ridge Lakehouse! Here's our free local guide + live availability calendar.",
         occurredAt: daysAgo(6),
       },
       {
         type: LeadEventType.EMAIL_SENT,
         channel: Channel.EMAIL,
-        title: 'Email sent — "What guests love"',
+        title: 'Email sent: "What guests love"',
         body: "Top 3 reviews, photo tour, and how direct booking saves you 12–15% vs. the big platforms.",
         occurredAt: daysAgo(4),
       },
@@ -870,7 +870,7 @@ export async function seedDemoContent(
     ],
     notes: [
       {
-        text: "Answered dock + pet questions. Sounds warm — send quote if she confirms dates.",
+        text: "Answered dock + pet questions. Sounds warm, send quote if she confirms dates.",
         createdAt: daysAgo(3, 17),
       },
     ],
@@ -897,21 +897,21 @@ export async function seedDemoContent(
     events: [
       {
         type: LeadEventType.INQUIRY_ABANDONED,
-        title: "Abandoned inquiry — Hostfully",
+        title: "Abandoned inquiry: Hostfully",
         body: "Started a booking for Aug 14–21, left at payment step. Contact captured from inquiry form.",
         occurredAt: daysAgo(4),
       },
       {
         type: LeadEventType.QUOTE_SENT,
-        title: "Quote sent — $1,890 (7 nights)",
+        title: "Quote sent: $1,890 (7 nights)",
         body: "Sent from Hostfully, direct-booking discount applied.",
         occurredAt: daysAgo(4, 12),
       },
       {
         type: LeadEventType.SMS_SENT,
         channel: Channel.SMS,
-        title: "SMS sent — Quote follow-up",
-        body: "Hi Derek — just checking you got the quote for Palm Cove Condo. Happy to tweak dates or answer questions!",
+        title: "SMS sent: Quote follow-up",
+        body: "Hi Derek, just checking you got the quote for Palm Cove Condo. Happy to tweak dates or answer questions!",
         occurredAt: daysAgo(2),
       },
     ],
@@ -926,20 +926,20 @@ export async function seedDemoContent(
     propertyId: p2.id,
     stage: Stage.NEW,
     createdAt: daysAgo(1, 9),
-    travelDates: "Flexible — Sept",
+    travelDates: "Flexible. Sept",
     emailConsent: true,
     smsConsent: false,
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — Meta instant form",
+        title: "Lead captured: Meta instant form",
         body: "Campaign: Destin Beach Week. Fields: name, email. Phone skipped (optional).",
         occurredAt: daysAgo(1, 9),
       },
       {
         type: LeadEventType.EMAIL_SENT,
         channel: Channel.EMAIL,
-        title: 'Email sent — "Welcome + area guide"',
+        title: 'Email sent: "Welcome + area guide"',
         body: "Thanks for your interest in Palm Cove Condo! Here's our free local guide + live availability calendar.",
         occurredAt: daysAgo(1, 9),
       },
@@ -963,7 +963,7 @@ export async function seedDemoContent(
     events: [
       {
         type: LeadEventType.INQUIRY_STARTED,
-        title: "Application started — direct site",
+        title: "Application started: direct site",
         body: "Long-term rental application 60% complete, never submitted.",
         occurredAt: daysAgo(9),
       },
@@ -1005,7 +1005,7 @@ export async function seedDemoContent(
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — Pinterest lead ad",
+        title: "Lead captured: Pinterest lead ad",
         body: "Campaign: Mountain Wedding Stays. Event date: June 2027.",
         occurredAt: daysAgo(8),
       },
@@ -1044,7 +1044,7 @@ export async function seedDemoContent(
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — TikTok instant form",
+        title: "Lead captured: TikTok instant form",
         body: "Campaign: Cabin Tour Video.",
         occurredAt: daysAgo(24),
       },
@@ -1074,18 +1074,18 @@ export async function seedDemoContent(
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — Meta instant form",
+        title: "Lead captured: Meta instant form",
         body: "Campaign: Fall Lake Getaway.",
         occurredAt: daysAgo(17),
       },
       {
         type: LeadEventType.QUOTE_SENT,
-        title: "Quote sent — $1,260 (3 nights)",
+        title: "Quote sent: $1,260 (3 nights)",
         occurredAt: daysAgo(11),
       },
       {
         type: LeadEventType.BOOKED,
-        title: "Booked direct — $1,260",
+        title: "Booked direct: $1,260",
         body: "Attribution: Meta ad → welcome sequence email #2. Sequence auto-stopped.",
         occurredAt: daysAgo(10),
       },
@@ -1119,7 +1119,7 @@ export async function seedDemoContent(
     events: [
       {
         type: LeadEventType.INQUIRY_ABANDONED,
-        title: "Abandoned inquiry — Hostfully",
+        title: "Abandoned inquiry: Hostfully",
         body: "Left phone only (email optional). SMS-first follow-up selected automatically.",
         occurredAt: daysAgo(0, 8),
       },

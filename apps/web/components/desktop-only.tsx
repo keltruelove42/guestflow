@@ -5,7 +5,7 @@ import { useVertical } from "@/components/vertical-provider";
 
 /**
  * Wraps screens that involve heavy configuration (builders, editors, OAuth).
- * On mobile, shows a friendly pointer to desktop instead of a cramped UI —
+ * On mobile, shows a friendly pointer to desktop instead of a cramped UI -
  * mobile stays focused on tasks that are easy to complete on the go.
  */
 export function DesktopOnly({

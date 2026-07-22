@@ -194,7 +194,7 @@ export const COACH_TIPS = [
   {
     target: "nav-sequences",
     title: "Automate follow-ups",
-    body: "Email and SMS sequences run after a lead arrives — edit them anytime.",
+    body: "Email and SMS sequences run after a lead arrives, edit them anytime.",
   },
   {
     target: "nav-campaigns",
@@ -214,6 +214,6 @@ export const COACH_TIPS = [
   {
     target: "onboarding-checklist",
     title: "Track your wins",
-    body: "This checklist updates as you go. Dismiss it anytime — reopen from the dashboard.",
+    body: "This checklist updates as you go. Dismiss it anytime, reopen from the dashboard.",
   },
 ] as const;

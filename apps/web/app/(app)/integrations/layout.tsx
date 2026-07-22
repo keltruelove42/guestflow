@@ -4,7 +4,7 @@ export default function IntegrationsLayout({ children }: { children: React.React
   return (
     <DesktopOnly
       title="Integrations setup"
-      description="Connecting Meta, Hostfully, Twilio and friends involves OAuth flows and API keys — much easier on desktop. Connected integrations keep working everywhere."
+      description="Connecting Meta, Hostfully, Twilio and friends involves OAuth flows and API keys, much easier on desktop. Connected integrations keep working everywhere."
     >
       {children}
     </DesktopOnly>

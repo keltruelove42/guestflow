@@ -7,7 +7,7 @@ const KEY = (orgId: string) => `gf-mobile-welcome-${orgId}`;
 
 /**
  * Mobile onboarding, best-practice edition: one compact bottom sheet on first
- * run — value prop in a sentence, three glanceable capabilities, one button.
+ * run, value prop in a sentence, three glanceable capabilities, one button.
  * No tours, no checklists, no modals; users get to their leads immediately.
  */
 export function MobileFirstRun() {
@@ -19,7 +19,7 @@ export function MobileFirstRun() {
     try {
       if (!localStorage.getItem(KEY(facts.orgId))) setOpen(true);
     } catch {
-      /* storage unavailable — skip onboarding rather than block */
+      /* storage unavailable, skip onboarding rather than block */
     }
   }, [ready, facts?.orgId]);
 

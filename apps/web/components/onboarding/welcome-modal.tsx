@@ -41,7 +41,7 @@ export function WelcomeModal() {
             Glad you&apos;re here{name}
           </h2>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-ink-2">
-            {pack.copy.welcomeTagline} We&apos;ll walk you to your first wins — you can skip or
+            {pack.copy.welcomeTagline} We&apos;ll walk you to your first wins, you can skip or
             close anytime.
           </p>
         </div>

@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       phone: Math.random() > 0.4 ? `+1555${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}` : null,
       source: "DIRECT_SITE",
       propertyId: property?.id,
-      travelDates: "Flexible — next month",
+      travelDates: "Flexible, next month",
       emailConsent: true,
       smsConsent: true,
       externalRef: `sim_inq_${Date.now()}`,
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         orgId: session.orgId,
         leadId: result.leadId,
         type: "INQUIRY_ABANDONED",
-        title: "Abandoned inquiry — simulated",
+        title: "Abandoned inquiry: simulated",
         body: "Simulator: abandonment window elapsed",
       },
     });

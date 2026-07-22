@@ -81,7 +81,7 @@ export default function PropertiesPage() {
         {isLoading && <p className="text-sm text-muted">Loading…</p>}
         {!isLoading && properties.length === 0 && (
           <p className="text-sm text-muted col-span-full">
-            {`No ${pack.context.plural.toLowerCase()} yet — add your first one to get started.`}
+            {`No ${pack.context.plural.toLowerCase()} yet, add your first one to get started.`}
           </p>
         )}
         {properties.map((p) => (
@@ -101,7 +101,7 @@ export default function PropertiesPage() {
                   )}
                 </div>
                 <p className="mt-0.5 text-sm text-ink-2">
-                  {p.location ?? "—"}
+                  {p.location ?? "-"}
                   {p.bedrooms != null ? ` · ${p.bedrooms} BR` : ""}
                 </p>
               </div>
@@ -197,7 +197,7 @@ function AddPropertyModal({
         if (res.status === 401) {
           throw new Error(
             data.error ??
-              "Session expired — close this, sign out, and sign back in.",
+              "Session expired, close this, sign out, and sign back in.",
           );
         }
         throw new Error(data.error ?? "Could not add");
@@ -424,7 +424,7 @@ function AvailabilityCalendar({
       <div className="flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-card border border-[var(--border)] bg-surface shadow-xl">
         <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
           <div>
-            <h3 className="font-semibold">Availability — {property.name}</h3>
+            <h3 className="font-semibold">Availability, {property.name}</h3>
             <p className="text-xs text-muted">
               Click a free day to start a range, click again to end. Click a colored day to remove.
             </p>
@@ -478,7 +478,7 @@ function AvailabilityCalendar({
 
           {selectStart && (
             <p className="text-xs text-accent">
-              Range start: <b>{selectStart}</b> — click an end date
+              Range start: <b>{selectStart}</b>, click an end date
               <button
                 type="button"
                 className="ml-2 underline"
@@ -556,7 +556,7 @@ function AvailabilityCalendar({
                     {b.startDate}
                     {b.endDate !== b.startDate ? ` → ${b.endDate}` : ""} ·{" "}
                     {KIND_STYLE[b.kind]?.label}
-                    {b.note ? ` — ${b.note}` : ""}
+                    {b.note ? `, ${b.note}` : ""}
                   </span>
                   <button
                     type="button"

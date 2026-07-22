@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-/* LeadCoda marketing site — dark navy (userpilot-style depth, hubspot-style
+/* LeadCoda marketing site, dark navy (userpilot-style depth, hubspot-style
    simplicity). Self-contained: no app-theme CSS vars. */
 
 const NAVY = {
@@ -56,7 +56,7 @@ const FEATURES = [
   {
     icon: "⚡",
     title: "Instant text-back",
-    desc: "New inquiry? A friendly SMS goes out in under a minute — while your competitor is still checking voicemail.",
+    desc: "New inquiry? A friendly SMS goes out in under a minute, while your competitor is still checking voicemail.",
   },
   {
     icon: "🔁",
@@ -76,7 +76,7 @@ const FEATURES = [
   {
     icon: "📥",
     title: "Bring your past leads",
-    desc: "Import a spreadsheet or sync Klaviyo, and put old inquiries into revival sequences — with consent built in.",
+    desc: "Import a spreadsheet or sync Klaviyo, and put old inquiries into revival sequences with consent built in.",
   },
   {
     icon: "📊",
@@ -170,7 +170,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                 <Link href="/signup" className="text-blue-400 hover:underline">
                   Start the free trial
                 </Link>{" "}
-                — no credit card.
+                no credit card needed.
               </p>
             </form>
           </>
@@ -180,7 +180,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-/** CSS-built product mock for the hero — no images needed. */
+/** CSS-built product mock for the hero, no images needed. */
 function HeroMock() {
   return (
     <div
@@ -309,7 +309,7 @@ export function LandingPage() {
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-300">
               LeadCoda captures every inquiry, follows up by text and email automatically, and
-              hands you the conversation the moment a human should take over. You close — it
+              hands you the conversation the moment a human should take over. You close, it
               chases.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -359,7 +359,7 @@ export function LandingPage() {
             [
               "1",
               "Capture everything",
-              "Lead ads, your website, missed calls, spreadsheets of past inquiries — every lead lands in one pipeline, automatically.",
+              "Lead ads, your website, missed calls, spreadsheets of past inquiries. Every lead lands in one pipeline, automatically.",
             ],
             [
               "2",
@@ -390,7 +390,7 @@ export function LandingPage() {
       {/* ===== Industries ===== */}
       <section id="industries" className="relative z-10 mx-auto max-w-6xl px-5 py-16">
         <h2 className="text-center text-3xl font-extrabold tracking-tight md:text-4xl">
-          Made for your industry — not adapted to it.
+          Made for your industry, not adapted to it.
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-slate-400">
           Pick your industry and LeadCoda arrives speaking your language: your pipeline stages,
@@ -460,7 +460,7 @@ export function LandingPage() {
               href="/signup"
               className="rounded-xl bg-blue-600 px-7 py-3.5 text-base font-semibold shadow-lg shadow-blue-600/30 hover:bg-blue-500"
             >
-              Start free trial — it&apos;s free
+              Start your free trial
             </Link>
             {demoButton(
               "rounded-xl border border-white/25 px-7 py-3.5 text-base font-medium hover:bg-white/5",

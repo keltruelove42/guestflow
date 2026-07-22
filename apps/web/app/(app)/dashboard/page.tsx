@@ -118,7 +118,7 @@ function DashboardInner() {
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <KpiTile
           label={pack.kpis.newLeads}
-          value={kpisLoading ? "—" : String(kpis?.newLeads30d ?? 0)}
+          value={kpisLoading ? "-" : String(kpis?.newLeads30d ?? 0)}
           delta={
             kpis ? (
               <span
@@ -139,10 +139,10 @@ function DashboardInner() {
           label={pack.kpis.costPerLead}
           value={
             kpisLoading
-              ? "—"
+              ? "-"
               : kpis && kpis.blendedCplCents > 0
                 ? formatCents(kpis.blendedCplCents)
-                : "—"
+                : "-"
           }
           delta={
             kpis && kpis.blendedCplCents > 0 ? (
@@ -156,7 +156,7 @@ function DashboardInner() {
         />
         <KpiTile
           label={pack.kpis.replyRate}
-          value={kpisLoading ? "—" : `${kpis?.replyRatePct ?? 0}%`}
+          value={kpisLoading ? "-" : `${kpis?.replyRatePct ?? 0}%`}
           delta={
             <span className="text-muted">
               {kpis?.enrolledAllTime ?? 0} enrolled all-time
@@ -165,7 +165,7 @@ function DashboardInner() {
         />
         <KpiTile
           label={pack.kpis.recovered}
-          value={kpisLoading ? "—" : String(kpis?.recoveredBookings ?? 0)}
+          value={kpisLoading ? "-" : String(kpis?.recoveredBookings ?? 0)}
           delta={
             <span style={{ color: "var(--good-text)" }} className="font-medium tabular-nums">
               {formatCents(kpis?.attributedRevenueCents ?? 0)} attributed revenue
@@ -257,7 +257,7 @@ function DashboardInner() {
                       </span>
                     </div>
                     <p className="truncate text-[11px] text-muted">
-                      {l.property?.name ?? "—"} · {l.travelDates ?? "dates TBD"}
+                      {l.property?.name ?? "-"} · {l.travelDates ?? "dates TBD"}
                     </p>
                   </div>
                   <Link

@@ -11,7 +11,7 @@ const TABS = [
   { href: "/more", label: "More", icon: "⋯" },
 ] as const;
 
-/** Thumb-zone bottom tab bar — mobile only. */
+/** Thumb-zone bottom tab bar, mobile only. */
 export function MobileTabBar({ leadsCount }: { leadsCount?: number }) {
   const pathname = usePathname();
 

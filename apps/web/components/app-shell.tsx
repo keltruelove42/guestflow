@@ -51,7 +51,7 @@ function SimulateButton() {
       const data = await res.json();
       const name = data.lead?.name ?? "Lead";
       const prop = data.lead?.property?.name ?? "your property";
-      setToast(`⚡ ${name} just came in via Meta — ${prop}`);
+      setToast(`⚡ ${name} just came in via Meta, ${prop}`);
       onboarding?.markAction("simulate");
       await qc.invalidateQueries({ queryKey: ["leads"] });
       await qc.invalidateQueries({ queryKey: ["leads-count"] });

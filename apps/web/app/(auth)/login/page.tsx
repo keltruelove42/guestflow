@@ -39,7 +39,7 @@ export default function LoginPage() {
         <div className="mb-8">
           <div className="text-2xl font-semibold tracking-tight text-ink">LeadCoda</div>
           <p className="mt-2 text-sm text-ink-2">
-            Capture leads, follow up automatically, and win more business — demo mode ready.
+            Capture leads, follow up automatically, and win more business, demo mode ready.
           </p>
         </div>
 

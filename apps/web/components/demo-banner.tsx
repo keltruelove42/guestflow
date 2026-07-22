@@ -39,12 +39,12 @@ export function DemoDataBanner() {
     },
     onSuccess: async (data) => {
       setMessage(data.message);
-      await qc.invalidateQueries(); // refresh every screen — the whole dataset changed
+      await qc.invalidateQueries(); // refresh every screen, the whole dataset changed
       setTimeout(() => setMessage(null), 5000);
     },
     onError: (e) => {
       setMessage(
-        `Restore failed: ${e instanceof Error ? e.message : "unknown error"} — try again or contact support.`,
+        `Restore failed: ${e instanceof Error ? e.message : "unknown error"}, try again or contact support.`,
       );
       setTimeout(() => setMessage(null), 8000);
     },
@@ -84,7 +84,7 @@ export function DemoDataBanner() {
     if (counts && counts.total === 0) {
       return (
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] bg-surface px-4 py-1.5 text-xs text-muted md:px-6">
-          <span>Demo data cleared — your own leads and sequences are untouched.</span>
+          <span>Demo data cleared. Your own leads and sequences are untouched.</span>
           <button
             type="button"
             className="rounded-control border border-[var(--border)] px-2.5 py-1 text-xs text-ink-2 disabled:opacity-60"
@@ -104,7 +104,7 @@ export function DemoDataBanner() {
       <div className="text-ink-2">
         <b className="text-ink">Demo data</b>
         <span className="hidden md:inline">
-          {" — "}
+          {", "}
           {counts.leads} leads · {counts.properties} {pack.context.plural.toLowerCase()} · {counts.campaigns} campaigns.
           Templates and anything you add yourself are kept when you clear.
         </span>

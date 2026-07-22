@@ -67,7 +67,7 @@ export function OnboardingChecklist() {
           </div>
           <p className="mt-0.5 text-[11px] text-muted">
             {allDone
-              ? "Nice work — checklist complete."
+              ? "Nice work, checklist complete."
               : `${stats.done} of ${stats.total} · keep the streak going`}
           </p>
         </div>

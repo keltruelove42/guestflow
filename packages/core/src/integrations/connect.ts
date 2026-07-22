@@ -165,7 +165,7 @@ export async function syncIntegration(orgId: string, provider: string) {
       await pms.syncInquiries(new Date(Date.now() - 7 * 864e5));
     } else if (provider === "klaviyo") {
       const apiKey = String((creds as { apiKey?: string }).apiKey ?? "");
-      if (!apiKey) throw new Error("Missing Klaviyo API key — reconnect");
+      if (!apiKey) throw new Error("Missing Klaviyo API key. Reconnect");
       const { fetchKlaviyoProfiles } = await import("./klaviyo");
       const { importLeads } = await import("../leads/importLeads");
       const pulled = await fetchKlaviyoProfiles(apiKey);
@@ -185,11 +185,11 @@ export async function syncIntegration(orgId: string, provider: string) {
       if (!check.ok) throw new Error(check.error);
     } else if (provider === "meta") {
       const token = String(creds.accessToken ?? "");
-      if (!token) throw new Error("Missing Meta access token — reconnect");
+      if (!token) throw new Error("Missing Meta access token. Reconnect");
       const res = await fetch(
         `https://graph.facebook.com/v21.0/me?access_token=${encodeURIComponent(token)}`,
       );
-      if (!res.ok) throw new Error("Meta token invalid — reconnect");
+      if (!res.ok) throw new Error("Meta token invalid. Reconnect");
     }
 
     return prisma.integration.update({

@@ -20,7 +20,7 @@ export async function POST(req: Request, { params }: Ctx) {
 
   if (parsed.data.channel === "CALL") {
     return NextResponse.json(
-      { error: "Use a call task instead — only email and SMS can be sent" },
+      { error: "Use a call task instead, only email and SMS can be sent" },
       { status: 400 },
     );
   }

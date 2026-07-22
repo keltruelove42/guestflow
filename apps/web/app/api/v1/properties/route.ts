@@ -77,7 +77,7 @@ export async function POST(req: Request) {
         : null;
     if (code === "P2003") {
       return NextResponse.json(
-        { error: "Your session is out of date — sign out and sign back in, then try again." },
+        { error: "Your session is out of date, sign out and sign back in, then try again." },
         { status: 401 },
       );
     }

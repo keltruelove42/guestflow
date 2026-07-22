@@ -289,7 +289,7 @@ async function advanceEnrollment(
         orgId: enrollment.orgId,
         leadId: enrollment.leadId,
         type: "SEQUENCE_COMPLETED",
-        title: `Sequence completed — “${sequence.name}”`,
+        title: `Sequence completed: “${sequence.name}”`,
         occurredAt: now,
         meta: { enrollmentId, sequenceId },
       },

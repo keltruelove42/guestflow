@@ -1,5 +1,5 @@
 /**
- * Vertical packs — everything that makes LeadCoda speak an industry's
+ * Vertical packs, everything that makes LeadCoda speak an industry's
  * language. The engine (leads, sequences, messaging, campaigns) is
  * identical for every vertical; packs supply vocabulary, labels, and copy.
  */
@@ -94,7 +94,7 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
       ],
       loginBlurb: "Capture leads, run follow-ups, and convert bookings.",
       leadsPageHint:
-        "Every contact field is optional at capture — LeadCoda picks the best follow-up channel from whatever it has. Open a lead to send email or SMS.",
+        "Every contact field is optional at capture. LeadCoda picks the best follow-up channel from whatever it has. Open a lead to send email or SMS.",
       followupsDesc:
         "Follow-ups start automatically the moment a lead is captured or an inquiry is abandoned. Replies pause the sequence and flag the lead for you; bookings stop it.",
     },
@@ -143,7 +143,7 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
       ],
       loginBlurb: "Capture inquiries, follow up automatically, and win more jobs.",
       leadsPageHint:
-        "Every contact field is optional at capture — LeadCoda picks the best follow-up channel from whatever it has. Open a lead to text or email them.",
+        "Every contact field is optional at capture. LeadCoda picks the best follow-up channel from whatever it has. Open a lead to text or email them.",
       followupsDesc:
         "Follow-ups start automatically the moment an inquiry comes in or an estimate goes quiet. Replies pause the sequence and flag the lead for you; a won job stops it.",
     },
@@ -192,7 +192,7 @@ export const VERTICAL_PACKS: Record<VerticalId, VerticalPack> = {
       ],
       loginBlurb: "Capture inquiries, follow up automatically, and keep your book full.",
       leadsPageHint:
-        "Every contact field is optional at capture — LeadCoda picks the best follow-up channel from whatever it has. Open a lead to text or email them.",
+        "Every contact field is optional at capture. LeadCoda picks the best follow-up channel from whatever it has. Open a lead to text or email them.",
       followupsDesc:
         "Follow-ups start automatically when an inquiry comes in or a booking is left unfinished. Replies pause the sequence and flag the lead for you; a booked appointment stops it.",
     },

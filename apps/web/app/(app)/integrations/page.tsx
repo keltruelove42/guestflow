@@ -123,7 +123,7 @@ function IntegrationsInner() {
     <div className="space-y-5">
       <p className="max-w-2xl text-sm text-ink-2">
         Connect your ad platforms, PMS, and messaging tools. API keys and OAuth tokens are
-        encrypted at rest. Demo badges are seed data — reconnect with your own credentials to go
+        encrypted at rest. Demo badges are seed data, reconnect with your own credentials to go
         live.
       </p>
 
@@ -351,7 +351,7 @@ function ConnectModal({
             <div>
               <h3 className="font-semibold">Connect {integration.name}</h3>
               <p className="text-xs text-muted">
-                {isOauth ? "Authorize via OAuth" : "Enter credentials — encrypted at rest"}
+                {isOauth ? "Authorize via OAuth" : "Enter credentials, encrypted at rest"}
               </p>
             </div>
           </div>
@@ -403,7 +403,7 @@ function ConnectModal({
                   </button>
                   <p className="text-[11px] leading-snug text-muted">
                     {integration.oauthReady
-                      ? `Recommended — you'll approve access on ${integration.name}. Works on every ${integration.name} plan, no API key needed.`
+                      ? `Recommended, you'll approve access on ${integration.name}. Works on every ${integration.name} plan, no API key needed.`
                       : (integration.setupHint ?? "One-click connect is not configured yet.")}
                   </p>
                   <div className="flex items-center gap-2 pt-1 text-[11px] uppercase tracking-wide text-muted">

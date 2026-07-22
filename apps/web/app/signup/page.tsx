@@ -19,7 +19,7 @@ const COMING_SOON = [
 ];
 
 /**
- * Free trial signup — industry standard, two steps:
+ * Free trial signup, industry standard, two steps:
  *   1. Name + email (nothing else, no credit card)
  *   2. Pick your industry → workspace is created and tailored
  */
@@ -135,7 +135,7 @@ export default function SignupPage() {
               What kind of business are you?
             </h1>
             <p className="mt-1.5 text-sm text-slate-400">
-              This tailors your workspace — pipeline, follow-up templates, and examples for your
+              This tailors your workspace: pipeline, follow-up templates, and examples for your
               industry.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">

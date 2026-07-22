@@ -235,7 +235,7 @@ export function ImportLeadsModal({ onClose }: { onClose: () => void }) {
             <>
               <p className="text-sm text-ink-2">
                 Upload a CSV or paste rows from a spreadsheet. Recognized columns:{" "}
-                <b>name</b>, <b>email</b>, <b>phone</b>, dates, property, notes —{" "}
+                <b>name</b>, <b>email</b>, <b>phone</b>, dates, property, notes -{" "}
                 <button type="button" className="text-accent underline" onClick={downloadTemplate}>
                   download template
                 </button>
@@ -274,7 +274,7 @@ export function ImportLeadsModal({ onClose }: { onClose: () => void }) {
                   <div className="text-xs text-muted">
                     {valid.length} ready to import
                     {invalid.length ? ` · ${invalid.length} skipped (missing name or contact)` : ""}
-                    {!headerFound && " · no header row detected — assuming name, email, phone, dates order"}
+                    {!headerFound && " · no header row detected, assuming name, email, phone, dates order"}
                   </div>
                   <div className="max-h-48 overflow-auto rounded-card border border-[var(--border)]">
                     <table className="w-full text-left text-xs">
@@ -289,12 +289,12 @@ export function ImportLeadsModal({ onClose }: { onClose: () => void }) {
                       <tbody>
                         {rows.slice(0, 20).map((r, i) => (
                           <tr key={i} className="border-t border-[var(--border)]">
-                            <td className="px-2 py-1.5">{r.name || "—"}</td>
+                            <td className="px-2 py-1.5">{r.name || "-"}</td>
                             <td className="max-w-[140px] truncate px-2 py-1.5">
-                              {r.email ?? r.phone ?? "—"}
+                              {r.email ?? r.phone ?? "-"}
                             </td>
                             <td className="hidden px-2 py-1.5 sm:table-cell">
-                              {r.travelDates ?? "—"}
+                              {r.travelDates ?? "-"}
                             </td>
                             <td className="px-2 py-1.5">
                               {r.problem ? (
@@ -324,7 +324,7 @@ export function ImportLeadsModal({ onClose }: { onClose: () => void }) {
                   onChange={(e) => setConsent(e.target.checked)}
                 />
                 These guests contacted me about a stay and I have permission to follow up with
-                them by email/SMS. (Required — sets their contact consent.)
+                them by email/SMS. (Required, sets their contact consent.)
               </label>
 
               {importMut.error && (

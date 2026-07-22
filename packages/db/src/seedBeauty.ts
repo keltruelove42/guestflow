@@ -1,5 +1,5 @@
 /**
- * Beauty & wellness vertical demo dataset — services, template sequences,
+ * Beauty & wellness vertical demo dataset, services, template sequences,
  * campaigns, and leads for salons, nail studios, and massage practices.
  * All rows isDemo except sequences (permanent templates).
  */
@@ -86,20 +86,20 @@ export async function seedBeautyContent(orgId: string) {
             order: 0,
             delayMinutes: 0,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}! It's {{host_name}} — saw you started booking and didn't finish. Want me to hold that time for you? Reply here and I'll lock it in. (Reply STOP to opt out)",
+            body: "Hi {{first_name}}! It's {{host_name}}, saw you started booking and didn't finish. Want me to hold that time for you? Reply here and I'll lock it in. (Reply STOP to opt out)",
           },
           {
             order: 1,
             delayMinutes: 120,
             channel: Channel.EMAIL,
             subject: "Your appointment is one tap away",
-            body: "Hi {{first_name}},\n\nYour booking didn't quite finish — happens all the time! Here's the quick link to pick your time: {{quote_link}}\n\nIf you had a question first (pricing, how long it takes, which service fits), just reply — I answer fast.\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nYour booking didn't quite finish, happens all the time! Here's the quick link to pick your time: {{quote_link}}\n\nIf you had a question first (pricing, how long it takes, which service fits), just reply. I answer fast.\n\n{{host_name}}{{unsub_link}}",
           },
           {
             order: 2,
             delayMinutes: 1440,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}, {{host_name}} again 💛 This week's slots are going quick — want me to grab you one? (Reply STOP to opt out)",
+            body: "Hi {{first_name}}, {{host_name}} again 💛 This week's slots are going quick, want me to grab you one? (Reply STOP to opt out)",
           },
         ],
       },
@@ -119,8 +119,8 @@ export async function seedBeautyContent(orgId: string) {
             order: 0,
             delayMinutes: 0,
             channel: Channel.EMAIL,
-            subject: "So glad you found us — here's the scoop",
-            body: "Hi {{first_name}},\n\nThanks for reaching out! Quick intro:\n\n• First visits start with a 5-min chat so we nail exactly what you want\n• You can text us anytime — this number goes straight to me\n• New clients get 15% off their first service this month\n\nReply with what you're thinking (inspo pics welcome!) or book straight in: {{quote_link}}\n\n{{host_name}}{{unsub_link}}",
+            subject: "So glad you found us: here's the scoop",
+            body: "Hi {{first_name}},\n\nThanks for reaching out! Quick intro:\n\n• First visits start with a 5-min chat so we nail exactly what you want\n• You can text us anytime, this number goes straight to me\n• New clients get 15% off their first service this month\n\nReply with what you're thinking (inspo pics welcome!) or book straight in: {{quote_link}}\n\n{{host_name}}{{unsub_link}}",
           },
           {
             order: 1,
@@ -133,7 +133,7 @@ export async function seedBeautyContent(orgId: string) {
             delayMinutes: 4320,
             channel: Channel.EMAIL,
             subject: "Your 15% new-client perk expires soon",
-            body: "Hi {{first_name}},\n\nJust a heads up — the 15% first-visit perk wraps up at the end of the month, and my book fills about a week out.\n\nGrab a time here: {{quote_link}}\n\nNo pressure at all — happy to answer anything first.\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nJust a heads up, the 15% first-visit perk wraps up at the end of the month, and my book fills about a week out.\n\nGrab a time here: {{quote_link}}\n\nNo pressure at all, happy to answer anything first.\n\n{{host_name}}{{unsub_link}}",
           },
         ],
       },
@@ -154,7 +154,7 @@ export async function seedBeautyContent(orgId: string) {
             delayMinutes: 0,
             channel: Channel.EMAIL,
             subject: "Ready when you are 💛",
-            body: "Hi {{first_name}},\n\nWanted to follow up on the consult we talked about. Big changes (color corrections, extensions, first-time work) always start with a quick consult so there are zero surprises on price or time.\n\nIt's free and takes 10 minutes — reply with a day that works and I'll fit you in.\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nWanted to follow up on the consult we talked about. Big changes (color corrections, extensions, first-time work) always start with a quick consult so there are zero surprises on price or time.\n\nIt's free and takes 10 minutes, reply with a day that works and I'll fit you in.\n\n{{host_name}}{{unsub_link}}",
           },
           {
             order: 1,
@@ -167,7 +167,7 @@ export async function seedBeautyContent(orgId: string) {
             delayMinutes: 10080,
             channel: Channel.EMAIL,
             subject: "Whenever you're ready",
-            body: "Hi {{first_name}},\n\nNo rush at all — timing has to be right for something you'll look at in the mirror every day 🙂\n\nWhen you're ready, this link books your consult in 30 seconds: {{quote_link}}\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nNo rush at all, timing has to be right for something you'll look at in the mirror every day 🙂\n\nWhen you're ready, this link books your consult in 30 seconds: {{quote_link}}\n\n{{host_name}}{{unsub_link}}",
           },
         ],
       },
@@ -187,14 +187,14 @@ export async function seedBeautyContent(orgId: string) {
             order: 0,
             delayMinutes: 0,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}! It's {{host_name}} — it's about that time 🗓️ Your usual spot is open next week. Want me to pencil you in? (Reply STOP to opt out)",
+            body: "Hi {{first_name}}! It's {{host_name}}, it's about that time 🗓️ Your usual spot is open next week. Want me to pencil you in? (Reply STOP to opt out)",
           },
           {
             order: 1,
             delayMinutes: 4320,
             channel: Channel.EMAIL,
             subject: "Your chair misses you",
-            body: "Hi {{first_name}},\n\nIt's been about six weeks — right on schedule for your next visit. Regulars who pre-book get first pick of evening and weekend slots.\n\nBook here: {{quote_link}} or just reply with a day that works.\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nIt's been about six weeks, right on schedule for your next visit. Regulars who pre-book get first pick of evening and weekend slots.\n\nBook here: {{quote_link}} or just reply with a day that works.\n\n{{host_name}}{{unsub_link}}",
           },
         ],
       },
@@ -214,14 +214,14 @@ export async function seedBeautyContent(orgId: string) {
             order: 0,
             delayMinutes: 0,
             channel: Channel.EMAIL,
-            subject: "It's been a while — come back for 20% off",
-            body: "Hi {{first_name}},\n\nIt's been a few months and I'd love to see you back in the chair. Here's 20% off your next visit — no strings, just mention this email.\n\nBook anytime: {{quote_link}}\n\n{{host_name}}{{unsub_link}}",
+            subject: "It's been a while: come back for 20% off",
+            body: "Hi {{first_name}},\n\nIt's been a few months and I'd love to see you back in the chair. Here's 20% off your next visit, no strings, just mention this email.\n\nBook anytime: {{quote_link}}\n\n{{host_name}}{{unsub_link}}",
           },
           {
             order: 1,
             delayMinutes: 7200,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}, {{host_name}} 💛 Your 20% welcome-back perk is waiting — want me to find you a time this week? (Reply STOP to opt out)",
+            body: "Hi {{first_name}}, {{host_name}} 💛 Your 20% welcome-back perk is waiting, want me to find you a time this week? (Reply STOP to opt out)",
           },
         ],
       },
@@ -247,7 +247,7 @@ export async function seedBeautyContent(orgId: string) {
             order: 1,
             delayMinutes: 10080,
             channel: Channel.EMAIL,
-            subject: "Bring a friend — you both get $20 off",
+            subject: "Bring a friend: you both get $20 off",
             body: "Hi {{first_name}},\n\nA little thank-you: refer a friend and you EACH get $20 off your next appointment. They just mention your name when they book.\n\nSee you soon!\n\n{{host_name}}{{unsub_link}}",
           },
         ],
@@ -261,7 +261,7 @@ export async function seedBeautyContent(orgId: string) {
       orgId: org.id,
       propertyId: svc1.id,
       platform: AdPlatform.META,
-      name: "New Client Balayage — 15% Off",
+      name: "New Client Balayage: 15% Off",
       status: CampaignStatus.ACTIVE,
       dailyBudgetCents: 2500,
       audience: { radiusMi: 15, age: "22-55", interests: ["Hair care", "Beauty"] },
@@ -306,7 +306,7 @@ export async function seedBeautyContent(orgId: string) {
       orgId: org.id,
       propertyId: svc3.id,
       platform: AdPlatform.PINTEREST,
-      name: "Self-Care Sunday — Massage Intro",
+      name: "Self-Care Sunday: Massage Intro",
       status: CampaignStatus.PAUSED,
       dailyBudgetCents: 1500,
       audience: { radiusMi: 20, age: "25-60" },
@@ -448,14 +448,14 @@ export async function seedBeautyContent(orgId: string) {
     events: [
       {
         type: LeadEventType.INQUIRY_ABANDONED,
-        title: "Started online booking — didn't finish",
+        title: "Started online booking: didn't finish",
         body: "Picked balayage, left at the payment step. Phone only.",
         occurredAt: daysAgo(0, 4),
       },
       {
         type: LeadEventType.SMS_SENT,
         channel: Channel.SMS,
-        title: "SMS sent — instant hold-your-spot text",
+        title: "SMS sent: instant hold-your-spot text",
         occurredAt: daysAgo(0, 4),
       },
     ],
@@ -488,8 +488,8 @@ export async function seedBeautyContent(orgId: string) {
     timeframe: "Next week, evenings",
     detail: "Dark brown → caramel balayage",
     events: [
-      { type: LeadEventType.CAPTURED, title: "Lead captured — Meta instant form", occurredAt: daysAgo(1, 2) },
-      { type: LeadEventType.EMAIL_SENT, channel: Channel.EMAIL, title: "Email sent — new client welcome", occurredAt: daysAgo(1, 2) },
+      { type: LeadEventType.CAPTURED, title: "Lead captured: Meta instant form", occurredAt: daysAgo(1, 2) },
+      { type: LeadEventType.EMAIL_SENT, channel: Channel.EMAIL, title: "Email sent: new client welcome", occurredAt: daysAgo(1, 2) },
     ],
     enroll: { sequenceId: s2.id, currentStep: 1 },
   });
@@ -503,12 +503,12 @@ export async function seedBeautyContent(orgId: string) {
     stage: Stage.QUOTED,
     createdAt: daysAgo(3),
     timeframe: "Flexible",
-    detail: "Color correction — box dye fix",
+    detail: "Color correction, box dye fix",
     events: [
-      { type: LeadEventType.CAPTURED, title: "Lead captured — TikTok form", occurredAt: daysAgo(3) },
+      { type: LeadEventType.CAPTURED, title: "Lead captured: TikTok form", occurredAt: daysAgo(3) },
       {
         type: LeadEventType.QUOTE_SENT,
-        title: "Consult offered — color correction",
+        title: "Consult offered: color correction",
         body: "Needs in-person consult; est. $280–$380 over two sessions.",
         occurredAt: daysAgo(2),
       },
@@ -528,7 +528,7 @@ export async function seedBeautyContent(orgId: string) {
     detail: "Gel-X, chrome finish",
     needsAttention: true,
     events: [
-      { type: LeadEventType.CAPTURED, title: "Lead captured — Meta instant form", occurredAt: daysAgo(2) },
+      { type: LeadEventType.CAPTURED, title: "Lead captured: Meta instant form", occurredAt: daysAgo(2) },
       {
         type: LeadEventType.REPLIED,
         channel: Channel.SMS,
@@ -536,7 +536,7 @@ export async function seedBeautyContent(orgId: string) {
         body: "\"Do you have anything Friday after 3? And how much is chrome?\"",
         occurredAt: daysAgo(0, 5),
       },
-      { type: LeadEventType.SEQUENCE_PAUSED, title: "Sequence paused — human reply needed", occurredAt: daysAgo(0, 5) },
+      { type: LeadEventType.SEQUENCE_PAUSED, title: "Sequence paused: human reply needed", occurredAt: daysAgo(0, 5) },
     ],
     enroll: { sequenceId: s2.id, currentStep: 2, status: "PAUSED" },
   });
@@ -552,9 +552,9 @@ export async function seedBeautyContent(orgId: string) {
     createdAt: daysAgo(8),
     timeframe: "Booked last Thursday",
     events: [
-      { type: LeadEventType.CAPTURED, title: "Lead captured — Meta instant form", occurredAt: daysAgo(8) },
-      { type: LeadEventType.BOOKED, title: "Booked — balayage + gloss, $240", occurredAt: daysAgo(5) },
-      { type: LeadEventType.SMS_SENT, channel: Channel.SMS, title: "SMS sent — review request", occurredAt: daysAgo(4) },
+      { type: LeadEventType.CAPTURED, title: "Lead captured: Meta instant form", occurredAt: daysAgo(8) },
+      { type: LeadEventType.BOOKED, title: "Booked: balayage + gloss, $240", occurredAt: daysAgo(5) },
+      { type: LeadEventType.SMS_SENT, channel: Channel.SMS, title: "SMS sent: review request", occurredAt: daysAgo(4) },
     ],
     booking: { amountCents: 24000, bookedAt: daysAgo(5), campaignId: c1.id, sequenceId: s2.id },
   });
@@ -569,8 +569,8 @@ export async function seedBeautyContent(orgId: string) {
     timeframe: "Sunday mornings",
     detail: "Neck + shoulder focus",
     events: [
-      { type: LeadEventType.CAPTURED, title: "Lead captured — Pinterest form", occurredAt: daysAgo(4) },
-      { type: LeadEventType.EMAIL_SENT, channel: Channel.EMAIL, title: "Email sent — new client welcome", occurredAt: daysAgo(4) },
+      { type: LeadEventType.CAPTURED, title: "Lead captured: Pinterest form", occurredAt: daysAgo(4) },
+      { type: LeadEventType.EMAIL_SENT, channel: Channel.EMAIL, title: "Email sent: new client welcome", occurredAt: daysAgo(4) },
     ],
     enroll: { sequenceId: s2.id, currentStep: 1 },
   });
@@ -582,7 +582,7 @@ export async function seedBeautyContent(orgId: string) {
     serviceId: svc1.id,
     stage: Stage.NEW,
     createdAt: daysAgo(1),
-    timeframe: "Lapsed regular — last visit ~4 months ago",
+    timeframe: "Lapsed regular, last visit ~4 months ago",
     events: [
       {
         type: LeadEventType.IMPORTED,
@@ -602,8 +602,8 @@ export async function seedBeautyContent(orgId: string) {
     stage: Stage.LOST,
     createdAt: daysAgo(11),
     events: [
-      { type: LeadEventType.INQUIRY_STARTED, title: "Inquiry — bridal party nails (6 people)", occurredAt: daysAgo(11) },
-      { type: LeadEventType.LOST_MARKED, title: "Marked lost — chose a salon closer to venue", occurredAt: daysAgo(6) },
+      { type: LeadEventType.INQUIRY_STARTED, title: "Inquiry: bridal party nails (6 people)", occurredAt: daysAgo(11) },
+      { type: LeadEventType.LOST_MARKED, title: "Marked lost: chose a salon closer to venue", occurredAt: daysAgo(6) },
     ],
   });
 

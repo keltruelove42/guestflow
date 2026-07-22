@@ -112,7 +112,7 @@ export default function SequencesPage() {
 
       {!isLoading && own.length === 0 && (
         <p className="text-sm text-muted">
-          No sequences of your own yet — adapt a template below (Edit) or create a new one.
+          No sequences of your own yet, adapt a template below (Edit) or create a new one.
         </p>
       )}
 

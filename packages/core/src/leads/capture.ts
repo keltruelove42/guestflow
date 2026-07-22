@@ -94,7 +94,7 @@ export async function createFromCapture(input: CaptureInput): Promise<CaptureRes
         leadId: lead.id,
         type: isAd ? "CAPTURED" : "INQUIRY_STARTED",
         title: isAd
-          ? `Lead captured — ${input.source} (merged)`
+          ? `Lead captured: ${input.source} (merged)`
           : "Inquiry started (merged)",
         body: input.consentText,
         meta: { consentText: input.consentText, source: input.source },
@@ -139,8 +139,8 @@ export async function createFromCapture(input: CaptureInput): Promise<CaptureRes
       leadId: lead.id,
       type: isAd ? "CAPTURED" : "INQUIRY_STARTED",
       title: isAd
-        ? `Lead captured — ${prettySource(input.source)} instant form`
-        : "Inquiry started — direct site",
+        ? `Lead captured: ${prettySource(input.source)} instant form`
+        : "Inquiry started: direct site",
       body: input.consentText,
       meta: { consentText: input.consentText, source: input.source },
       occurredAt: now,
@@ -199,7 +199,7 @@ export async function changeStage(
       type: stage === "BOOKED" ? "BOOKED" : stage === "LOST" ? "LOST_MARKED" : "STAGE_CHANGED",
       title:
         stage === "BOOKED"
-          ? `Booked${opts?.bookingAmountCents ? ` — $${(opts.bookingAmountCents / 100).toFixed(0)}` : ""}`
+          ? `Booked${opts?.bookingAmountCents ? `: $${(opts.bookingAmountCents / 100).toFixed(0)}` : ""}`
           : stage === "LOST"
             ? "Marked lost"
             : `Stage → ${stage}`,

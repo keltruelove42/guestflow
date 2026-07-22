@@ -10,7 +10,7 @@ import { useIsMobile } from "@/lib/use-mobile";
 function OnboardingSurface() {
   const isMobile = useIsMobile();
 
-  // Mobile best practice: no modals, tours, or checklists on a small screen —
+  // Mobile best practice: no modals, tours, or checklists on a small screen -
   // one lean first-run sheet, then straight into the product.
   if (isMobile) return <MobileFirstRun />;
 

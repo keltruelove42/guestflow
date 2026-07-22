@@ -1,5 +1,5 @@
 /**
- * Trades vertical demo dataset — services, template sequences, campaigns,
+ * Trades vertical demo dataset, services, template sequences, campaigns,
  * and leads for home-services businesses (plumbers, electricians,
  * renovators). Mirrors the rentals seed structure; all rows isDemo except
  * sequences, which are permanent templates.
@@ -87,27 +87,27 @@ export async function seedTradesContent(orgId: string) {
             order: 0,
             delayMinutes: 0,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}, it's {{host_name}} — got your request and didn't want to leave you hanging. What's the best time for a quick call about the job? Or just reply here with details and I'll price it out. (Reply STOP to opt out)",
+            body: "Hi {{first_name}}, it's {{host_name}}, got your request and didn't want to leave you hanging. What's the best time for a quick call about the job? Or just reply here with details and I'll price it out. (Reply STOP to opt out)",
           },
           {
             order: 1,
             delayMinutes: 60,
             channel: Channel.EMAIL,
-            subject: "Your estimate request — quick question",
+            subject: "Your estimate request: quick question",
             body: "Hi {{first_name}},\n\nThanks for reaching out about your project. To get you an accurate number fast, can you reply with:\n\n1. A photo or two of the area\n2. Rough timeline (this week? this month?)\n3. Best number to reach you\n\nMost estimates go out same day.\n\n{{host_name}}{{unsub_link}}",
           },
           {
             order: 2,
             delayMinutes: 1440,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}, {{host_name}} again — still happy to get you a price on that job. Slots this week are filling; reply with a good time and I'll lock one in. (Reply STOP to opt out)",
+            body: "Hi {{first_name}}, {{host_name}} again, still happy to get you a price on that job. Slots this week are filling; reply with a good time and I'll lock one in. (Reply STOP to opt out)",
           },
           {
             order: 3,
             delayMinutes: 4320,
             channel: Channel.EMAIL,
             subject: "Closing the loop on your project",
-            body: "Hi {{first_name}},\n\nI'll assume the timing changed — no problem at all. If the project comes back around, just reply to this email and we'll pick it right up.\n\nKeep our number handy for emergencies too.\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nI'll assume the timing changed, no problem at all. If the project comes back around, just reply to this email and we'll pick it right up.\n\nKeep our number handy for emergencies too.\n\n{{host_name}}{{unsub_link}}",
           },
         ],
       },
@@ -127,8 +127,8 @@ export async function seedTradesContent(orgId: string) {
             order: 0,
             delayMinutes: 0,
             channel: Channel.EMAIL,
-            subject: "Got your request — here's what happens next",
-            body: "Hi {{first_name}},\n\nThanks for requesting a quote. Here's how we work:\n\n1. Quick call or photos to scope the job\n2. Written estimate — usually same day\n3. We schedule at your convenience; you approve before any work starts\n\nLicensed, insured, and we show up when we say we will. Reply with a couple of photos and your timeline to skip step 1.\n\n{{host_name}}{{unsub_link}}",
+            subject: "Got your request: here's what happens next",
+            body: "Hi {{first_name}},\n\nThanks for requesting a quote. Here's how we work:\n\n1. Quick call or photos to scope the job\n2. Written estimate, usually same day\n3. We schedule at your convenience; you approve before any work starts\n\nLicensed, insured, and we show up when we say we will. Reply with a couple of photos and your timeline to skip step 1.\n\n{{host_name}}{{unsub_link}}",
           },
           {
             order: 1,
@@ -148,7 +148,7 @@ export async function seedTradesContent(orgId: string) {
             delayMinutes: 10080,
             channel: Channel.EMAIL,
             subject: "Still need that job done?",
-            body: "Hi {{first_name}},\n\nChecking in one last time. If you're still comparing bids, I'm glad to walk through ours line by line — no pressure either way.\n\nIf now's not the time, no worries. We're here when you need us.\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nChecking in one last time. If you're still comparing bids, I'm glad to walk through ours line by line, no pressure either way.\n\nIf now's not the time, no worries. We're here when you need us.\n\n{{host_name}}{{unsub_link}}",
           },
         ],
       },
@@ -175,7 +175,7 @@ export async function seedTradesContent(orgId: string) {
             order: 1,
             delayMinutes: 2880,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}, {{host_name}} here. Any questions on the estimate? If budget's the sticking point, tell me — there's usually a way to phase the work. (Reply STOP to opt out)",
+            body: "Hi {{first_name}}, {{host_name}} here. Any questions on the estimate? If budget's the sticking point, tell me, there's usually a way to phase the work. (Reply STOP to opt out)",
           },
           {
             order: 2,
@@ -189,7 +189,7 @@ export async function seedTradesContent(orgId: string) {
             delayMinutes: 20160,
             channel: Channel.EMAIL,
             subject: "Your estimate is good for 30 days",
-            body: "Hi {{first_name}},\n\nJust so it doesn't sneak up on you — the estimate we sent stays valid for 30 days. After that, material prices may shift it.\n\nReply anytime and we'll get you on the schedule.\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nJust so it doesn't sneak up on you, the estimate we sent stays valid for 30 days. After that, material prices may shift it.\n\nReply anytime and we'll get you on the schedule.\n\n{{host_name}}{{unsub_link}}",
           },
         ],
       },
@@ -199,7 +199,7 @@ export async function seedTradesContent(orgId: string) {
   const s4 = await ensureSequence({
     data: {
       orgId: org.id,
-      name: "Job Done — Review & Referral",
+      name: "Job Done: Review & Referral",
       trigger: SequenceTrigger.MANUAL_ONLY,
       active: true,
       isDemo: true,
@@ -237,13 +237,13 @@ export async function seedTradesContent(orgId: string) {
             delayMinutes: 0,
             channel: Channel.EMAIL,
             subject: "Time for your {{season}} checkup",
-            body: "Hi {{first_name}},\n\nIt's been a few months since we were out — a quick seasonal check keeps small issues from becoming weekend emergencies.\n\nThis month we're running a $89 whole-home checkup for past customers (normally $149). Reply and we'll find a time.\n\n{{host_name}}{{unsub_link}}",
+            body: "Hi {{first_name}},\n\nIt's been a few months since we were out, a quick seasonal check keeps small issues from becoming weekend emergencies.\n\nThis month we're running a $89 whole-home checkup for past customers (normally $149). Reply and we'll find a time.\n\n{{host_name}}{{unsub_link}}",
           },
           {
             order: 1,
             delayMinutes: 7200,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}, {{host_name}} — last call on the $89 past-customer checkup this month. Want me to grab you a slot? (Reply STOP to opt out)",
+            body: "Hi {{first_name}}, {{host_name}}, last call on the $89 past-customer checkup this month. Want me to grab you a slot? (Reply STOP to opt out)",
           },
         ],
       },
@@ -263,14 +263,14 @@ export async function seedTradesContent(orgId: string) {
             order: 0,
             delayMinutes: 0,
             channel: Channel.EMAIL,
-            subject: "Openings this week — priority scheduling",
-            body: "Hi {{first_name}},\n\nA couple of slots opened up this week, and past customers get first dibs. If you've been putting off a repair or project, now's a great time — we can likely get to it within days, not weeks.\n\nReply with what you need and I'll hold a slot.\n\n{{host_name}}{{unsub_link}}",
+            subject: "Openings this week: priority scheduling",
+            body: "Hi {{first_name}},\n\nA couple of slots opened up this week, and past customers get first dibs. If you've been putting off a repair or project, now's a great time, we can likely get to it within days, not weeks.\n\nReply with what you need and I'll hold a slot.\n\n{{host_name}}{{unsub_link}}",
           },
           {
             order: 1,
             delayMinutes: 2880,
             channel: Channel.SMS,
-            body: "Hi {{first_name}}, {{host_name}} — still have an opening Thursday if that repair's been on your list. Want it? (Reply STOP to opt out)",
+            body: "Hi {{first_name}}, {{host_name}}, still have an opening Thursday if that repair's been on your list. Want it? (Reply STOP to opt out)",
           },
         ],
       },
@@ -283,7 +283,7 @@ export async function seedTradesContent(orgId: string) {
       orgId: org.id,
       propertyId: svc1.id,
       platform: AdPlatform.META,
-      name: "Water Heater — Same-Week Install",
+      name: "Water Heater: Same-Week Install",
       status: CampaignStatus.ACTIVE,
       dailyBudgetCents: 4000,
       audience: { radiusMi: 30, age: "30-65", interests: ["Homeowners"] },
@@ -464,19 +464,19 @@ export async function seedTradesContent(orgId: string) {
     serviceId: svc1.id,
     stage: Stage.NEW,
     createdAt: daysAgo(0, 6),
-    timeframe: "ASAP — no hot water",
+    timeframe: "ASAP, no hot water",
     events: [
       {
         type: LeadEventType.INQUIRY_ABANDONED,
-        title: "Started estimate request — didn't finish",
+        title: "Started estimate request: didn't finish",
         body: "Left phone only. SMS-first rescue selected automatically.",
         occurredAt: daysAgo(0, 6),
       },
       {
         type: LeadEventType.SMS_SENT,
         channel: Channel.SMS,
-        title: "SMS sent — instant text-back",
-        body: "Hi Mike, it's Taylor — got your request and didn't want to leave you hanging…",
+        title: "SMS sent: instant text-back",
+        body: "Hi Mike, it's Taylor, got your request and didn't want to leave you hanging…",
         occurredAt: daysAgo(0, 6),
       },
     ],
@@ -512,13 +512,13 @@ export async function seedTradesContent(orgId: string) {
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — Meta instant form",
+        title: "Lead captured: Meta instant form",
         occurredAt: daysAgo(1, 4),
       },
       {
         type: LeadEventType.EMAIL_SENT,
         channel: Channel.EMAIL,
-        title: "Email sent — \"Got your request\"",
+        title: "Email sent: \"Got your request\"",
         occurredAt: daysAgo(1, 4),
       },
     ],
@@ -538,14 +538,14 @@ export async function seedTradesContent(orgId: string) {
     events: [
       {
         type: LeadEventType.QUOTE_SENT,
-        title: "Estimate sent — $47,800",
+        title: "Estimate sent: $47,800",
         body: "Full remodel incl. cabinets, counters, electrical. 30-day validity.",
         occurredAt: daysAgo(2),
       },
       {
         type: LeadEventType.EMAIL_SENT,
         channel: Channel.EMAIL,
-        title: "Email sent — \"Any questions on your estimate?\"",
+        title: "Email sent: \"Any questions on your estimate?\"",
         occurredAt: daysAgo(0, 20),
       },
     ],
@@ -566,7 +566,7 @@ export async function seedTradesContent(orgId: string) {
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — Meta instant form",
+        title: "Lead captured: Meta instant form",
         occurredAt: daysAgo(3),
       },
       {
@@ -578,7 +578,7 @@ export async function seedTradesContent(orgId: string) {
       },
       {
         type: LeadEventType.SEQUENCE_PAUSED,
-        title: "Sequence paused — human reply needed",
+        title: "Sequence paused: human reply needed",
         occurredAt: daysAgo(0, 9),
       },
     ],
@@ -598,18 +598,18 @@ export async function seedTradesContent(orgId: string) {
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — Meta instant form",
+        title: "Lead captured: Meta instant form",
         occurredAt: daysAgo(9),
       },
       {
         type: LeadEventType.BOOKED,
-        title: "Job won — $2,240 water heater install",
+        title: "Job won: $2,240 water heater install",
         occurredAt: daysAgo(6),
       },
       {
         type: LeadEventType.SMS_SENT,
         channel: Channel.SMS,
-        title: "SMS sent — review request",
+        title: "SMS sent: review request",
         occurredAt: daysAgo(5),
       },
     ],
@@ -626,12 +626,12 @@ export async function seedTradesContent(orgId: string) {
     events: [
       {
         type: LeadEventType.QUOTE_SENT,
-        title: "Estimate sent — $3,400 panel upgrade",
+        title: "Estimate sent: $3,400 panel upgrade",
         occurredAt: daysAgo(10),
       },
       {
         type: LeadEventType.LOST_MARKED,
-        title: "Marked lost — went with a lower bid",
+        title: "Marked lost: went with a lower bid",
         occurredAt: daysAgo(5),
       },
     ],
@@ -651,7 +651,7 @@ export async function seedTradesContent(orgId: string) {
     events: [
       {
         type: LeadEventType.CAPTURED,
-        title: "Lead captured — TikTok form",
+        title: "Lead captured: TikTok form",
         occurredAt: daysAgo(6),
       },
       {
@@ -671,7 +671,7 @@ export async function seedTradesContent(orgId: string) {
     source: LeadSource.IMPORT,
     stage: Stage.NEW,
     createdAt: daysAgo(2),
-    timeframe: "Bathroom leak — recurring",
+    timeframe: "Bathroom leak, recurring",
     events: [
       {
         type: LeadEventType.IMPORTED,
