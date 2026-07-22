@@ -20,4 +20,4 @@ jobs:
         run: |
           curl -fsS -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "https://guestflow-web-tawny.vercel.app/api/jobs/tick"
+            "https://leadcoda.app/api/jobs/tick"
