@@ -113,7 +113,33 @@ export async function getPmsProviders(orgId: string): Promise<PmsProvider[]> {
   return providers.length ? providers : [new MockPmsProvider("hostfully")];
 }
 
+/** Read the org's connected Resend integration, if any (real creds only). */
+async function resendFromIntegration(orgId: string) {
+  const row = await prisma.integration.findUnique({
+    where: { orgId_provider: { orgId, provider: "resend" } },
+  });
+  if (row?.status !== "CONNECTED" || row.isDemo) return null;
+  const creds = readIntegrationCredentials(row.credentials) as {
+    apiKey?: string;
+    fromEmail?: string;
+    fromName?: string;
+  } | null;
+  const apiKey = String(creds?.apiKey ?? "").trim();
+  if (!apiKey) return null;
+  const fromEmail = String(creds?.fromEmail ?? "").trim() || "onboarding@resend.dev";
+  const fromName = String(creds?.fromName ?? "").trim();
+  const from = fromName ? `${fromName} <${fromEmail}>` : fromEmail;
+  return { apiKey, from };
+}
+
 export async function getEmailSender(orgId: string): Promise<EmailSender> {
+  // Use Resend whenever real credentials are connected (even in DEMO),
+  // mirroring the Twilio behavior so Connect "just works".
+  const fromIntegration = await resendFromIntegration(orgId);
+  if (fromIntegration) {
+    return new ResendEmailSender(fromIntegration.apiKey, fromIntegration.from);
+  }
+
   const mode = await getOrgMode(orgId);
   if (wantsLiveDelivery(mode) && resendConfigured()) {
     return new ResendEmailSender(
@@ -149,7 +175,8 @@ export async function getSmsSender(orgId: string): Promise<SmsSender> {
 export async function getMessagingDeliveryStatus(orgId: string) {
   const mode = await getOrgMode(orgId);
   const live = wantsLiveDelivery(mode);
-  const emailLive = live && resendConfigured();
+  const resendIntegration = await resendFromIntegration(orgId);
+  const emailLive = Boolean(resendIntegration) || (live && resendConfigured());
 
   const integration = await prisma.integration.findUnique({
     where: { orgId_provider: { orgId, provider: "twilio" } },
@@ -165,7 +192,7 @@ export async function getMessagingDeliveryStatus(orgId: string) {
     sendMode: process.env.SEND_MODE?.trim().toLowerCase() || null,
     email: emailLive ? ("live" as const) : ("log" as const),
     sms: smsLive ? ("live" as const) : ("log" as const),
-    emailFrom: process.env.EMAIL_FROM?.trim() || null,
+    emailFrom: resendIntegration?.from ?? process.env.EMAIL_FROM?.trim() ?? null,
   };
 }
 

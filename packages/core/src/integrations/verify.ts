@@ -154,6 +154,47 @@ export async function verifyProviderCredentials(
       };
     }
 
+    if (provider === "resend") {
+      const apiKey = String(creds.apiKey ?? "").trim();
+      if (!apiKey) return { ok: false, error: "API key required" };
+      if (!apiKey.startsWith("re_")) {
+        return {
+          ok: false,
+          error: "Resend API keys start with re_ (resend.com → API Keys)",
+        };
+      }
+      const fromEmail = String(creds.fromEmail ?? "").trim();
+      if (fromEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail)) {
+        return { ok: false, error: "From address does not look like an email" };
+      }
+      const res = await fetch("https://api.resend.com/domains", {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      if (res.status === 401) {
+        return { ok: false, error: "Resend rejected this API key" };
+      }
+      // 403 = sending-only key (cannot list domains) - still valid for sends
+      if (!res.ok && res.status !== 403) {
+        return { ok: false, error: `Resend returned ${res.status}. Check the key` };
+      }
+      if (fromEmail && res.ok) {
+        const data = (await res.json().catch(() => null)) as {
+          data?: Array<{ name?: string; status?: string }>;
+        } | null;
+        const domain = fromEmail.split("@")[1]?.toLowerCase();
+        const verified = data?.data?.some(
+          (d) => d.name?.toLowerCase() === domain && d.status === "verified",
+        );
+        if (data?.data && !verified) {
+          return {
+            ok: false,
+            error: `The domain ${domain} is not verified in Resend yet. Verify it there first, or leave the from address blank to use Resend's test sender`,
+          };
+        }
+      }
+      return { ok: true, detail: "Resend key verified" };
+    }
+
     if (provider === "lodgify") {
       const apiKey = String(creds.apiKey ?? "").trim();
       if (!apiKey) return { ok: false, error: "API key required" };

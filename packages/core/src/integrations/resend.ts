@@ -20,7 +20,11 @@ export class ResendEmailSender implements EmailSender {
         subject: msg.subject,
         html: msg.html,
         text: msg.text,
-        ...(msg.replyTo ? { reply_to: msg.replyTo } : {}),
+        // Placeholder reply-to hosts (inbound parsing not configured) would
+        // make providers reject the send - drop them
+        ...(msg.replyTo && !msg.replyTo.includes("localhost")
+          ? { reply_to: msg.replyTo }
+          : {}),
         ...(msg.headers ? { headers: msg.headers } : {}),
       }),
     });

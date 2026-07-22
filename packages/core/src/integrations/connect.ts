@@ -180,7 +180,7 @@ export async function syncIntegration(orgId: string, provider: string) {
           sourceTitle: "Synced from Klaviyo",
         });
       }
-    } else if (provider === "twilio" || provider === "lodgify" || provider === "ownerrez" || provider === "stayfi") {
+    } else if (provider === "twilio" || provider === "resend" || provider === "lodgify" || provider === "ownerrez" || provider === "stayfi") {
       const check = await verifyProviderCredentials(provider, creds);
       if (!check.ok) throw new Error(check.error);
     } else if (provider === "meta") {
