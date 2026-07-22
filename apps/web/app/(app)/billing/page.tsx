@@ -42,6 +42,7 @@ function BillingInner() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
   const [annual, setAnnual] = useState(true);
+  const [conciergeOpen, setConciergeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { data: billing } = useQuery({
@@ -254,16 +255,22 @@ function BillingInner() {
                 <span className="shrink-0 text-xs font-bold text-accent">{a.price}</span>
               </div>
               <p className="mt-2 text-xs leading-relaxed text-ink-2">{a.desc}</p>
-              <a
-                href={`mailto:hello@leadcoda.app?subject=${encodeURIComponent(`Add-on: ${a.name}`)}`}
-                className={`mt-2.5 inline-block rounded-control px-3 py-1.5 text-xs font-medium ${
-                  a.featured
-                    ? "bg-gradient-to-r from-[#2563eb] to-[#38bdf8] text-white"
-                    : "border border-[var(--border)]"
-                }`}
-              >
-                {a.featured ? "⚡ Get Concierge" : "Add"}
-              </a>
+              {a.featured ? (
+                <button
+                  type="button"
+                  className="mt-2.5 inline-block rounded-control bg-gradient-to-r from-[#2563eb] to-[#38bdf8] px-3 py-1.5 text-xs font-medium text-white"
+                  onClick={() => setConciergeOpen(true)}
+                >
+                  ⚡ Get Concierge
+                </button>
+              ) : (
+                <a
+                  href={`mailto:hello@leadcoda.app?subject=${encodeURIComponent(`Add-on: ${a.name}`)}`}
+                  className="mt-2.5 inline-block rounded-control border border-[var(--border)] px-3 py-1.5 text-xs font-medium"
+                >
+                  Add
+                </a>
+              )}
             </div>
           ))}
         </div>
@@ -279,6 +286,83 @@ function BillingInner() {
       </p>
 
       {error && <p className="text-sm text-critical">{error}</p>}
+
+      {conciergeOpen && <ConciergeModal onClose={() => setConciergeOpen(false)} />}
+    </div>
+  );
+}
+
+function ConciergeModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[90vh] w-full max-w-lg overflow-auto rounded-card border border-[var(--border)] bg-surface shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+          <h3 className="font-semibold">📞 Coda Concierge</h3>
+          <button type="button" className="text-sm text-muted" onClick={onClose}>
+            Close
+          </button>
+        </div>
+        <div className="space-y-4 p-5">
+          <p className="text-sm leading-relaxed text-ink-2">
+            Your BDR for hire. Speed wins deals, and most owners cannot drop everything to
+            call a lead back in five minutes. Our reps can. Here is exactly how it works:
+          </p>
+          <ol className="space-y-3">
+            {[
+              [
+                "1",
+                "A hot lead comes in",
+                "A new inquiry, a reply, or a lead your heat score flags as ready.",
+              ],
+              [
+                "2",
+                "We call within minutes",
+                "A trained LeadCoda rep calls on your behalf, using your business name and the lead's full context from the CRM.",
+              ],
+              [
+                "3",
+                "We qualify and book",
+                "The rep answers basic questions, qualifies the lead, and books them straight into an open slot on your LeadCoda calendar.",
+              ],
+              [
+                "4",
+                "You show up and close",
+                "Call notes land on the lead's timeline. You walk into every appointment knowing exactly what they want.",
+              ],
+            ].map(([n, title, desc]) => (
+              <li key={n} className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
+                  {n}
+                </span>
+                <div>
+                  <div className="text-sm font-semibold">{title}</div>
+                  <p className="text-xs leading-relaxed text-ink-2">{desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="rounded-control bg-surface-2 p-3 text-xs text-ink-2">
+            <b className="text-ink">Pricing:</b> from $499/mo for up to 100 called leads.
+            Outsourced SDR teams typically start around $2,500/mo. Cancel monthly, no
+            contract.
+          </div>
+          <a
+            href={`mailto:hello@leadcoda.app?subject=${encodeURIComponent("Coda Concierge: I want in")}&body=${encodeURIComponent("Tell us a bit about your business and lead volume, and we will reach out within one business day to get Concierge running for you.")}`}
+            className="block rounded-control bg-gradient-to-r from-[#2563eb] to-[#38bdf8] py-2.5 text-center text-sm font-semibold text-white"
+          >
+            ⚡ Request Concierge
+          </a>
+          <p className="text-center text-[11px] text-muted">
+            We reach out within one business day to set everything up.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

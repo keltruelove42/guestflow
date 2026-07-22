@@ -417,6 +417,35 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ===== Coda Concierge ===== */}
+      <section className="relative z-10 mx-auto max-w-6xl px-5 py-10">
+        <div
+          className="flex flex-col items-start justify-between gap-6 rounded-3xl border p-8 md:flex-row md:items-center"
+          style={{ background: NAVY.panel, borderColor: "rgba(96,165,250,0.35)" }}
+        >
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
+              📞 Coda Concierge · your BDR for hire
+            </span>
+            <h2 className="mt-4 text-2xl font-extrabold tracking-tight md:text-3xl">
+              Too busy to call leads back? We will.
+            </h2>
+            <p className="mt-3 text-slate-300">
+              When a hot lead comes in, our reps call them within minutes, qualify them, and
+              book them straight onto your calendar, with notes on the lead&apos;s timeline.
+              You just show up to the appointment. From $499/mo, where outsourced SDR teams
+              start around $2,500.
+            </p>
+          </div>
+          <Link
+            href="/pricing"
+            className="shrink-0 rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold shadow-lg shadow-blue-600/30 hover:bg-blue-500"
+          >
+            See Concierge pricing →
+          </Link>
+        </div>
+      </section>
+
       {/* ===== Industries ===== */}
       <section id="industries" className="relative z-10 mx-auto max-w-6xl px-5 py-16">
         <h2 className="text-center text-3xl font-extrabold tracking-tight md:text-4xl">
