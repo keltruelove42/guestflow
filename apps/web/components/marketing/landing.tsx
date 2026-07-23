@@ -307,6 +307,9 @@ export function LandingPage() {
           <Link href="/pricing" className="hover:text-white">
             Pricing
           </Link>
+          <Link href="/consulting" className="hover:text-white">
+            Consulting
+          </Link>
         </nav>
         <div className="flex items-center gap-3">
           <Link href="/login" className="hidden text-sm text-slate-300 hover:text-white sm:block">
@@ -538,6 +541,9 @@ export function LandingPage() {
             </a>
             <Link href="/pricing" className="hover:text-slate-300">
               Pricing
+            </Link>
+            <Link href="/consulting" className="hover:text-slate-300">
+              Consulting
             </Link>
             <Link href="/security" className="hover:text-slate-300">
               Security
