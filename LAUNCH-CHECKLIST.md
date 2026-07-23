@@ -140,14 +140,41 @@ Reply capture (the existing inbound webhook) is separate and unchanged.
 - **Growth analytics**: on a GROWTH/ENTERPRISE workspace the dashboard's new "Analytics" section shows open/reply/redemption/booking by touchpoint; on trial/starter it shows the locked "Upgrade to Growth" teaser.
 - **Opens**: after the Resend webhook is live, open a test email you sent yourself → within a minute the lead timeline shows "Email opened" and the open-rate number moves.
 
-## F. One known gap — logging code redemptions
+## F. Code redemptions — logging (done) + custom report builder
 
-The analytics *displays* code redemptions and the API to record one exists
-(`POST /api/v1/leads/[id]/redemptions` with `{ code }`), but there is **no button
-in the UI yet** to log a redemption — so that number stays at 0 until something
-calls it. Two options: (1) I add a small "Log redemption" action on the lead
-detail page, or (2) you call the endpoint from wherever redemptions actually
-happen (e.g. your booking/checkout flow). Say which and I'll wire it.
+- **Manual logging is live**: the lead detail page has a "Discount code" box →
+  Log redemption. It records the event and feeds analytics.
+- **Automated (Hostfully) is pending your input**: Hostfully's booking sync
+  currently carries no promo-code field, so auto-detection isn't wired. If you
+  want it, send one real Hostfully booking JSON that used a code and I'll map it.
+
+## G. Custom report builder (Growth tier) — migration 005-style step
+
+This replaces the fixed redemption chart with a builder where Growth/Enterprise
+clients compose any chart from everything tracked (leads, messaging, opens,
+replies, redemptions, bookings/revenue, ad spend, appointments) — and anything
+PMS sync later adds becomes a new chartable metric automatically.
+
+Run the second migration in Neon (`migrations/004_custom_reports.sql`) — additive, idempotent:
+
+```sql
+CREATE TABLE IF NOT EXISTS "SavedReport" (
+    "id" TEXT NOT NULL, "orgId" TEXT NOT NULL, "name" TEXT NOT NULL,
+    "spec" JSONB NOT NULL, "position" INTEGER NOT NULL DEFAULT 0,
+    "createdBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SavedReport_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "SavedReport_orgId_position_idx" ON "SavedReport"("orgId", "position");
+ALTER TABLE "SavedReport" DROP CONSTRAINT IF EXISTS "SavedReport_orgId_fkey";
+ALTER TABLE "SavedReport" ADD CONSTRAINT "SavedReport_orgId_fkey"
+    FOREIGN KEY ("orgId") REFERENCES "Org"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+```
+
+No new env vars. Smoke test: on a GROWTH/ENTERPRISE workspace, a "📊 Reports"
+nav item → build a report (pick a metric, group by time/source/campaign, choose
+line/bar/stat/table, save). Non-Growth sees a locked teaser. Nothing to configure.
 
 ---
 
