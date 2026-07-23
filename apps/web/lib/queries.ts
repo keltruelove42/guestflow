@@ -34,6 +34,7 @@ export type Sequence = {
   active: boolean;
   channelLabel: string;
   isDemo?: boolean;
+  heroPhotoUrl?: string | null;
   steps: SequenceStep[];
   stats: { enrolled: number; replies: number; replyRate: number; booked: number };
 };

@@ -1,7 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+
+const SETTINGS_LINKS = [
+  { href: "/settings/brand", icon: "🎨", label: "Brand" },
+  { href: "/settings/billing", icon: "💳", label: "Billing" },
+  { href: "/settings/integrations", icon: "🔌", label: "Integrations" },
+  { href: "/settings/team", icon: "🧑‍🤝‍🧑", label: "Team" },
+] as const;
 
 const DESKTOP_FEATURES = [
   { icon: "📣", label: "Ad Campaigns", desc: "Launch and edit lead-gen campaigns" },
@@ -48,6 +56,23 @@ export default function MorePage() {
           <span className="ml-auto rounded-pill bg-surface-2 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
             {me?.orgMode ?? "DEMO"}
           </span>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-semibold">Settings</h2>
+        <div className="overflow-hidden rounded-card border border-[var(--border)] bg-surface">
+          {SETTINGS_LINKS.map((s) => (
+            <Link
+              key={s.href}
+              href={s.href}
+              className="flex min-h-[48px] items-center gap-3 border-b border-[var(--border)] px-4 py-3 last:border-0"
+            >
+              <span className="text-base">{s.icon}</span>
+              <span className="text-sm font-medium">{s.label}</span>
+              <span className="ml-auto text-muted">›</span>
+            </Link>
+          ))}
         </div>
       </section>
 
