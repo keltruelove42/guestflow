@@ -5,12 +5,12 @@ import { getSession } from "@/lib/auth";
 export const runtime = "nodejs";
 
 const MAX_BYTES = 4 * 1024 * 1024; // 4 MB
+// SVG intentionally excluded: it can carry scripts, and blobs are public.
 const ALLOWED_TYPES = new Set([
   "image/png",
   "image/jpeg",
   "image/gif",
   "image/webp",
-  "image/svg+xml",
 ]);
 const KINDS = new Set(["logo", "hero"]);
 

@@ -11,6 +11,14 @@ import { recordInbound, readIntegrationCredentials } from "@guestflow/core";
  * managed-sms credentials), then From matches the lead's phone digits.
  */
 export async function POST(req: Request) {
+  // Shared-secret gate (configure the Twilio webhook URL with ?secret=…).
+  // Blocks forged inbound SMS that would inject replies / force opt-outs.
+  // (Full X-Twilio-Signature verification is the recommended next step.)
+  const secret = process.env.INBOUND_EMAIL_SECRET?.trim();
+  if (secret && new URL(req.url).searchParams.get("secret") !== secret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const form = await req.formData().catch(() => null);
   if (!form) return NextResponse.json({ error: "Bad payload" }, { status: 400 });
 

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@guestflow/db";
-import { computeSlots, parseBookingSettings, createFromCapture } from "@guestflow/core";
+import { computeSlots, parseBookingSettings, createFromCapture, escapeHtml } from "@guestflow/core";
 import { getAppointmentTypes } from "@guestflow/shared";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 type Ctx = { params: { slug: string } };
 
@@ -61,6 +62,13 @@ export async function GET(req: Request, { params }: Ctx) {
 
 /** Public booking submission: creates/merges the lead + appointment. */
 export async function POST(req: Request, { params }: Ctx) {
+  // Throttle: this endpoint creates leads and sends a confirmation email — a
+  // spam/enumeration vector if unbounded.
+  const gate = rateLimit(`book:${clientIp(req)}:${params.slug}`, { max: 10, windowMs: 60_000 });
+  if (!gate.ok) {
+    return NextResponse.json({ error: "Too many requests. Slow down." }, { status: 429 });
+  }
+
   const org = await orgBySlug(params.slug);
   if (!org) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const settings = parseBookingSettings(org.bookingSettings);
@@ -158,11 +166,12 @@ export async function POST(req: Request, { params }: Ctx) {
         hour: "numeric",
         minute: "2-digit",
       });
+      const firstName = escapeHtml(name.split(" ")[0] ?? "there");
       await sender.send({
         to: email,
         subject: `Confirmed: ${type.label} with ${org.name}`,
         text: `Hi ${name.split(" ")[0]},\n\nYou are booked: ${type.label} on ${when}.\n\nNeed to change it? Just reply to this email.\n\n${org.name}`,
-        html: `Hi ${name.split(" ")[0]},<br/><br/>You are booked: <b>${type.label}</b> on <b>${when}</b>.<br/><br/>Need to change it? Just reply to this email.<br/><br/>${org.name}`,
+        html: `Hi ${firstName},<br/><br/>You are booked: <b>${escapeHtml(type.label)}</b> on <b>${escapeHtml(when)}</b>.<br/><br/>Need to change it? Just reply to this email.<br/><br/>${escapeHtml(org.name)}`,
       });
     } catch {
       /* confirmation is best-effort */

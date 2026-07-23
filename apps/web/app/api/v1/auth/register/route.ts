@@ -3,9 +3,20 @@ import { prisma, seedDemoOrg } from "@guestflow/db";
 import { hashPassword, trialEndDate } from "@guestflow/core";
 import { loginDemoSchema } from "@guestflow/shared";
 import { SESSION_COOKIE, signSession } from "@/lib/session";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { isDisposableEmail } from "@/lib/disposable-emails";
 
 /** Real signup: name + email + password + industry. */
 export async function POST(req: Request) {
+  // Throttle automated account farming (each trial org carries send credits).
+  const gate = rateLimit(`register:${clientIp(req)}`, { max: 5, windowMs: 60 * 60_000 });
+  if (!gate.ok) {
+    return NextResponse.json(
+      { error: "Too many signups from this network. Try again later." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = loginDemoSchema.safeParse(body);
   if (!parsed.success) {
@@ -20,6 +31,12 @@ export async function POST(req: Request) {
   }
 
   const { email, name } = parsed.data;
+  if (isDisposableEmail(email)) {
+    return NextResponse.json(
+      { error: "Please use a permanent work email to start your trial." },
+      { status: 400 },
+    );
+  }
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json(

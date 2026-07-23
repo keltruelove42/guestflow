@@ -1,10 +1,24 @@
 import { SignJWT, jwtVerify } from "jose";
 
 const COOKIE = "gf_session";
-const secret = () =>
-  new TextEncoder().encode(
-    process.env.SESSION_SECRET ?? "guestflow-dev-session-secret-change-me",
-  );
+
+// Fail closed: a weak/absent signing key means anyone can forge a session for
+// any org. In production we refuse to run without a strong SESSION_SECRET; only
+// local dev falls back to a throwaway key.
+const DEV_FALLBACK = "guestflow-dev-session-secret-change-me";
+function sessionSecret(): string {
+  const s = process.env.SESSION_SECRET?.trim();
+  if (process.env.NODE_ENV === "production") {
+    if (!s || s.length < 32) {
+      throw new Error(
+        "SESSION_SECRET is required in production and must be at least 32 characters.",
+      );
+    }
+    return s;
+  }
+  return s && s.length >= 32 ? s : DEV_FALLBACK;
+}
+const secret = () => new TextEncoder().encode(sessionSecret());
 
 export type SessionPayload = {
   sub: string;

@@ -59,7 +59,7 @@ export async function getTouchpointAnalytics(orgId: string): Promise<TouchpointA
       },
     }),
     prisma.booking.findMany({
-      where: { orgId },
+      where: { orgId, lead: { isDemo: false } },
       select: {
         attributedSequenceId: true,
         attributedCampaignId: true,
@@ -67,17 +67,18 @@ export async function getTouchpointAnalytics(orgId: string): Promise<TouchpointA
       },
     }),
     prisma.campaign.findMany({
-      where: { orgId },
+      where: { orgId, isDemo: false },
       select: { id: true, name: true, platform: true },
     }),
   ]);
 
   // Event counts grouped per lead set are expensive per-sequence; pull the
-  // org's relevant events once and bucket in memory.
+  // org's relevant events once and bucket in memory. Real activity only.
   const events = await prisma.leadEvent.findMany({
     where: {
       orgId,
       type: { in: ["EMAIL_SENT", "EMAIL_OPENED", "REPLIED", "CODE_REDEEMED"] },
+      lead: { isDemo: false },
     },
     select: { leadId: true, type: true },
   });

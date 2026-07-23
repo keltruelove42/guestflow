@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { provisionManagedSms, type ManagedSmsInput } from "@guestflow/core";
-import { getSession } from "@/lib/auth";
+import { requirePaidPlan } from "@/lib/plan";
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Provisioning buys a real Twilio number on the platform account — paid only.
+  const gate = await requirePaidPlan();
+  if (!gate.ok) return gate.response;
+  const session = gate.session;
 
   const body = (await req.json().catch(() => ({}))) as Partial<ManagedSmsInput>;
   const required: Array<keyof ManagedSmsInput> = [

@@ -111,6 +111,7 @@ async function computeBase(
     const leads = await prisma.lead.findMany({
       where: {
         orgId,
+        isDemo: false, // reports reflect real activity, never seed/demo rows
         createdAt: dateFilter,
         ...(spec.filters?.source ? { source: spec.filters.source as never } : {}),
         ...(spec.filters?.stage ? { stage: spec.filters.stage as never } : {}),
@@ -142,6 +143,7 @@ async function computeBase(
         orgId,
         occurredAt: dateFilter,
         type: { in: eventTypes as never },
+        lead: { isDemo: false },
         ...(def?.channel ? { channel: def.channel } : {}),
       },
       select: {
@@ -163,6 +165,7 @@ async function computeBase(
       where: {
         orgId,
         bookedAt: dateFilter,
+        lead: { isDemo: false },
         ...(spec.filters?.campaignId ? { attributedCampaignId: spec.filters.campaignId } : {}),
         ...(spec.filters?.propertyId ? { propertyId: spec.filters.propertyId } : {}),
       },
@@ -184,7 +187,7 @@ async function computeBase(
   // ── CAMPAIGN ──────────────────────────────────────────────────────────
   if (source === "campaign") {
     const campaigns = await prisma.campaign.findMany({
-      where: { orgId, ...(spec.filters?.campaignId ? { id: spec.filters.campaignId } : {}) },
+      where: { orgId, isDemo: false, ...(spec.filters?.campaignId ? { id: spec.filters.campaignId } : {}) },
       select: {
         name: true,
         platform: true,
@@ -205,7 +208,12 @@ async function computeBase(
   // ── APPOINTMENT (+ internal completed/held) ───────────────────────────
   if (source === "appointment") {
     const appts = await prisma.appointment.findMany({
-      where: { orgId, startAt: dateFilter },
+      where: {
+        orgId,
+        startAt: dateFilter,
+        // Keep real public bookings (no lead), drop demo-lead appointments.
+        OR: [{ leadId: null }, { lead: { isDemo: false } }],
+      },
       select: { startAt: true, status: true },
     });
     for (const a of appts) {
