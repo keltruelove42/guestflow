@@ -30,7 +30,12 @@ export async function processScheduledMessage(
           lead: {
             include: {
               property: true,
-              org: { include: { users: { take: 1, orderBy: { createdAt: "asc" } } } },
+              org: {
+                include: {
+                  users: { take: 1, orderBy: { createdAt: "asc" } },
+                  brandSettings: true,
+                },
+              },
             },
           },
         },
@@ -154,6 +159,8 @@ export async function processScheduledMessage(
       org.variables && typeof org.variables === "object" && !Array.isArray(org.variables)
         ? (org.variables as Record<string, string>)
         : null,
+    brand: org.brandSettings,
+    heroPhotoUrl: sequence.heroPhotoUrl,
     now,
     appUrl,
   });

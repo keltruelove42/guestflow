@@ -21,9 +21,9 @@ export const ONBOARDING_STEPS = [
     id: "integration",
     title: "Connect a channel",
     description: "Link Meta, Hostfully, or another source.",
-    href: "/integrations",
+    href: "/settings/integrations",
     points: 20,
-    tipTarget: "nav-integrations",
+    tipTarget: "nav-settings",
   },
   {
     id: "sequence",
@@ -124,7 +124,11 @@ export function saveOnboardingState(orgId: string, state: OnboardingLocalState) 
 
 export function pathVisitKey(pathname: string): string | null {
   if (pathname.startsWith("/properties")) return "properties";
-  if (pathname.startsWith("/integrations")) return "integrations";
+  if (
+    pathname.startsWith("/integrations") ||
+    pathname.startsWith("/settings/integrations")
+  )
+    return "integrations";
   if (pathname.startsWith("/sequences")) return "sequences";
   if (pathname.startsWith("/campaigns")) return "campaigns";
   if (pathname.startsWith("/leads")) return "leads";
@@ -187,7 +191,7 @@ export const COACH_TIPS = [
     body: "Everything ties back to a rental. Add or review yours here.",
   },
   {
-    target: "nav-integrations",
+    target: "nav-settings",
     title: "Bring leads in",
     body: "Connect Meta, Hostfully, and more so LeadCoda can capture inquiries.",
   },

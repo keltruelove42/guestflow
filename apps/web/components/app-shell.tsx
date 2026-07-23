@@ -20,8 +20,7 @@ const NAV = [
   { href: "/sequences", label: "Follow-ups", icon: "🔁", tour: "nav-sequences" },
   { href: "/properties", label: "Properties", icon: "🏘️", tour: "nav-properties" },
   { href: "/calendar", label: "Calendar", icon: "📅", tour: "nav-calendar" },
-  { href: "/integrations", label: "Integrations", icon: "🔌", tour: "nav-integrations" },
-  { href: "/billing", label: "Billing", icon: "💳", tour: "nav-billing" },
+  { href: "/settings", label: "Settings", icon: "⚙️", tour: "nav-settings" },
 ] as const;
 
 /** Per-vertical label/icon overrides for nav items */

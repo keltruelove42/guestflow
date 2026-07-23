@@ -32,7 +32,12 @@ export async function sendManualMessage(
     where: { id: input.leadId, orgId: input.orgId },
     include: {
       property: true,
-      org: { include: { users: { take: 1, orderBy: { createdAt: "asc" } } } },
+      org: {
+        include: {
+          users: { take: 1, orderBy: { createdAt: "asc" } },
+          brandSettings: true,
+        },
+      },
     },
   });
   if (!lead) throw new Error("Lead not found");
@@ -51,6 +56,13 @@ export async function sendManualMessage(
     travelDates: lead.travelDates,
     quoteLink: lead.property?.directBookingUrl,
     unsubLink,
+    orgVariables:
+      lead.org.variables &&
+      typeof lead.org.variables === "object" &&
+      !Array.isArray(lead.org.variables)
+        ? (lead.org.variables as Record<string, string>)
+        : null,
+    brand: lead.org.brandSettings,
     now,
     appUrl,
   });

@@ -1,3 +1,5 @@
+import { renderBrandedEmailHtml, type BrandContext } from "./emailTemplate";
+
 const MERGE_TAGS = [
   "first_name",
   "name",
@@ -73,6 +75,14 @@ export type RenderInput = {
   unsubLink: string;
   /** Org-level variable values: overrides for built-ins + custom tags */
   orgVariables?: Record<string, string> | null;
+  /**
+   * Org brand settings (source of truth: BrandSettings row). When provided
+   * (even as null), EMAIL html is wrapped in the branded header/footer
+   * partial; when omitted, legacy plain nl2br html is produced.
+   */
+  brand?: BrandContext | null;
+  /** Optional per-sequence hero photo rendered under the branded header. */
+  heroPhotoUrl?: string | null;
   now?: Date;
   appUrl?: string;
 };
@@ -138,7 +148,16 @@ export function renderMessage(input: RenderInput): RenderedMessage {
       /\n/g,
       "<br/>",
     );
-    return { subject: subject ?? "A note from your host", body: smsBody, html: htmlBody };
+    const html =
+      input.brand !== undefined
+        ? renderBrandedEmailHtml({
+            bodyHtml: htmlBody,
+            brand: input.brand,
+            heroPhotoUrl: input.heroPhotoUrl,
+            businessNameFallback: ctx.business_name,
+          })
+        : htmlBody;
+    return { subject: subject ?? "A note from your host", body: smsBody, html };
   }
 
   return { subject: null, body: smsBody };

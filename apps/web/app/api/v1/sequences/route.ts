@@ -63,10 +63,11 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { name, trigger, active = true, steps } = body as {
+  const { name, trigger, active = true, steps, heroPhotoUrl } = body as {
     name: string;
     trigger: string;
     active?: boolean;
+    heroPhotoUrl?: string | null;
     steps?: Array<{
       delayMinutes: number;
       channel: "EMAIL" | "SMS" | "CALL";
@@ -79,6 +80,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
+  if (heroPhotoUrl !== undefined && heroPhotoUrl !== null) {
+    if (
+      typeof heroPhotoUrl !== "string" ||
+      !/^https?:\/\//.test(heroPhotoUrl) ||
+      heroPhotoUrl.length > 2048
+    ) {
+      return NextResponse.json({ error: "Invalid heroPhotoUrl" }, { status: 400 });
+    }
+  }
+
   const sequence = await prisma.sequence.create({
     data: {
       orgId: session.orgId,
@@ -86,6 +97,7 @@ export async function POST(req: Request) {
       trigger: trigger as never,
       active,
       isDemo: false,
+      heroPhotoUrl: heroPhotoUrl ?? null,
       steps: {
         create: steps.map((s, i) => ({
           order: i,

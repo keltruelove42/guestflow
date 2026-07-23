@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { api } from "@/lib/api";
+import { UpgradeChip, usePlan } from "@/components/upgrade";
 import { useOrgVariables, type Sequence, type SequenceStep } from "@/lib/queries";
 import { delayToMinutes, parseDelay, type DelayUnit } from "./delay";
 
@@ -14,6 +15,12 @@ const EMPTY_STEP: SequenceStep = {
   channel: "EMAIL",
   subject: "",
   body: "",
+};
+
+/** Editor-local step: carries single-level AI-rewrite undo + inline error state. */
+type EditorStep = SequenceStep & {
+  prevRewrite?: { subject: string | null; body: string };
+  aiError?: string;
 };
 
 export function SequenceEditor({
@@ -31,7 +38,30 @@ export function SequenceEditor({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [trigger, setTrigger] = useState(initial?.trigger ?? SequenceTrigger.AD_LEAD_CAPTURED);
-  const [steps, setSteps] = useState<SequenceStep[]>(
+  const [heroPhotoUrl, setHeroPhotoUrl] = useState<string | null>(initial?.heroPhotoUrl ?? null);
+  const [heroUploading, setHeroUploading] = useState(false);
+  const [heroGenerating, setHeroGenerating] = useState(false);
+  const [heroError, setHeroError] = useState<string | null>(null);
+  const { hasGrowth } = usePlan();
+
+  /** Growth/Enterprise: Claude crafts an on-brand prompt, image API renders it. */
+  async function generateHero() {
+    if (mode !== "edit" || !initial) return;
+    setHeroGenerating(true);
+    setHeroError(null);
+    try {
+      const result = await api<{ url: string }>("/api/v1/ai/generate-image", {
+        method: "POST",
+        body: { sequenceId: initial.id },
+      });
+      setHeroPhotoUrl(result.url);
+    } catch (e) {
+      setHeroError(e instanceof Error ? e.message : "Image generation failed");
+    } finally {
+      setHeroGenerating(false);
+    }
+  }
+  const [steps, setSteps] = useState<EditorStep[]>(
     initial?.steps?.length
       ? initial.steps.map((s) => ({
           delayMinutes: s.delayMinutes,
@@ -43,6 +73,7 @@ export function SequenceEditor({
   );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [rewritingIndex, setRewritingIndex] = useState<number | null>(null);
 
   const { data: varsData } = useOrgVariables();
 
@@ -67,6 +98,72 @@ export function SequenceEditor({
     setSteps(next);
   }
 
+  async function uploadHero(file: File) {
+    setError(null);
+    setHeroUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      // api() is JSON-only, so hit the upload endpoint with raw fetch + FormData.
+      const res = await fetch("/api/v1/uploads?kind=hero", { method: "POST", body: form });
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        throw new Error(data.error ?? `Upload failed (${res.status})`);
+      }
+      setHeroPhotoUrl(data.url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setHeroUploading(false);
+    }
+  }
+
+  async function rewriteStep(i: number) {
+    const step = steps[i];
+    if (!step || !step.body.trim()) return;
+    setRewritingIndex(i);
+    setSteps((prev) => prev.map((s, j) => (j === i ? { ...s, aiError: undefined } : s)));
+    try {
+      const result = await api<{ subject: string | null; body: string }>("/api/v1/ai/rewrite", {
+        method: "POST",
+        body: {
+          channel: step.channel,
+          subject: step.subject,
+          body: step.body,
+          sequenceId: mode === "edit" ? initial!.id : null,
+        },
+        errorMessage: "Rewrite failed",
+      });
+      setSteps((prev) =>
+        prev.map((s, j) =>
+          j === i
+            ? {
+                ...s,
+                prevRewrite: { subject: s.subject, body: s.body },
+                subject: s.channel === "SMS" ? s.subject : result.subject,
+                body: result.body,
+              }
+            : s,
+        ),
+      );
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Rewrite failed";
+      setSteps((prev) => prev.map((s, j) => (j === i ? { ...s, aiError: message } : s)));
+    } finally {
+      setRewritingIndex(null);
+    }
+  }
+
+  function undoRewrite(i: number) {
+    setSteps((prev) =>
+      prev.map((s, j) =>
+        j === i && s.prevRewrite
+          ? { ...s, subject: s.prevRewrite.subject, body: s.prevRewrite.body, prevRewrite: undefined }
+          : s,
+      ),
+    );
+  }
+
   async function save() {
     setSaving(true);
     setError(null);
@@ -77,6 +174,7 @@ export function SequenceEditor({
       const payload = {
         name: name.trim(),
         trigger,
+        heroPhotoUrl,
         steps: steps.map((s) => ({
           delayMinutes: s.delayMinutes,
           channel: s.channel,
@@ -131,6 +229,67 @@ export function SequenceEditor({
               </option>
             ))}
           </Select>
+        </Field>
+
+        <Field
+          label="Hero photo"
+          hint="Optional — shown under your branded email header. Manage brand colors & logo in Settings → Brand."
+        >
+          {heroPhotoUrl ? (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={heroPhotoUrl}
+                alt="Hero photo"
+                className="h-16 w-24 rounded-control border border-[var(--border)] object-cover"
+              />
+              <button
+                type="button"
+                className="text-xs text-critical"
+                onClick={() => setHeroPhotoUrl(null)}
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <input
+              type="file"
+              accept="image/*"
+              disabled={heroUploading}
+              className="block w-full text-sm text-ink-2 disabled:opacity-60"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) void uploadHero(file);
+              }}
+            />
+          )}
+          {heroUploading && <p className="mt-1 text-xs text-muted">Uploading…</p>}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {hasGrowth ? (
+              <Button
+                variant="link"
+                size="sm"
+                disabled={heroGenerating || mode !== "edit"}
+                onClick={() => void generateHero()}
+                title={
+                  mode !== "edit"
+                    ? "Save the sequence first, then generate an image"
+                    : "Generate an on-brand hero image with AI"
+                }
+              >
+                {heroGenerating ? "Generating…" : "✨ Generate image"}
+              </Button>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+                AI image generation <UpgradeChip />
+              </span>
+            )}
+            {hasGrowth && mode !== "edit" && (
+              <span className="text-[11px] text-muted">Save first to enable AI generation</span>
+            )}
+          </div>
+          {heroError && <p className="mt-1 text-xs text-critical">{heroError}</p>}
         </Field>
 
         <div className="space-y-3">
@@ -262,6 +421,27 @@ export function SequenceEditor({
                     setSteps(next);
                   }}
                 />
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-xs disabled:opacity-50"
+                    disabled={!step.body.trim() || rewritingIndex === i}
+                    onClick={() => rewriteStep(i)}
+                  >
+                    {rewritingIndex === i ? "Rewriting…" : "✨ Rewrite with AI"}
+                  </Button>
+                  {step.prevRewrite && rewritingIndex !== i && (
+                    <button
+                      type="button"
+                      className="text-xs text-accent underline"
+                      onClick={() => undoRewrite(i)}
+                    >
+                      Undo
+                    </button>
+                  )}
+                </div>
+                {step.aiError && <p className="text-xs text-critical">{step.aiError}</p>}
                 <div className="flex flex-wrap gap-1">
                   {chips.map((tag) => (
                     <button

@@ -14,10 +14,12 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const body = await req.json();
-  const { name, trigger, active, steps } = body as {
+  const { name, trigger, active, heroPhotoUrl, steps } = body as {
     name?: string;
     trigger?: string;
     active?: boolean;
+    /** Optional hero photo (Blob URL) rendered under the branded email header; null clears it. */
+    heroPhotoUrl?: string | null;
     steps?: Array<{
       delayMinutes: number;
       channel: "EMAIL" | "SMS" | "CALL";
@@ -25,6 +27,16 @@ export async function PATCH(req: Request, { params }: Ctx) {
       body: string;
     }>;
   };
+
+  if (heroPhotoUrl !== undefined && heroPhotoUrl !== null) {
+    if (
+      typeof heroPhotoUrl !== "string" ||
+      !/^https?:\/\//.test(heroPhotoUrl) ||
+      heroPhotoUrl.length > 2048
+    ) {
+      return NextResponse.json({ error: "heroPhotoUrl must be an http(s) URL" }, { status: 400 });
+    }
+  }
 
   if (steps) {
     await prisma.sequenceStep.deleteMany({ where: { sequenceId: params.id } });
@@ -62,6 +74,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
       ...(name != null ? { name } : {}),
       ...(trigger != null ? { trigger: trigger as never } : {}),
       ...(active != null ? { active } : {}),
+      ...(heroPhotoUrl !== undefined ? { heroPhotoUrl } : {}),
     },
     include: { steps: { orderBy: { order: "asc" } } },
   });
