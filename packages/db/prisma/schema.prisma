@@ -40,7 +40,23 @@ model Org {
   campaigns          Campaign[]
   sequences          Sequence[]
   integrations       Integration[]
+  generatedImages    GeneratedImage[]
   createdAt          DateTime      @default(now())
+}
+
+/// AI-generated hero images (Growth/Enterprise). Every generation is recorded
+/// so an asset-library gallery can be added later with no migration.
+model GeneratedImage {
+  id         String    @id @default(cuid())
+  orgId      String
+  org        Org       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  /// The sequence ("template") this was generated for; kept on sequence delete.
+  sequenceId String?
+  prompt     String    @db.Text
+  imageUrl   String
+  createdAt  DateTime  @default(now())
+
+  @@index([orgId, createdAt])
 }
 
 enum OrgMode {
