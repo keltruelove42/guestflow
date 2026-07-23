@@ -1,4 +1,7 @@
 export * from "./ai";
+export * from "./analytics";
+export * from "./auth";
+export { sendTransactionalEmail } from "./integrations/transactional";
 export * from "./leads";
 export * from "./integrations";
 export * from "./messaging";

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { VERTICAL_LIST, type VerticalId } from "@guestflow/shared";
 import { LogoMark } from "@/components/brand/logo";
 import { EmailHeaderPreview } from "@/components/brand/email-preview";
+import { Turnstile, turnstileEnabled } from "@/components/turnstile";
 import { api } from "@/lib/api";
 
 const NAVY = {
@@ -91,6 +92,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState<VerticalId | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   // Step 3 — brand
   const [businessName, setBusinessName] = useState("");
@@ -112,13 +114,17 @@ export default function SignupPage() {
   }
 
   async function createWorkspace(vertical: VerticalId) {
+    if (turnstileEnabled && !captchaToken) {
+      setError("Please complete the CAPTCHA to continue.");
+      return;
+    }
     setBusy(vertical);
     setError(null);
     try {
       const res = await fetch("/api/v1/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, password, vertical }),
+        body: JSON.stringify({ email, name, password, vertical, turnstileToken: captchaToken }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -305,7 +311,10 @@ export default function SignupPage() {
               This tailors your workspace: pipeline, follow-up templates, and examples for your
               industry.
             </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4">
+              <Turnstile onToken={setCaptchaToken} />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {VERTICAL_LIST.map((v) => (
                 <button
                   key={v.id}

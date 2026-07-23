@@ -5,6 +5,7 @@ import {
   getManagedSendingStatus,
 } from "@guestflow/core";
 import { getSession } from "@/lib/auth";
+import { requirePaidPlan } from "@/lib/plan";
 
 export async function GET() {
   const session = await getSession();
@@ -13,8 +14,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Registering a sending domain on the platform Resend account — paid only.
+  const gate = await requirePaidPlan();
+  if (!gate.ok) return gate.response;
+  const session = gate.session;
 
   const body = (await req.json().catch(() => ({}))) as {
     domain?: string;

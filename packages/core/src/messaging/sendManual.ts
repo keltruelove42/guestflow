@@ -2,6 +2,7 @@ import { prisma } from "@guestflow/db";
 import { getEmailSender, getSmsSender } from "../integrations";
 import { pauseActiveEnrollments } from "../sequences/autoEnroll";
 import { renderMessage } from "./render";
+import { checkTrialSendAllowed } from "../org/trial";
 
 export type SendManualInput = {
   orgId: string;
@@ -34,13 +35,31 @@ export async function sendManualMessage(
       property: true,
       org: {
         include: {
-          users: { take: 1, orderBy: { createdAt: "asc" } },
+          users: {
+            take: 1,
+            orderBy: { createdAt: "asc" },
+            select: { name: true, emailVerifiedAt: true },
+          },
           brandSettings: true,
         },
       },
     },
   });
   if (!lead) throw new Error("Lead not found");
+
+  // 7-day trial clock + trial send credits (LIVE orgs on TRIAL plan)
+  const trialGate = await checkTrialSendAllowed(
+    {
+      id: lead.org.id,
+      plan: lead.org.plan,
+      mode: lead.org.mode,
+      trialEndsAt: lead.org.trialEndsAt,
+      ownerEmailVerified: lead.org.users[0]?.emailVerifiedAt != null,
+    },
+    input.channel,
+    now,
+  );
+  if (!trialGate.allowed) throw new Error(trialGate.reason);
 
   const appUrl = process.env.APP_URL ?? "http://localhost:3000";
   const unsubLink = `${appUrl}/api/v1/unsubscribe?leadId=${lead.id}`;

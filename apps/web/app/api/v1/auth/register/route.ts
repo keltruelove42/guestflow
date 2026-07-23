@@ -1,11 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma, seedDemoOrg } from "@guestflow/db";
-import { hashPassword } from "@guestflow/core";
+import {
+  hashPassword,
+  trialEndDate,
+  verifyTurnstile,
+  issueEmailVerification,
+} from "@guestflow/core";
 import { loginDemoSchema } from "@guestflow/shared";
 import { SESSION_COOKIE, signSession } from "@/lib/session";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { isDisposableEmail } from "@/lib/disposable-emails";
 
 /** Real signup: name + email + password + industry. */
 export async function POST(req: Request) {
+  // Throttle automated account farming (each trial org carries send credits).
+  const gate = rateLimit(`register:${clientIp(req)}`, { max: 5, windowMs: 60 * 60_000 });
+  if (!gate.ok) {
+    return NextResponse.json(
+      { error: "Too many signups from this network. Try again later." },
+      { status: 429 },
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = loginDemoSchema.safeParse(body);
   if (!parsed.success) {
@@ -19,7 +35,22 @@ export async function POST(req: Request) {
     );
   }
 
+  // CAPTCHA (Cloudflare Turnstile) — enforced only when configured.
+  const turnstileToken = (body as Record<string, unknown>)?.turnstileToken as
+    | string
+    | undefined;
+  const captcha = await verifyTurnstile(turnstileToken, clientIp(req));
+  if (!captcha.ok) {
+    return NextResponse.json({ error: captcha.error }, { status: 400 });
+  }
+
   const { email, name } = parsed.data;
+  if (isDisposableEmail(email)) {
+    return NextResponse.json(
+      { error: "Please use a permanent work email to start your trial." },
+      { status: 400 },
+    );
+  }
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json(
@@ -64,6 +95,17 @@ export async function POST(req: Request) {
     data: { passwordHash },
   });
   const user = await prisma.user.findUniqueOrThrow({ where: { id: seeded.userId } });
+
+  // Start the 7-day free-trial clock at signup.
+  await prisma.org.update({
+    where: { id: user.orgId },
+    data: { trialEndsAt: trialEndDate() },
+  });
+
+  // Send the email-verification link (required before live sending).
+  await issueEmailVerification(user.id).catch(() => {
+    /* non-fatal: user can resend from the in-app banner */
+  });
 
   const token = await signSession({
     sub: user.id,
