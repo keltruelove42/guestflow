@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { api } from "@/lib/api";
+import { UpgradeChip, usePlan } from "@/components/upgrade";
 import { useOrgVariables, type Sequence, type SequenceStep } from "@/lib/queries";
 import { delayToMinutes, parseDelay, type DelayUnit } from "./delay";
 
@@ -39,6 +40,27 @@ export function SequenceEditor({
   const [trigger, setTrigger] = useState(initial?.trigger ?? SequenceTrigger.AD_LEAD_CAPTURED);
   const [heroPhotoUrl, setHeroPhotoUrl] = useState<string | null>(initial?.heroPhotoUrl ?? null);
   const [heroUploading, setHeroUploading] = useState(false);
+  const [heroGenerating, setHeroGenerating] = useState(false);
+  const [heroError, setHeroError] = useState<string | null>(null);
+  const { hasGrowth } = usePlan();
+
+  /** Growth/Enterprise: Claude crafts an on-brand prompt, image API renders it. */
+  async function generateHero() {
+    if (mode !== "edit" || !initial) return;
+    setHeroGenerating(true);
+    setHeroError(null);
+    try {
+      const result = await api<{ url: string }>("/api/v1/ai/generate-image", {
+        method: "POST",
+        body: { sequenceId: initial.id },
+      });
+      setHeroPhotoUrl(result.url);
+    } catch (e) {
+      setHeroError(e instanceof Error ? e.message : "Image generation failed");
+    } finally {
+      setHeroGenerating(false);
+    }
+  }
   const [steps, setSteps] = useState<EditorStep[]>(
     initial?.steps?.length
       ? initial.steps.map((s) => ({
@@ -243,6 +265,31 @@ export function SequenceEditor({
             />
           )}
           {heroUploading && <p className="mt-1 text-xs text-muted">Uploading…</p>}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {hasGrowth ? (
+              <Button
+                variant="link"
+                size="sm"
+                disabled={heroGenerating || mode !== "edit"}
+                onClick={() => void generateHero()}
+                title={
+                  mode !== "edit"
+                    ? "Save the sequence first, then generate an image"
+                    : "Generate an on-brand hero image with AI"
+                }
+              >
+                {heroGenerating ? "Generating…" : "✨ Generate image"}
+              </Button>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+                AI image generation <UpgradeChip />
+              </span>
+            )}
+            {hasGrowth && mode !== "edit" && (
+              <span className="text-[11px] text-muted">Save first to enable AI generation</span>
+            )}
+          </div>
+          {heroError && <p className="mt-1 text-xs text-critical">{heroError}</p>}
         </Field>
 
         <div className="space-y-3">
