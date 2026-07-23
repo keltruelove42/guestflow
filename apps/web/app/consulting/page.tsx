@@ -235,7 +235,7 @@ export default function ConsultingPage() {
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600/30 text-lg font-bold text-sky-200">
               TJ
             </div>
-            <h3 className="mt-4 text-lg font-bold">Taylor Jackson</h3>
+            <h3 className="mt-4 text-lg font-bold">Taylor</h3>
             <div className="text-sm text-sky-300">Co-Founder · Operations & Local Growth</div>
             <p className="mt-3 text-sm leading-relaxed text-slate-300">
               Taylor has built and grown businesses on the ground for more than two
