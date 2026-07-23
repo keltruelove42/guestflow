@@ -46,7 +46,27 @@ model Org {
   integrations       Integration[]
   generatedImages    GeneratedImage[]
   savedReports       SavedReport[]
+  apiKeys            ApiKey[]
   createdAt          DateTime      @default(now())
+}
+
+/// Org API key for the MCP server / programmatic access. Only the SHA-256
+/// hash is stored; the raw key (lc_live_…) is shown once at creation.
+model ApiKey {
+  id         String    @id @default(cuid())
+  orgId      String
+  org        Org       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  label      String
+  hash       String    @unique
+  /// Last 4 chars of the raw key, for display ("…a1b2").
+  last4      String
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdBy  String?
+  createdAt  DateTime  @default(now())
+
+  @@index([orgId])
+  @@index([hash])
 }
 
 /// A pending / resolved AI-drafted reply for a lead (Suggest mode), or a

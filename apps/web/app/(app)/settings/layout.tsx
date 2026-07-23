@@ -10,6 +10,7 @@ const TABS = [
   { href: "/settings/billing", label: "Billing" },
   { href: "/settings/integrations", label: "Integrations" },
   { href: "/settings/team", label: "Team" },
+  { href: "/settings/api", label: "API & MCP" },
 ] as const;
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
