@@ -45,6 +45,8 @@ Enables: logo upload (Settings → Brand, signup), hero photo upload (sequence e
 | `ANTHROPIC_API_KEY` | console.anthropic.com → API keys | "Rewrite with AI" button + prompt-crafting for image gen |
 | `OPENAI_API_KEY` | platform.openai.com → API keys | The image-rendering half of "Generate image" |
 | `PLATFORM_RESEND_API_KEY` | resend.com → API keys (your account) | White-glove managed email: clients' domains verified under YOUR Resend account. Per client: their workspace → Settings → Integrations → Managed Sending card → enter their domain → add the shown DNS records at their DNS host → verify. Sender priority: managed domain > client's own Resend > `RESEND_API_KEY` fallback (optional; sends from your `EMAIL_FROM`). |
+| `PLATFORM_TWILIO_ACCOUNT_SID` | Twilio Console home — master **Account SID (AC…)**, NOT an SK… API key | White-glove managed SMS: per client, the Managed Sending card creates a subaccount under your master, buys an SMS number in their chosen area code, and tracks A2P 10DLC registration. Master account must be upgraded (paid) — trials can't create subaccounts. Number costs roll up to your Twilio bill. |
+| `PLATFORM_TWILIO_AUTH_TOKEN` | Twilio Console home — master Auth Token | Pairs with the SID above. |
 
 Also verify `APP_URL` = `https://leadcoda.app` (used in unsubscribe links and email footers).
 
