@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma, seedDemoOrg } from "@guestflow/db";
-import { hashPassword } from "@guestflow/core";
+import { hashPassword, trialEndDate } from "@guestflow/core";
 import { loginDemoSchema } from "@guestflow/shared";
 import { SESSION_COOKIE, signSession } from "@/lib/session";
 
@@ -64,6 +64,12 @@ export async function POST(req: Request) {
     data: { passwordHash },
   });
   const user = await prisma.user.findUniqueOrThrow({ where: { id: seeded.userId } });
+
+  // Start the 7-day free-trial clock at signup.
+  await prisma.org.update({
+    where: { id: user.orgId },
+    data: { trialEndsAt: trialEndDate() },
+  });
 
   const token = await signSession({
     sub: user.id,

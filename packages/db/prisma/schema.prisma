@@ -26,6 +26,8 @@ model Org {
   abandonmentMinutes Int           @default(60)
   variables          Json? // org-level merge variables: { host_name, business_name, booking_link, custom... }
   plan               String        @default("TRIAL") // TRIAL | STARTER | GROWTH | ENTERPRISE
+  /// End of the 7-day free trial. Null = no expiry (legacy orgs / paid).
+  trialEndsAt        DateTime?
   stripeCustomerId   String?
   stripeSubscriptionId String?
   bookingSlug        String?       @unique
@@ -281,6 +283,8 @@ enum LeadEventType {
   OPTED_OUT
   APPOINTMENT_BOOKED
   CALL_DUE
+  EMAIL_OPENED
+  CODE_REDEEMED
 }
 
 enum Channel {

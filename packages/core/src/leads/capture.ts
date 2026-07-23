@@ -214,6 +214,13 @@ export async function changeStage(
   }
 
   if (stage === "BOOKED") {
+    // Touchpoint attribution: the most recent sequence this lead was enrolled
+    // in gets credit alongside the capturing campaign.
+    const lastEnrollment = await prisma.enrollment.findFirst({
+      where: { leadId },
+      orderBy: { createdAt: "desc" },
+      select: { sequenceId: true },
+    });
     await prisma.booking.create({
       data: {
         orgId: lead.orgId,
@@ -222,6 +229,7 @@ export async function changeStage(
         amountCents: opts?.bookingAmountCents,
         bookedAt: now,
         attributedCampaignId: lead.campaignId,
+        attributedSequenceId: lastEnrollment?.sequenceId ?? null,
       },
     });
   }

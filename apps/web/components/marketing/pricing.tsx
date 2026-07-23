@@ -405,7 +405,7 @@ export function PricingPage() {
 
         {/* trust bar */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-slate-400">
-          <span>✓ 14-day free trial</span>
+          <span>✓ 7-day free trial</span>
           <span>✓ No credit card to start</span>
           <span>✓ Cancel anytime</span>
           <span>✓ 30-day money-back guarantee on annual plans</span>
