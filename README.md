@@ -1,6 +1,8 @@
-# GuestFlow
+# LeadCoda
 
-Marketing + CRM for short/long-term rentals. Spec lives in [`docs/`](./docs); the clickable prototype is [`docs/prototype/guestflow.html`](./docs/prototype/guestflow.html).
+Marketing + CRM for lead capture and follow-up across eight verticals (rentals, trades, dealerships, real estate, hotels, beauty, SaaS, e-commerce). Live at [leadcoda.app](https://leadcoda.app).
+
+> Historical design specs live in [`docs/`](./docs) — written under the working title "GuestFlow" and predating the multi-vertical, cookie-auth product; treat them as archival.
 
 ## Quick start (M0)
 
@@ -47,6 +49,5 @@ pnpm deploy:vercel     # CLI deploy (requires vercel login)
 | `packages/shared` | Zod schemas, enums, design tokens |
 | `packages/db` | Prisma schema + seed |
 | `packages/core` | Business logic + integration mocks |
-| `packages/api-client` | Typed fetch client |
 
 Build order: follow [`docs/10-build-plan.md`](./docs/10-build-plan.md). M0–M3 = demo-complete product; M6 = live Hostfully/StayFi/email/SMS.

@@ -4,7 +4,6 @@ const nextConfig = {
     "@guestflow/shared",
     "@guestflow/db",
     "@guestflow/core",
-    "@guestflow/api-client",
   ],
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client", "prisma"],

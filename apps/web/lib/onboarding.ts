@@ -189,7 +189,7 @@ export const COACH_TIPS = [
   {
     target: "nav-integrations",
     title: "Bring leads in",
-    body: "Connect Meta, Hostfully, and more so GuestFlow can capture inquiries.",
+    body: "Connect Meta, Hostfully, and more so LeadCoda can capture inquiries.",
   },
   {
     target: "nav-sequences",

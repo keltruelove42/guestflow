@@ -10,7 +10,6 @@
     "lint": "echo ok"
   },
   "dependencies": {
-    "@guestflow/api-client": "workspace:*",
     "@guestflow/shared": "workspace:*",
     "expo": "~52.0.23",
     "expo-router": "~4.0.15",
