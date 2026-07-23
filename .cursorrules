@@ -1,12 +1,12 @@
-# GuestFlow — Cursor rules (copy this file to the repo root)
+# LeadCoda — Cursor rules (copy this file to the repo root)
 
 ## What this project is
-Marketing + CRM platform for short/long-term rentals: captures leads from Meta/TikTok/Pinterest lead ads and abandoned direct-booking inquiries (Hostfully/Hostaway), manages them in a pipeline CRM, and converts them with automated email/SMS sequences plus an AI reply assistant. Full spec lives in /docs — read the relevant doc before implementing any feature. The clickable prototype /docs/prototype/guestflow.html is the visual and behavioral source of truth.
+LeadCoda (leadcoda.app): marketing + CRM platform across eight verticals — captures leads from Meta/TikTok/Pinterest lead ads and abandoned inquiries, manages them in a pipeline CRM, and converts them with automated email/SMS sequences. Historical specs live in /docs (written under the working title "GuestFlow"; treat as archival — the shipped product is multi-vertical with real cookie auth).
 
 ## Architecture rules (non-negotiable)
-- Monorepo: pnpm workspaces + Turborepo. apps/web (Next.js App Router), apps/mobile (Expo), packages/{shared,db,core,api-client}.
+- Monorepo: pnpm workspaces + Turborepo. apps/web (Next.js App Router), apps/mobile (Expo), packages/{shared,db,core}.
 - ALL business logic lives in packages/core as pure, unit-tested functions. API routes and screens are thin adapters. If a rule (consent, scheduling, dedupe, stage transitions, attribution) appears in a route or component, move it to core.
-- packages/shared zod schemas are the single source of truth for API contracts; web and mobile consume them via packages/api-client. Never hand-write a fetch in an app.
+- packages/shared zod schemas are the single source of truth for API contracts. In apps/web, never hand-roll fetch calls in components: use api() from lib/api.ts and the typed hooks in lib/queries.ts.
 - Every table row carries orgId and every query is org-scoped. No exceptions.
 - Every automated or user action that affects a lead writes a LeadEvent. The timeline and activity feed are queries over LeadEvent, never derived elsewhere.
 - External systems only via the provider interfaces in packages/core/src/integrations (docs/08). Every provider has a mock; demo mode must always work end-to-end with zero external accounts.
