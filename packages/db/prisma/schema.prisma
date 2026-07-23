@@ -33,6 +33,7 @@ model Org {
   appointments       Appointment[]
   invitations        Invitation[]
   demoClearedAt      DateTime? // set when user clears seed/demo rows
+  brandSettings      BrandSettings?
   users              User[]
   properties         Property[]
   leads              Lead[]
@@ -45,6 +46,22 @@ model Org {
 enum OrgMode {
   DEMO
   LIVE
+}
+
+/// Brand source of truth — one row per org. Every branded surface (email
+/// header/footer, previews, future image gen) reads from here; nothing
+/// duplicates brand config.
+model BrandSettings {
+  id           String   @id @default(cuid())
+  orgId        String   @unique
+  org          Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  logoUrl      String? // uploaded once to Vercel Blob
+  primaryColor String   @default("#1a1a2e")
+  accentColor  String   @default("#4f46e5")
+  businessName String?
+  font         String? // optional font-family preference for email rendering
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
 }
 
 /// Industry vertical — selects terminology, templates, and demo data
@@ -318,6 +335,9 @@ model Sequence {
   trigger     SequenceTrigger
   active      Boolean          @default(true)
   isDemo      Boolean          @default(false)
+  /// Optional hero photo (Vercel Blob URL) rendered under the branded email
+  /// header for this sequence's email steps; empty = header renders alone.
+  heroPhotoUrl String?
   steps       SequenceStep[]
   enrollments Enrollment[]
   createdAt   DateTime         @default(now())

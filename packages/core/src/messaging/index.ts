@@ -10,5 +10,7 @@ export {
   MERGE_TAGS,
 } from "./render";
 export type { MergeTag, MergeContext, RenderInput, RenderedMessage } from "./render";
+export { renderBrandedEmailHtml, safeColor, fontStack } from "./emailTemplate";
+export type { BrandContext, BrandedEmailInput } from "./emailTemplate";
 export * from "./process";
 export * from "./sendManual";
