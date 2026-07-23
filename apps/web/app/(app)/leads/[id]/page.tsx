@@ -66,6 +66,7 @@ export default function LeadRecordPage() {
 
   const [dealInput, setDealInput] = useState("");
   const [tagInput, setTagInput] = useState("");
+  const [codeInput, setCodeInput] = useState("");
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ["lead", id],
@@ -108,6 +109,21 @@ export default function LeadRecordPage() {
       showToast("Saved.");
     },
     onError: (e) => showToast(e instanceof Error ? e.message : "Update failed"),
+  });
+
+  const logRedemption = useMutation({
+    mutationFn: (code: string) =>
+      api(`/api/v1/leads/${id}/redemptions`, {
+        method: "POST",
+        body: { code },
+        errorMessage: "Could not log redemption",
+      }),
+    onSuccess: async () => {
+      setCodeInput("");
+      await qc.invalidateQueries({ queryKey: ["lead", id] });
+      showToast("Redemption logged.");
+    },
+    onError: (e) => showToast(e instanceof Error ? e.message : "Could not log redemption"),
   });
 
   const canEmail = canEmailLead(lead);
@@ -289,6 +305,35 @@ export default function LeadRecordPage() {
                 </option>
               ))}
             </select>
+          </section>
+
+          <section className="rounded-card border border-[var(--border)] bg-surface p-4">
+            <h3 className="mb-1 text-sm font-semibold">Discount code</h3>
+            <p className="mb-3 text-xs text-muted">
+              Log when this lead redeems a promo code — feeds redemption analytics.
+            </p>
+            <div className="flex gap-2">
+              <Input
+                className="min-w-0 flex-1"
+                value={codeInput}
+                placeholder="e.g. WELCOME10"
+                onChange={(e) => setCodeInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && codeInput.trim()) {
+                    e.preventDefault();
+                    logRedemption.mutate(codeInput.trim());
+                  }
+                }}
+              />
+              <Button
+                variant="ghost"
+                className="shrink-0 disabled:opacity-50"
+                disabled={!codeInput.trim() || logRedemption.isPending}
+                onClick={() => logRedemption.mutate(codeInput.trim())}
+              >
+                {logRedemption.isPending ? "Logging…" : "Log redemption"}
+              </Button>
+            </div>
           </section>
 
           <section className="rounded-card border border-[var(--border)] bg-surface p-4">
