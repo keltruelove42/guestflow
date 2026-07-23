@@ -1,20 +1,23 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState, type CSSProperties } from "react";
-import { COACH_TIPS } from "@/lib/onboarding";
+import { useEffect, useLayoutEffect, useMemo, useState, type CSSProperties } from "react";
+import { getCoachTips } from "@/lib/onboarding";
+import { useVertical } from "@/components/vertical-provider";
 import { useOnboarding } from "./onboarding-provider";
 
 type Rect = { top: number; left: number; width: number; height: number };
 
 export function Coachmarks() {
   const { ready, local, dismissTour, nextTip, prevTip } = useOnboarding();
+  const pack = useVertical();
+  const tips = useMemo(() => getCoachTips(pack.context), [pack.context]);
   const [rect, setRect] = useState<Rect | null>(null);
   const [placement, setPlacement] = useState<"below" | "above" | "right">("below");
 
   const active =
-    ready && local.tipsActive && !local.tipsDismissed && local.tipIndex < COACH_TIPS.length;
-  const tip = active ? COACH_TIPS[local.tipIndex] : null;
-  const isLast = local.tipIndex >= COACH_TIPS.length - 1;
+    ready && local.tipsActive && !local.tipsDismissed && local.tipIndex < tips.length;
+  const tip = active ? tips[local.tipIndex] : null;
+  const isLast = local.tipIndex >= tips.length - 1;
 
   useLayoutEffect(() => {
     if (!tip) {
@@ -110,7 +113,7 @@ export function Coachmarks() {
         <div className="mb-1 flex items-start justify-between gap-2">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
-              Tip {local.tipIndex + 1} of {COACH_TIPS.length}
+              Tip {local.tipIndex + 1} of {tips.length}
             </p>
             <h4 className="text-sm font-semibold">{tip.title}</h4>
           </div>

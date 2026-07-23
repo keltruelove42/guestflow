@@ -72,7 +72,7 @@ const PLANS: Plan[] = [
   },
   {
     key: "enterprise",
-    name: "Enterprise",
+    name: "Pro",
     tagline: "For multi-location groups and franchises",
     monthly: null,
     annual: null,
@@ -166,7 +166,7 @@ const FAQ = [
   },
   {
     q: "Do I need my own Twilio account for texting?",
-    a: "On Starter and Growth you connect your own Twilio number in about two minutes, so your texts come from your business number and you pay Twilio's at-cost rates (about a penny per text). Enterprise plans can include managed texting.",
+    a: "On Starter and Growth you connect your own Twilio number in about two minutes, so your texts come from your business number and you pay Twilio's at-cost rates (about a penny per text). Pro plans can include managed texting.",
   },
   {
     q: "Can I change plans or cancel anytime?",
@@ -503,7 +503,7 @@ export function PricingPage() {
                 <th className="px-5 py-4 font-semibold text-slate-400">Features</th>
                 <th className="px-5 py-4 font-bold">Starter</th>
                 <th className="px-5 py-4 font-bold text-sky-300">Growth</th>
-                <th className="px-5 py-4 font-bold">Enterprise</th>
+                <th className="px-5 py-4 font-bold">Pro</th>
               </tr>
             </thead>
             <tbody>

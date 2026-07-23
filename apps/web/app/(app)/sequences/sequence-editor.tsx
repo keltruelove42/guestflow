@@ -211,6 +211,14 @@ export function SequenceEditor({
       onClose={onClose}
     >
       <div className="space-y-4 p-5">
+        <p className="rounded-control bg-[color-mix(in_srgb,var(--accent)_8%,transparent)] px-3 py-2 text-xs text-ink-2">
+          <span className="font-medium text-ink">How this sends:</span> a sequence
+          runs automatically — pick a <span className="font-medium">Trigger</span> below
+          (e.g. a new lead) and its steps go out on the schedule you set. Save it, then
+          turn it on with <span className="font-medium">Activate</span> on the Follow-ups
+          list. To send it to a specific person now, open their lead and use{" "}
+          <span className="font-medium">Enroll in sequence</span>.
+        </p>
         {mode === "edit" && (
           <p className="rounded-control bg-surface-2 px-3 py-2 text-xs text-ink-2">
             Editing recomputes future scheduled sends for steps that no longer exist.
