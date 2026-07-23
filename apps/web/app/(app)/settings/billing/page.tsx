@@ -3,6 +3,8 @@
 import { Suspense, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import { api } from "@/lib/api";
+import type { TrialStatus } from "@/components/trial-banner";
 
 const PLANS = [
   {
@@ -58,6 +60,12 @@ function BillingInner() {
     },
   });
 
+  const { data: trial } = useQuery({
+    queryKey: ["trial-status"],
+    queryFn: () => api<TrialStatus>("/api/v1/org/trial"),
+    staleTime: 2 * 60 * 1000,
+  });
+
   const checkout = useMutation({
     mutationFn: async ({ plan }: { plan: string }) => {
       const res = await fetch("/api/v1/billing/checkout", {
@@ -103,6 +111,8 @@ function BillingInner() {
           Checkout cancelled. No charge was made.
         </div>
       )}
+
+      {trial?.onTrial && <TrialUsageCard trial={trial} />}
 
       <div className="rounded-card border border-[var(--border)] bg-surface p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -290,6 +300,72 @@ function BillingInner() {
       {error && <p className="text-sm text-critical">{error}</p>}
 
       {conciergeOpen && <ConciergeModal onClose={() => setConciergeOpen(false)} />}
+    </div>
+  );
+}
+
+function UsageBar({
+  label,
+  used,
+  limit,
+}: {
+  label: string;
+  used: number;
+  limit: number;
+}) {
+  const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+  const maxed = used >= limit;
+  return (
+    <div>
+      <div className="flex items-center justify-between text-xs text-ink-2">
+        <span>{label}</span>
+        <span className="tabular-nums">
+          {used}/{limit}
+        </span>
+      </div>
+      <div className="mt-1 h-2 overflow-hidden rounded-pill bg-surface-2">
+        <div
+          className="h-full rounded-pill"
+          style={{
+            width: `${pct}%`,
+            background: maxed ? "var(--serious)" : "var(--accent)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function TrialUsageCard({ trial }: { trial: TrialStatus }) {
+  const endsAt = trial.endsAt
+    ? new Date(trial.endsAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+
+  return (
+    <div className="rounded-card border border-[var(--border)] bg-surface p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-sm font-semibold">Free trial</h2>
+        <span className="text-xs text-muted">
+          {trial.expired
+            ? "Trial ended"
+            : endsAt
+              ? `Ends ${endsAt}`
+              : null}
+        </span>
+      </div>
+      <p className="mt-1 text-2xl font-extrabold">
+        {trial.expired
+          ? "Trial ended"
+          : `${trial.daysLeft ?? 0} ${trial.daysLeft === 1 ? "day" : "days"} left`}
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <UsageBar label="Email credits" used={trial.emails.used} limit={trial.emails.limit} />
+        <UsageBar label="SMS credits" used={trial.sms.used} limit={trial.sms.limit} />
+      </div>
     </div>
   );
 }

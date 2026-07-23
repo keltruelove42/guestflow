@@ -85,3 +85,111 @@ Env vars only apply to NEW deployments. After steps 2–3:
 - Image provider: OpenAI gpt-image, isolated in `packages/core/src/ai/imageGen.ts` (env `OPENAI_IMAGE_MODEL` to change model; swap providers by editing that one file).
 - Plan gating: server-side in `POST /api/v1/ai/generate-image` via `canGenerateImages()` — GROWTH / ENTERPRISE only.
 - Asset library (gallery of generated/uploaded images): deferred; `GeneratedImage` records everything, so it can be built later with no migration.
+
+---
+---
+
+# PART 2 — Trials, Admin Console & Growth Analytics
+
+New work on branch `feature/trials-admin-analytics`. Same pattern as before: merge, run one SQL migration, add one webhook. No new required env vars.
+
+## A. Merge the PR
+
+Open the pre-filled PR (base is `feature/image-gen`, so merge the three Part-1 PRs first; GitHub then retargets this to `main` on its own):
+
+https://github.com/keltruelove42/guestflow/compare/feature/image-gen...feature/trials-admin-analytics?quick_pull=1&title=Trials%2C%20admin%20console%2C%20and%20Growth%20touchpoint%20analytics
+
+## B. Run the DB migration (Neon SQL Editor, `neondb` database)
+
+The exact SQL is in the repo at `migrations/003_trials_admin_analytics.sql`. It's additive + idempotent (safe to run twice). Paste and Run:
+
+```sql
+ALTER TABLE "Org" ADD COLUMN IF NOT EXISTS "trialEndsAt" TIMESTAMP(3);
+ALTER TYPE "LeadEventType" ADD VALUE IF NOT EXISTS 'EMAIL_OPENED';
+ALTER TYPE "LeadEventType" ADD VALUE IF NOT EXISTS 'CODE_REDEEMED';
+```
+
+Optional — start a 7-day clock on workspaces that are ALREADY on trial (otherwise
+existing trials stay unlimited and only new signups get the countdown):
+
+```sql
+UPDATE "Org" SET "trialEndsAt" = NOW() + INTERVAL '7 days'
+ WHERE "plan" = 'TRIAL' AND "trialEndsAt" IS NULL;
+```
+
+## C. Turn on email-open tracking (Resend webhook)
+
+Needed for the "open rate" number in Growth analytics. In the **Resend dashboard → Webhooks → Add endpoint**:
+
+- Endpoint URL: `https://leadcoda.app/api/webhooks/email/events?secret=YOUR_INBOUND_EMAIL_SECRET`
+  (reuse the same value you set for `INBOUND_EMAIL_SECRET`; if you never set that var, either add it now or drop the `?secret=...` — the endpoint just won't be auth-protected).
+- Event to subscribe: **`email.opened`** (add `email.delivered`/`email.bounced` too if you like — the endpoint ignores them cleanly).
+- Also make sure **Open tracking** is enabled on your Resend domain/account settings, or Resend never fires the event.
+
+Reply capture (the existing inbound webhook) is separate and unchanged.
+
+## D. Env vars — nothing required
+
+- The admin console is already gated to `keltruelove42@gmail.com` in code. Only set `PLATFORM_ADMIN_EMAILS` (comma-separated) if you want to ADD or CHANGE admins later. Then redeploy.
+- Trial credit limits (100 email / 25 SMS) and length (7 days) are code constants in `packages/core/src/org/trial.ts` — tell me to change them, no env var.
+
+## E. Redeploy, then smoke-test
+
+- **Trial banner**: a fresh signup shows "7 days left…" with Email/SMS credit usage; the billing page shows the trial usage card.
+- **Admin console**: log in as keltruelove42@gmail.com → a 🛡️ Admin item appears in the sidebar → `/admin` lists all workspaces. Open one → extend trial, change plan, and delete (delete needs you to type the org name). Non-admins get a 404 at `/admin`.
+- **Growth analytics**: on a GROWTH/ENTERPRISE workspace the dashboard's new "Analytics" section shows open/reply/redemption/booking by touchpoint; on trial/starter it shows the locked "Upgrade to Growth" teaser.
+- **Opens**: after the Resend webhook is live, open a test email you sent yourself → within a minute the lead timeline shows "Email opened" and the open-rate number moves.
+
+## F. Code redemptions — logging (done) + custom report builder
+
+- **Manual logging is live**: the lead detail page has a "Discount code" box →
+  Log redemption. It records the event and feeds analytics.
+- **Automated (Hostfully) is pending your input**: Hostfully's booking sync
+  currently carries no promo-code field, so auto-detection isn't wired. If you
+  want it, send one real Hostfully booking JSON that used a code and I'll map it.
+
+## G. Custom report builder (Growth tier) — migration 005-style step
+
+This replaces the fixed redemption chart with a builder where Growth/Enterprise
+clients compose any chart from everything tracked (leads, messaging, opens,
+replies, redemptions, bookings/revenue, ad spend, appointments) — and anything
+PMS sync later adds becomes a new chartable metric automatically.
+
+Run the second migration in Neon (`migrations/004_custom_reports.sql`) — additive, idempotent:
+
+```sql
+CREATE TABLE IF NOT EXISTS "SavedReport" (
+    "id" TEXT NOT NULL, "orgId" TEXT NOT NULL, "name" TEXT NOT NULL,
+    "spec" JSONB NOT NULL, "position" INTEGER NOT NULL DEFAULT 0,
+    "createdBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "SavedReport_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "SavedReport_orgId_position_idx" ON "SavedReport"("orgId", "position");
+ALTER TABLE "SavedReport" DROP CONSTRAINT IF EXISTS "SavedReport_orgId_fkey";
+ALTER TABLE "SavedReport" ADD CONSTRAINT "SavedReport_orgId_fkey"
+    FOREIGN KEY ("orgId") REFERENCES "Org"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+```
+
+No new env vars. Smoke test: on a GROWTH/ENTERPRISE workspace, a "📊 Reports"
+nav item → build a report (pick a metric, group by time/source/campaign, choose
+line/bar/stat/table, save). Non-Growth sees a locked teaser. Nothing to configure.
+
+---
+
+## Consolidated env-var checklist (all parts)
+
+| Variable | Required? | Purpose |
+|---|---|---|
+| `DATABASE_URL` | already set | Neon Postgres |
+| `APP_URL` | verify = `https://leadcoda.app` | email links, unsubscribe, OAuth |
+| `CREDENTIALS_KEY`, `SESSION_SECRET` | already set | encryption / auth |
+| `BLOB_READ_WRITE_TOKEN` | for uploads + image gen | Vercel Blob (Public store + token checkbox) |
+| `ANTHROPIC_API_KEY` | for AI rewrite + image prompts | Claude |
+| `OPENAI_API_KEY` | for image generation | gpt-image |
+| `PLATFORM_RESEND_API_KEY` | for white-glove managed email | your Resend account |
+| `PLATFORM_TWILIO_ACCOUNT_SID` / `PLATFORM_TWILIO_AUTH_TOKEN` | for white-glove managed SMS | your Twilio master (AC…, paid account) |
+| `INBOUND_EMAIL_SECRET` | recommended | protects the inbound + open webhooks |
+| `PLATFORM_ADMIN_EMAILS` | optional | override/extend admin list (default = keltruelove42@gmail.com) |
+| `RESEND_API_KEY` / `EMAIL_FROM` | optional fallback | platform-wide default sender when no managed/own domain |

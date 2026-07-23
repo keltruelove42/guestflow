@@ -45,7 +45,7 @@ export async function seedSaasContent(orgId: string) {
         isDemo: true,
         photoUrl: "🚀",
         knowledgeBase:
-          "$29/user/mo, billed monthly or annually. 14-day free trial, no card required. Core workflows, integrations, and reporting for teams up to 10.",
+          "$29/user/mo, billed monthly or annually. 7-day free trial, no card required. Core workflows, integrations, and reporting for teams up to 10.",
       },
     }),
     prisma.property.create({

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isPlatformAdmin } from "@guestflow/core";
 import { getSessionUser } from "@/lib/auth";
 
 export async function GET() {
@@ -14,5 +15,6 @@ export async function GET() {
     orgMode: user.org.mode,
     orgName: user.org.name,
     vertical: user.org.vertical,
+    isAdmin: isPlatformAdmin(user.email),
   });
 }

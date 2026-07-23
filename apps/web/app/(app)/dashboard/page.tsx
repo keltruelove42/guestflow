@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { WeeklyLeadsChart, type WeekRow } from "@/components/dashboard/weekly-chart";
 import { SourceBars } from "@/components/dashboard/source-bars";
+import { TouchpointAnalytics } from "@/components/dashboard/touchpoint-analytics";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { useVertical } from "@/components/vertical-provider";
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
@@ -271,6 +272,12 @@ function DashboardInner() {
             </ul>
           </div>
         </section>
+      </div>
+
+      {/* Growth-tier touchpoint analytics */}
+      <div>
+        <h2 className="mb-2 px-1 text-sm font-semibold text-ink-2">Analytics</h2>
+        <TouchpointAnalytics />
       </div>
 
       {showOnboarding && (
