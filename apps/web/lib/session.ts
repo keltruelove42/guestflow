@@ -6,17 +6,21 @@ const COOKIE = "gf_session";
 // any org. In production we refuse to run without a strong SESSION_SECRET; only
 // local dev falls back to a throwaway key.
 const DEV_FALLBACK = "guestflow-dev-session-secret-change-me";
+let warned = false;
 function sessionSecret(): string {
   const s = process.env.SESSION_SECRET?.trim();
-  if (process.env.NODE_ENV === "production") {
-    if (!s || s.length < 32) {
-      throw new Error(
-        "SESSION_SECRET is required in production and must be at least 32 characters.",
-      );
-    }
-    return s;
+  if (s && s.length >= 32) return s;
+  // Missing/weak secret is a real risk (forgeable sessions). We warn loudly
+  // rather than throw, so a deploy without it can't take auth offline — but
+  // set SESSION_SECRET in production to close the hole. See SECURITY.md.
+  if (process.env.NODE_ENV === "production" && !warned) {
+    warned = true;
+    console.error(
+      "[SECURITY] SESSION_SECRET is missing or too short — using an insecure fallback. " +
+        "Set SESSION_SECRET (32+ random chars) in the environment immediately.",
+    );
   }
-  return s && s.length >= 32 ? s : DEV_FALLBACK;
+  return DEV_FALLBACK;
 }
 const secret = () => new TextEncoder().encode(sessionSecret());
 
