@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@guestflow/api-client": "workspace:*",
     "@guestflow/core": "workspace:*",
     "@guestflow/db": "workspace:*",
     "@guestflow/shared": "workspace:*",
