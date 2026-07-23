@@ -184,40 +184,55 @@ export function progressStats(
   return { done, total: ONBOARDING_STEPS.length, points, earned, pct };
 }
 
-export const COACH_TIPS = [
-  {
-    target: "nav-properties",
-    title: "Properties first",
-    body: "Everything ties back to a rental. Add or review yours here.",
-  },
-  {
-    target: "nav-settings",
-    title: "Bring leads in",
-    body: "Connect Meta, Hostfully, and more so LeadCoda can capture inquiries.",
-  },
-  {
-    target: "nav-sequences",
-    title: "Automate follow-ups",
-    body: "Email and SMS sequences run after a lead arrives, edit them anytime.",
-  },
-  {
-    target: "nav-campaigns",
-    title: "Run lead ads",
-    body: "Launch instant-form campaigns; new leads land in your CRM automatically.",
-  },
-  {
-    target: "simulate-lead",
-    title: "Try a live capture",
-    body: "In demo mode, simulate an incoming lead to watch enrollment and sends.",
-  },
-  {
-    target: "nav-leads",
-    title: "Reply from the CRM",
-    body: "Open a lead to see the timeline and send an email or text.",
-  },
-  {
-    target: "onboarding-checklist",
-    title: "Track your wins",
-    body: "This checklist updates as you go. Dismiss it anytime, reopen from the dashboard.",
-  },
-] as const;
+export type CoachTip = { target: string; title: string; body: string };
+
+/**
+ * Walkthrough tips, worded for the org's industry. Pass the vertical pack so
+ * the copy uses the right noun (Properties / Vehicles / Services / …) instead
+ * of hardcoded rental language. `label` is the relabeled nav item (e.g. what
+ * "Properties" is called for this vertical); `singular` is the lowercase noun.
+ */
+export function getCoachTips(vertical: {
+  plural: string;
+  singular: string;
+}): CoachTip[] {
+  const plural = vertical.plural;
+  const singular = vertical.singular.toLowerCase();
+  return [
+    {
+      target: "nav-properties",
+      title: `${plural} first`,
+      body: `Everything ties back to a ${singular}. Add or review yours here.`,
+    },
+    {
+      target: "nav-settings",
+      title: "Bring leads in",
+      body: "Connect your ad channels and tools so LeadCoda can capture inquiries automatically.",
+    },
+    {
+      target: "nav-sequences",
+      title: "Automate follow-ups",
+      body: "Email and SMS sequences run automatically after a lead arrives — edit them anytime.",
+    },
+    {
+      target: "nav-campaigns",
+      title: "Run lead ads",
+      body: "Launch instant-form campaigns; new leads land in your CRM automatically.",
+    },
+    {
+      target: "simulate-lead",
+      title: "Try a live capture",
+      body: "In demo mode, simulate an incoming lead to watch enrollment and sends.",
+    },
+    {
+      target: "nav-leads",
+      title: "Reply from the CRM",
+      body: "Open a lead to see the timeline and send an email or text.",
+    },
+    {
+      target: "onboarding-checklist",
+      title: "Track your wins",
+      body: "This checklist updates as you go. Dismiss it anytime, reopen from the dashboard.",
+    },
+  ];
+}

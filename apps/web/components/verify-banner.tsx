@@ -26,8 +26,18 @@ export function VerifyBanner() {
     setBusy(true);
     setError(null);
     try {
-      await api("/api/v1/auth/resend-verification", { method: "POST" });
-      setSent(true);
+      const res = await api<{ ok: boolean; sent: boolean }>(
+        "/api/v1/auth/resend-verification",
+        { method: "POST" },
+      );
+      if (res.sent) {
+        setSent(true);
+      } else {
+        // Endpoint succeeded but email isn't configured on the server.
+        setError(
+          "Email sending isn't set up yet — verification emails can't go out until a Resend key and EMAIL_FROM are configured.",
+        );
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not resend");
     } finally {

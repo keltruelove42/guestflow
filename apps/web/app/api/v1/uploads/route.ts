@@ -51,10 +51,25 @@ export async function POST(req: Request) {
   }
 
   const ext = (file.name.split(".").pop() ?? "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
-  const blob = await put(`${kind}s/${session.orgId}/${Date.now()}.${ext}`, file, {
-    access: "public",
-    contentType: file.type,
-  });
-
-  return NextResponse.json({ url: blob.url });
+  try {
+    const blob = await put(`${kind}s/${session.orgId}/${Date.now()}.${ext}`, file, {
+      access: "public",
+      contentType: file.type,
+    });
+    return NextResponse.json({ url: blob.url });
+  } catch (e) {
+    // Surface the real cause instead of a bare 500 — usually a Private Blob
+    // store (must be Public) or an invalid/rotated BLOB_READ_WRITE_TOKEN.
+    console.error("[uploads] blob put failed", e);
+    const detail = e instanceof Error ? e.message : "unknown error";
+    return NextResponse.json(
+      {
+        error:
+          "Upload failed. Make sure your Vercel Blob store is set to Public and BLOB_READ_WRITE_TOKEN is set. (" +
+          detail +
+          ")",
+      },
+      { status: 502 },
+    );
+  }
 }
