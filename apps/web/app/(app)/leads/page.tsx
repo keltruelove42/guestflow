@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { ImportLeadsModal } from "@/components/import-leads-modal";
+import { AddLeadModal } from "@/components/add-lead-modal";
 import { useVertical } from "@/components/vertical-provider";
 import { HeatDot, LeadsBoard, LeadsToday, type BoardLead } from "@/components/leads-views";
 import { LeadDrawer } from "@/components/leads/lead-drawer";
@@ -21,6 +22,7 @@ export default function LeadsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { toast, showToast } = useToast();
   const [importing, setImporting] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [view, setView] = useState<"board" | "table" | "today">("board");
   const [smartView, setSmartView] = useState<string>("all");
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -91,6 +93,9 @@ export default function LeadsPage() {
           {pack.copy.leadsPageHint}
         </p>
         <div className="flex gap-2">
+          <Button variant="primary" onClick={() => setAdding(true)}>
+            ＋ Add lead
+          </Button>
           <Button variant="ghost" onClick={() => setImporting(true)}>
             ⬆️ Import past inquiries
           </Button>
@@ -100,8 +105,11 @@ export default function LeadsPage() {
         </div>
       </div>
 
-      {/* Mobile: compact import button */}
-      <div className="flex justify-end md:hidden">
+      {/* Mobile: compact add + import buttons */}
+      <div className="flex justify-end gap-2 md:hidden">
+        <Button variant="primary" onClick={() => setAdding(true)}>
+          ＋ Add
+        </Button>
         <Button variant="ghost" onClick={() => setImporting(true)}>
           ⬆️ Import
         </Button>
@@ -417,6 +425,12 @@ export default function LeadsPage() {
       )}
 
       {importing && <ImportLeadsModal onClose={() => setImporting(false)} />}
+      {adding && (
+        <AddLeadModal
+          onClose={() => setAdding(false)}
+          onCreated={(id) => setSelectedId(id)}
+        />
+      )}
 
       <Toast message={toast} />
     </div>

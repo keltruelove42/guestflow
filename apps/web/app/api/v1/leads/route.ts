@@ -1,7 +1,65 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@guestflow/db";
-import { scoreLead, needsNextStep } from "@guestflow/core";
+import { scoreLead, needsNextStep, importLeads } from "@guestflow/core";
 import { getSession } from "@/lib/auth";
+
+/**
+ * POST /api/v1/leads — add a single lead by hand.
+ * { name, email?, phone?, propertyName?, travelDates?, notes?, emailConsent?, smsConsent? }
+ * Requires name + at least one of email/phone. Dedupes/merges like import.
+ */
+export async function POST(req: Request) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = (await req.json().catch(() => ({}))) as {
+    name?: string;
+    email?: string;
+    phone?: string;
+    propertyName?: string;
+    travelDates?: string;
+    notes?: string;
+    emailConsent?: boolean;
+    smsConsent?: boolean;
+  };
+
+  const name = String(body.name ?? "").trim();
+  const email = String(body.email ?? "").trim() || null;
+  const phone = String(body.phone ?? "").trim() || null;
+  if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
+  if (!email && !phone) {
+    return NextResponse.json({ error: "Add an email or a phone number" }, { status: 400 });
+  }
+
+  const result = await importLeads({
+    orgId: session.orgId,
+    source: "MANUAL",
+    sourceTitle: "Added manually",
+    emailConsent: Boolean(body.emailConsent),
+    smsConsent: Boolean(body.smsConsent),
+    rows: [
+      {
+        name,
+        email,
+        phone,
+        propertyName: body.propertyName?.trim() || null,
+        travelDates: body.travelDates?.trim() || null,
+        notes: body.notes?.trim() || null,
+      },
+    ],
+  });
+
+  if (result.errors.length || !result.leadIds[0]) {
+    return NextResponse.json(
+      { error: result.errors[0]?.reason ?? "Could not add lead" },
+      { status: 400 },
+    );
+  }
+  return NextResponse.json({
+    leadId: result.leadIds[0],
+    merged: result.merged > 0,
+  });
+}
 
 export async function GET(req: Request) {
   const session = await getSession();

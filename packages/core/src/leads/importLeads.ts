@@ -22,6 +22,8 @@ export type ImportInput = {
   smsConsent: boolean;
   /** Timeline event title, e.g. "Synced from Klaviyo" (default: import copy) */
   sourceTitle?: string;
+  /** Lead source recorded on newly-created rows (default IMPORT). */
+  source?: "IMPORT" | "MANUAL" | "META" | "TIKTOK" | "PINTEREST" | "DIRECT_SITE" | "WIFI";
   now?: Date;
 };
 
@@ -30,6 +32,8 @@ export type ImportResult = {
   merged: number;
   skipped: number;
   errors: Array<{ row: number; reason: string }>;
+  /** IDs of every lead touched (created or merged), in row order. */
+  leadIds: string[];
 };
 
 /**
@@ -40,7 +44,7 @@ export type ImportResult = {
  */
 export async function importLeads(input: ImportInput): Promise<ImportResult> {
   const now = input.now ?? new Date();
-  const result: ImportResult = { created: 0, merged: 0, skipped: 0, errors: [] };
+  const result: ImportResult = { created: 0, merged: 0, skipped: 0, errors: [], leadIds: [] };
 
   // Resolve property names once (case-insensitive)
   const properties = await prisma.property.findMany({
@@ -110,7 +114,7 @@ export async function importLeads(input: ImportInput): Promise<ImportResult> {
           travelDates: row.travelDates?.trim() || null,
           partySize: row.partySize?.trim() || null,
           propertyId,
-          source: "IMPORT",
+          source: input.source ?? "IMPORT",
           stage: "NEW",
           emailConsent,
           smsConsent,
@@ -122,6 +126,7 @@ export async function importLeads(input: ImportInput): Promise<ImportResult> {
       leadId = created.id;
       result.created++;
     }
+    result.leadIds.push(leadId);
 
     await prisma.leadEvent.create({
       data: {
