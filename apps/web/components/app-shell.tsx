@@ -195,6 +195,18 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+          <Link
+            href="/reports"
+            className={cn(
+              "flex items-center gap-2 rounded-control px-3 py-2 text-sm transition-colors",
+              pathname.startsWith("/reports")
+                ? "bg-surface-2 font-medium text-ink"
+                : "text-ink-2 hover:bg-surface-2/70 hover:text-ink",
+            )}
+          >
+            <span className="w-5 text-center text-xs opacity-80">📊</span>
+            <span className="flex-1">Reports</span>
+          </Link>
           {me?.isAdmin && (
             <Link
               href="/admin"

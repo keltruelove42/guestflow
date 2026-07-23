@@ -43,7 +43,25 @@ model Org {
   sequences          Sequence[]
   integrations       Integration[]
   generatedImages    GeneratedImage[]
+  savedReports       SavedReport[]
   createdAt          DateTime      @default(now())
+}
+
+/// A saved custom report (Growth/Enterprise). `spec` is the report-builder
+/// definition (metric, groupBy, granularity, dateRange, filters, chart type).
+model SavedReport {
+  id        String   @id @default(cuid())
+  orgId     String
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  name      String
+  spec      Json
+  /// Display order on the reports dashboard.
+  position  Int      @default(0)
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId, position])
 }
 
 /// AI-generated hero images (Growth/Enterprise). Every generation is recorded
