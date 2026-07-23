@@ -1,4 +1,5 @@
 export { generateToken, hashToken, EMAIL_VERIFY_TTL_MS } from "./tokens";
+export { generateApiKey, resolveApiKey, type ApiKeyContext } from "./apiKeys";
 export { verifyTurnstile, isTurnstileConfigured } from "./turnstile";
 export {
   issueEmailVerification,
