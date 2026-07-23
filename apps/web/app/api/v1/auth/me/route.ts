@@ -16,5 +16,6 @@ export async function GET() {
     orgName: user.org.name,
     vertical: user.org.vertical,
     isAdmin: isPlatformAdmin(user.email),
+    emailVerified: user.emailVerifiedAt != null,
   });
 }

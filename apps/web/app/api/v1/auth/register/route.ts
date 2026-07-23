@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma, seedDemoOrg } from "@guestflow/db";
-import { hashPassword, trialEndDate } from "@guestflow/core";
+import {
+  hashPassword,
+  trialEndDate,
+  verifyTurnstile,
+  issueEmailVerification,
+} from "@guestflow/core";
 import { loginDemoSchema } from "@guestflow/shared";
 import { SESSION_COOKIE, signSession } from "@/lib/session";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
@@ -28,6 +33,15 @@ export async function POST(req: Request) {
       { error: "Password must be at least 8 characters" },
       { status: 400 },
     );
+  }
+
+  // CAPTCHA (Cloudflare Turnstile) — enforced only when configured.
+  const turnstileToken = (body as Record<string, unknown>)?.turnstileToken as
+    | string
+    | undefined;
+  const captcha = await verifyTurnstile(turnstileToken, clientIp(req));
+  if (!captcha.ok) {
+    return NextResponse.json({ error: captcha.error }, { status: 400 });
   }
 
   const { email, name } = parsed.data;
@@ -86,6 +100,11 @@ export async function POST(req: Request) {
   await prisma.org.update({
     where: { id: user.orgId },
     data: { trialEndsAt: trialEndDate() },
+  });
+
+  // Send the email-verification link (required before live sending).
+  await issueEmailVerification(user.id).catch(() => {
+    /* non-fatal: user can resend from the in-app banner */
   });
 
   const token = await signSession({

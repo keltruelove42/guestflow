@@ -33,7 +33,11 @@ export async function processScheduledMessage(
               property: true,
               org: {
                 include: {
-                  users: { take: 1, orderBy: { createdAt: "asc" } },
+                  users: {
+                    take: 1,
+                    orderBy: { createdAt: "asc" },
+                    select: { name: true, emailVerifiedAt: true },
+                  },
                   brandSettings: true,
                 },
               },
@@ -131,7 +135,13 @@ export async function processScheduledMessage(
   // HELD keeps the message PENDING so automations resume after an upgrade —
   // "automations pause until you pick a plan, nothing is deleted".
   const trialGate = await checkTrialSendAllowed(
-    { id: org.id, plan: org.plan, mode: org.mode, trialEndsAt: org.trialEndsAt },
+    {
+      id: org.id,
+      plan: org.plan,
+      mode: org.mode,
+      trialEndsAt: org.trialEndsAt,
+      ownerEmailVerified: org.users[0]?.emailVerifiedAt != null,
+    },
     resolution.channel,
     now,
   );

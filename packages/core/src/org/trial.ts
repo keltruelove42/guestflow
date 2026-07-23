@@ -90,15 +90,33 @@ export type SendGate =
 /**
  * Send-time guard. Call with the org (plan/mode/trialEndsAt already loaded)
  * before dispatching a LIVE email/SMS. Demo-mode sends are never blocked.
+ *
+ * `ownerEmailVerified` gates live sending for new trial accounts: an
+ * unverified trial can't blast strangers through the platform. Pass `true`
+ * for orgs that predate verification (or when the flag is unknown) so nobody
+ * is retroactively blocked.
  */
 export async function checkTrialSendAllowed(
-  org: { id: string; plan: string; mode: string; trialEndsAt: Date | null },
+  org: {
+    id: string;
+    plan: string;
+    mode: string;
+    trialEndsAt: Date | null;
+    ownerEmailVerified?: boolean;
+  },
   channel: "EMAIL" | "SMS" | "CALL",
   now: Date = new Date(),
 ): Promise<SendGate> {
   if (org.plan !== "TRIAL") return { allowed: true };
   if (org.mode === "DEMO") return { allowed: true };
   if (channel === "CALL") return { allowed: true };
+
+  if (org.ownerEmailVerified === false) {
+    return {
+      allowed: false,
+      reason: "Verify your email to start sending — check your inbox for the link",
+    };
+  }
 
   if (org.trialEndsAt && org.trialEndsAt < now) {
     return {

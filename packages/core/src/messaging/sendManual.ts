@@ -35,7 +35,11 @@ export async function sendManualMessage(
       property: true,
       org: {
         include: {
-          users: { take: 1, orderBy: { createdAt: "asc" } },
+          users: {
+            take: 1,
+            orderBy: { createdAt: "asc" },
+            select: { name: true, emailVerifiedAt: true },
+          },
           brandSettings: true,
         },
       },
@@ -50,6 +54,7 @@ export async function sendManualMessage(
       plan: lead.org.plan,
       mode: lead.org.mode,
       trialEndsAt: lead.org.trialEndsAt,
+      ownerEmailVerified: lead.org.users[0]?.emailVerifiedAt != null,
     },
     input.channel,
     now,
