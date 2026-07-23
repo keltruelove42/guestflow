@@ -7,3 +7,12 @@ export {
   isImageGenConfigured,
 } from "./imageGen";
 export type { ImagePromptInput } from "./imageGen";
+export {
+  getBusinessContext,
+  checkAvailability,
+  bookAppointment,
+} from "./agent/tools";
+export type { BusinessContext, OpenSlot } from "./agent/tools";
+export { runReplyAgent, isAgentConfigured } from "./agent/replyAgent";
+export type { AgentResult } from "./agent/replyAgent";
+export { handleInboundForAgent } from "./agent/onReply";

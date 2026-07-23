@@ -39,7 +39,14 @@ export async function GET(_req: Request, { params }: Ctx) {
     })),
   );
 
-  return NextResponse.json({ ...lead, pendingMessages });
+  // The most recent unresolved AI-drafted reply, if any.
+  const aiSuggestion = await prisma.aiSuggestion.findFirst({
+    where: { leadId: lead.id, orgId: session.orgId, status: "PENDING" },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, channel: true, draft: true, rationale: true, createdAt: true },
+  });
+
+  return NextResponse.json({ ...lead, pendingMessages, aiSuggestion });
 }
 
 const STAGES = ["NEW", "CONTACTED", "ENGAGED", "QUOTED", "BOOKED", "LOST"];

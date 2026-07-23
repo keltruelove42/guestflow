@@ -304,6 +304,16 @@ export async function recordInbound(opts: {
     });
   }
 
+  // AI reply/booking agent (best-effort; gated + guarded inside).
+  const { handleInboundForAgent } = await import("../ai/agent/onReply");
+  await handleInboundForAgent({
+    orgId: lead.orgId,
+    leadId: lead.id,
+    incomingText: text,
+    channel,
+    now,
+  });
+
   return { optedOut: false as const };
 }
 
