@@ -22,6 +22,8 @@ export async function PATCH(req: Request, { params }: Ctx) {
       ...(body.bedrooms !== undefined ? { bedrooms: body.bedrooms } : {}),
       ...(body.type != null ? { type: body.type } : {}),
       ...(body.photoUrl !== undefined ? { photoUrl: body.photoUrl } : {}),
+      ...(body.imageUrl !== undefined ? { imageUrl: body.imageUrl || null } : {}),
+      ...(body.description !== undefined ? { description: body.description || null } : {}),
       ...(body.directBookingUrl !== undefined
         ? { directBookingUrl: body.directBookingUrl }
         : {}),

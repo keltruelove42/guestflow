@@ -49,6 +49,11 @@ export const createPropertySchema = z.object({
   bedrooms: z.number().int().optional().nullable(),
   type: z.nativeEnum(PropertyType).default(PropertyType.SHORT_TERM),
   photoUrl: z.string().optional().nullable(),
+  imageUrl: z.preprocess(
+    (v) => (v === "" || v === undefined ? null : v),
+    z.string().url().nullable().optional(),
+  ),
+  description: z.string().max(1000).optional().nullable(),
   directBookingUrl: z.preprocess(
     (v) => (v === "" || v === undefined ? null : v),
     z.string().url().nullable().optional(),

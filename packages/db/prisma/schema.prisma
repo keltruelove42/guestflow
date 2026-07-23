@@ -99,6 +99,8 @@ model Property {
   bedrooms         Int?
   type             PropertyType        @default(SHORT_TERM)
   photoUrl         String?
+  imageUrl         String? // listing thumbnail pulled from the booking URL
+  description      String? @db.Text // short blurb pulled from the listing
   directBookingUrl String?
   knowledgeBase    String?             @db.Text
   archived         Boolean             @default(false)

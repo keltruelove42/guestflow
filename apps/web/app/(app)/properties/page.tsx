@@ -13,6 +13,8 @@ type Property = {
   bedrooms: number | null;
   type: string;
   photoUrl: string | null;
+  imageUrl: string | null;
+  description: string | null;
   knowledgeBase: string | null;
   directBookingUrl: string | null;
   leadCount: number;
@@ -87,10 +89,23 @@ export default function PropertiesPage() {
         {properties.map((p) => (
           <div
             key={p.id}
-            className="rounded-card border border-[var(--border)] bg-surface p-5"
+            className="overflow-hidden rounded-card border border-[var(--border)] bg-surface"
           >
+            {p.imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={p.imageUrl}
+                alt={p.name}
+                className="h-36 w-full object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            )}
+            <div className="p-5">
             <div className="flex items-start gap-3">
-              <div className="text-3xl">{p.photoUrl ?? "🏡"}</div>
+              {!p.imageUrl && <div className="text-3xl">{p.photoUrl ?? "🏡"}</div>}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <h2 className="truncate text-base font-semibold">{p.name}</h2>
@@ -106,6 +121,9 @@ export default function PropertiesPage() {
                 </p>
               </div>
             </div>
+            {p.description && (
+              <p className="mt-2 line-clamp-2 text-xs text-muted">{p.description}</p>
+            )}
             <div className="mt-3 flex flex-wrap gap-1.5">
               <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs text-muted">
                 {p.type.replaceAll("_", "-").toLowerCase()}
@@ -131,6 +149,7 @@ export default function PropertiesPage() {
               >
                 View leads →
               </Link>
+            </div>
             </div>
           </div>
         ))}
@@ -170,16 +189,52 @@ function AddPropertyModal({
   const [type, setType] = useState<string>(PropertyType.SHORT_TERM);
   const [knowledgeBase, setKnowledgeBase] = useState("");
   const [directBookingUrl, setDirectBookingUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [fetchingPreview, setFetchingPreview] = useState(false);
+  const [previewNote, setPreviewNote] = useState<string | null>(null);
+
+  async function fetchPreview() {
+    const url = directBookingUrl.trim();
+    if (!url) {
+      setPreviewNote("Paste your listing or booking URL above first");
+      return;
+    }
+    setFetchingPreview(true);
+    setPreviewNote(null);
+    try {
+      const res = await fetch("/api/v1/properties/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Could not fetch a preview");
+      if (data.image) setImageUrl(data.image);
+      if (data.description || data.title) {
+        setDescription(data.description ?? data.title ?? "");
+      }
+      if (!name.trim() && data.title) setName(data.title);
+      setPreviewNote(
+        data.image
+          ? "Pulled the photo and description from your listing. Edit anything below."
+          : "Pulled the description, but that site did not share a photo. You can paste an image URL below.",
+      );
+    } catch (e) {
+      setPreviewNote(e instanceof Error ? e.message : "Could not fetch a preview");
+    } finally {
+      setFetchingPreview(false);
+    }
+  }
 
   async function save() {
     setSaving(true);
     setError(null);
     try {
       if (!name.trim()) throw new Error("Name is required");
-      const pack = useVertical();
-  const res = await fetch("/api/v1/properties", {
+      const res = await fetch("/api/v1/properties", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -189,7 +244,9 @@ function AddPropertyModal({
           type,
           knowledgeBase: knowledgeBase.trim() || null,
           directBookingUrl: directBookingUrl.trim() || null,
-          photoUrl: "🏡",
+          photoUrl: pack.context.icon,
+          imageUrl: imageUrl.trim() || null,
+          description: description.trim() || null,
         }),
       });
       if (!res.ok) {
@@ -258,12 +315,60 @@ function AddPropertyModal({
               </select>
             </Field>
           </div>
-          <Field label="Direct booking URL (optional)">
+          <Field label="Listing / booking URL (optional)">
+            <div className="flex gap-2">
+              <input
+                className="w-full rounded-control border border-[var(--border)] bg-page px-3 py-2 text-sm outline-none focus:border-accent"
+                placeholder="Airbnb, VRBO, or booking page link"
+                value={directBookingUrl}
+                onChange={(e) => setDirectBookingUrl(e.target.value)}
+              />
+              <button
+                type="button"
+                disabled={fetchingPreview}
+                className="shrink-0 rounded-control border border-[var(--border)] px-3 py-2 text-xs font-medium disabled:opacity-60"
+                onClick={fetchPreview}
+              >
+                {fetchingPreview ? "Fetching…" : "✨ Auto-fill"}
+              </button>
+            </div>
+            {previewNote && (
+              <p className="mt-1 text-xs text-ink-2">{previewNote}</p>
+            )}
+          </Field>
+          {imageUrl && (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt="Listing thumbnail"
+                className="h-16 w-24 rounded-control border border-[var(--border)] object-cover"
+                onError={() => setImageUrl("")}
+              />
+              <button
+                type="button"
+                className="text-xs text-muted underline"
+                onClick={() => setImageUrl("")}
+              >
+                Remove photo
+              </button>
+            </div>
+          )}
+          <Field label="Photo URL (optional)">
             <input
               className="w-full rounded-control border border-[var(--border)] bg-page px-3 py-2 text-sm outline-none focus:border-accent"
-              placeholder="https://…"
-              value={directBookingUrl}
-              onChange={(e) => setDirectBookingUrl(e.target.value)}
+              placeholder="https://…/photo.jpg"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+            />
+          </Field>
+          <Field label="Short description (optional)">
+            <textarea
+              className="min-h-[60px] w-full rounded-control border border-[var(--border)] bg-page px-3 py-2 text-sm outline-none focus:border-accent"
+              placeholder="A one-or-two-line description shown on the card"
+              maxLength={1000}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </Field>
           <Field label="FAQ / house rules (AI assistant uses this)">

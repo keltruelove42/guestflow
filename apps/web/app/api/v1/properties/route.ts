@@ -43,8 +43,12 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const parsed = createPropertySchema.safeParse(body);
   if (!parsed.success) {
+    const flat = parsed.error.flatten();
+    const fieldMsg = Object.entries(flat.fieldErrors)
+      .map(([k, v]) => `${k}: ${(v ?? []).join(", ")}`)
+      .join("; ");
     return NextResponse.json(
-      { error: parsed.error.flatten().formErrors.join(", ") || "Invalid payload" },
+      { error: flat.formErrors.join(", ") || fieldMsg || "Invalid payload" },
       { status: 400 },
     );
   }
@@ -59,6 +63,8 @@ export async function POST(req: Request) {
         bedrooms: data.bedrooms ?? null,
         type: data.type,
         photoUrl: data.photoUrl ?? "🏡",
+        imageUrl: data.imageUrl ?? null,
+        description: data.description ?? null,
         directBookingUrl: data.directBookingUrl ?? null,
         knowledgeBase: data.knowledgeBase ?? null,
         isDemo: false,
