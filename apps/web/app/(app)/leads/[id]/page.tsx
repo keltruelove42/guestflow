@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useVertical } from "@/components/vertical-provider";
+import { AiSuggestionCard, type AiSuggestion } from "@/components/leads/ai-suggestion-card";
 import { ComposePanel } from "@/components/leads/compose-panel";
 import { EnrollPanel } from "@/components/leads/enroll-panel";
 import { LeadTimeline, PendingMessagesList } from "@/components/leads/lead-timeline";
@@ -44,6 +45,7 @@ type LeadDetail = {
   events: LeadEvent[];
   pendingMessages: PendingMessage[];
   enrollments: LeadEnrollment[];
+  aiSuggestion: AiSuggestion | null;
 };
 
 type OrgUser = { id: string; name: string; email: string };
@@ -410,6 +412,13 @@ export default function LeadRecordPage() {
 
         {/* CENTER */}
         <div className="lg:col-span-6">
+          {lead.aiSuggestion && (
+            <AiSuggestionCard
+              leadId={id}
+              suggestion={lead.aiSuggestion}
+              onToast={showToast}
+            />
+          )}
           <section className="rounded-card border border-[var(--border)] bg-surface p-4">
             <h3 className="mb-2 text-sm font-semibold">Conversation & activity</h3>
             <ComposePanel

@@ -28,6 +28,8 @@ model Org {
   plan               String        @default("TRIAL") // TRIAL | STARTER | GROWTH | ENTERPRISE
   /// End of the 7-day free trial. Null = no expiry (legacy orgs / paid).
   trialEndsAt        DateTime?
+  /// AI reply/booking agent mode: OFF | SUGGEST | AUTOPILOT.
+  aiAgentMode        String        @default("OFF")
   stripeCustomerId   String?
   stripeSubscriptionId String?
   bookingSlug        String?       @unique
@@ -45,6 +47,28 @@ model Org {
   generatedImages    GeneratedImage[]
   savedReports       SavedReport[]
   createdAt          DateTime      @default(now())
+}
+
+/// A pending / resolved AI-drafted reply for a lead (Suggest mode), or a
+/// record of an autopilot send. The lead detail surfaces PENDING ones for the
+/// owner to edit/send/dismiss.
+model AiSuggestion {
+  id         String   @id @default(cuid())
+  orgId      String
+  leadId     String
+  channel    String // EMAIL | SMS
+  draft      String   @db.Text
+  /// One-line reason/summary the agent gives (e.g. what it understood/booked).
+  rationale  String?
+  /// PENDING | SENT | DISMISSED | AUTOSENT
+  status     String   @default("PENDING")
+  /// True when the agent booked (or proposed) an appointment in this turn.
+  bookedAppointmentId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([orgId, status])
+  @@index([leadId, status])
 }
 
 /// A saved custom report (Growth/Enterprise). `spec` is the report-builder
