@@ -15,12 +15,28 @@ import {
   type LeadEvent,
   type PendingMessage,
 } from "@/components/leads/types";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { Toast, useToast } from "@/components/ui/toast";
-import { usePlan } from "@/components/upgrade";
+import { usePlan, UpgradeChip } from "@/components/upgrade";
 import { api } from "@/lib/api";
 import { useMessagingStatus } from "@/lib/queries";
+
+type Enrichment = {
+  company: string | null;
+  domain: string | null;
+  isBusinessEmail: boolean;
+  industry: string | null;
+  role: string | null;
+  location: string | null;
+  linkedin: string | null;
+  summary: string | null;
+  talkingPoints: string[];
+  sources: string[];
+  provider?: object | null;
+  inferred: boolean;
+};
 
 type LeadDetail = {
   id: string;
@@ -47,6 +63,8 @@ type LeadDetail = {
   pendingMessages: PendingMessage[];
   enrollments: LeadEnrollment[];
   aiSuggestion: AiSuggestion | null;
+  enrichment: Enrichment | null;
+  enrichedAt: string | null;
 };
 
 type OrgUser = { id: string; name: string; email: string };
@@ -175,6 +193,20 @@ export default function LeadRecordPage() {
     },
     onError: (e) =>
       showToast(e instanceof Error ? e.message : "Could not extract details"),
+  });
+
+  const enrich = useMutation({
+    mutationFn: () =>
+      api<{ enrichment: Enrichment }>(`/api/v1/leads/${id}/enrich`, {
+        method: "POST",
+        errorMessage: "Could not enrich lead",
+      }),
+    onSuccess: async (data) => {
+      await qc.invalidateQueries({ queryKey: ["lead", id] });
+      await qc.invalidateQueries({ queryKey: ["leads"] });
+      showToast(data.enrichment.summary?.trim() || "Enriched.");
+    },
+    onError: (e) => showToast(e instanceof Error ? e.message : "Could not enrich lead"),
   });
 
   const canEmail = canEmailLead(lead);
@@ -336,6 +368,109 @@ export default function LeadRecordPage() {
                 <div className="mt-0.5 text-ink-2">{lead.partySize ?? "-"}</div>
               </div>
             </div>
+          </section>
+
+          <section className="rounded-card border border-[var(--border)] bg-surface p-4">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold">Enrichment</h3>
+                {!hasGrowth && <UpgradeChip />}
+              </div>
+              {hasGrowth ? (
+                <Button
+                  variant="link"
+                  size="sm"
+                  disabled={enrich.isPending}
+                  onClick={() => enrich.mutate()}
+                  title="Look up company, role, industry and talking points for this lead"
+                >
+                  {enrich.isPending
+                    ? "Enriching…"
+                    : lead.enrichment
+                      ? "Re-enrich"
+                      : "✨ Enrich"}
+                </Button>
+              ) : (
+                <span className="text-[10px] text-muted">Included with Growth</span>
+              )}
+            </div>
+            {lead.enrichment ? (
+              <div className="space-y-2.5 text-xs">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge tone={lead.enrichment.inferred ? "muted" : "good"} size="xs">
+                    {lead.enrichment.inferred ? "AI-inferred" : "Verified"}
+                  </Badge>
+                  {!lead.enrichment.isBusinessEmail && (
+                    <span className="text-[10px] text-muted">Personal email</span>
+                  )}
+                </div>
+                {lead.enrichment.company && (
+                  <div>
+                    <div className="text-muted">Company</div>
+                    <div className="mt-0.5 font-medium text-ink">
+                      {lead.enrichment.company}
+                    </div>
+                  </div>
+                )}
+                {lead.enrichment.industry && (
+                  <div>
+                    <div className="text-muted">Industry</div>
+                    <div className="mt-0.5 text-ink-2">{lead.enrichment.industry}</div>
+                  </div>
+                )}
+                {lead.enrichment.role && (
+                  <div>
+                    <div className="text-muted">Role</div>
+                    <div className="mt-0.5 text-ink-2">{lead.enrichment.role}</div>
+                  </div>
+                )}
+                {lead.enrichment.location && (
+                  <div>
+                    <div className="text-muted">Location</div>
+                    <div className="mt-0.5 text-ink-2">{lead.enrichment.location}</div>
+                  </div>
+                )}
+                {lead.enrichment.linkedin && (
+                  <div>
+                    <a
+                      href={lead.enrichment.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent hover:underline"
+                    >
+                      LinkedIn ↗
+                    </a>
+                  </div>
+                )}
+                {lead.enrichment.summary && (
+                  <p className="text-muted">{lead.enrichment.summary}</p>
+                )}
+                {lead.enrichment.talkingPoints.length > 0 && (
+                  <div>
+                    <div className="text-muted">Talking points</div>
+                    <ul className="mt-1 space-y-1">
+                      {lead.enrichment.talkingPoints.map((tp, i) => (
+                        <li key={i} className="flex gap-1.5 text-ink-2">
+                          <span className="text-muted">•</span>
+                          <span>{tp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {lead.enrichment.sources.length > 0 && (
+                  <p className="text-[10px] text-muted">
+                    via {lead.enrichment.sources.join(", ")}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-muted">
+                {hasGrowth
+                  ? "Look up company, role, and talking points for this lead."
+                  : "Auto-fill company, role, and talking points on the Growth plan."}
+              </p>
+            )}
           </section>
 
           <section className="rounded-card border border-[var(--border)] bg-surface p-4">

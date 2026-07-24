@@ -30,6 +30,10 @@ model Org {
   trialEndsAt        DateTime?
   /// AI reply/booking agent mode: OFF | SUGGEST | AUTOPILOT.
   aiAgentMode        String        @default("OFF")
+  /// Lead enrichment: auto-enrich new leads, and an optional outbound webhook
+  /// URL (e.g. a Clay table's webhook source) to run an external provider.
+  enrichAuto         Boolean       @default(false)
+  enrichWebhookUrl   String?
   stripeCustomerId   String?
   stripeSubscriptionId String?
   bookingSlug        String?       @unique
@@ -276,6 +280,10 @@ model Lead {
   smsStoppedAt   DateTime?
   needsAttention Boolean    @default(false)
   isDemo         Boolean    @default(false)
+  /// Enrichment data (company, title, industry, socials, summary, provider…).
+  /// Filled by built-in AI enrichment and/or an external provider webhook (Clay).
+  enrichment     Json?
+  enrichedAt     DateTime?
   events         LeadEvent[]
   notes          Note[]
   enrollments    Enrollment[]
