@@ -54,7 +54,8 @@ export async function getTrialStatus(orgId: string): Promise<TrialStatus> {
     select: { plan: true, mode: true, trialEndsAt: true, createdAt: true },
   });
 
-  const onTrial = org.plan === "TRIAL";
+  // Demo workspaces are a sandbox — no trial clock, no upgrade nags.
+  const onTrial = org.plan === "TRIAL" && org.mode !== "DEMO";
   const endsAt = onTrial ? org.trialEndsAt : null;
   const now = new Date();
   const expired = Boolean(onTrial && endsAt && endsAt < now);

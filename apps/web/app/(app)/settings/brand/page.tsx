@@ -41,7 +41,7 @@ function ColorField({
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="#4f46e5"
+          placeholder="#047857"
           spellCheck={false}
           className="font-mono"
         />
@@ -58,7 +58,7 @@ export default function BrandPage() {
   const [businessName, setBusinessName] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [primaryColor, setPrimaryColor] = useState("#1a1a2e");
-  const [accentColor, setAccentColor] = useState("#4f46e5");
+  const [accentColor, setAccentColor] = useState("#047857");
   const [font, setFont] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -161,7 +161,7 @@ export default function BrandPage() {
               <Input
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="Sunset Rentals"
+                placeholder="Your business name"
                 maxLength={120}
               />
             </Field>

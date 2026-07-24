@@ -59,7 +59,7 @@ describe("renderBrandedEmailHtml", () => {
       businessNameFallback: "Fallback Biz",
     });
     expect(html).toContain("Fallback Biz");
-    expect(html).toContain("background-color:#4f46e5"); // default accent
+    expect(html).toContain("background-color:#047857"); // default accent
     expect(html).not.toContain("<img");
   });
 

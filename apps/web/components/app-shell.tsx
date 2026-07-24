@@ -12,24 +12,28 @@ import { useOnboardingOptional } from "@/components/onboarding/onboarding-provid
 import { cn } from "@/lib/utils";
 import { LogoLockup } from "@/components/brand/logo";
 import { SidebarUpgrade } from "@/components/upgrade";
+import { Icon, VERTICAL_CONTEXT_ICON, type IconName } from "@/components/ui/icons";
 
 const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: "◈", tour: "nav-dashboard" },
-  { href: "/leads", label: "Leads", icon: "👥", tour: "nav-leads" },
-  { href: "/campaigns", label: "Ad Campaigns", icon: "📣", tour: "nav-campaigns" },
-  { href: "/sequences", label: "Follow-ups", icon: "🔁", tour: "nav-sequences" },
-  { href: "/properties", label: "Properties", icon: "🏘️", tour: "nav-properties" },
-  { href: "/calendar", label: "Calendar", icon: "📅", tour: "nav-calendar" },
-  { href: "/settings", label: "Settings", icon: "⚙️", tour: "nav-settings" },
+  { href: "/dashboard", label: "Dashboard", icon: "dashboard", tour: "nav-dashboard" },
+  { href: "/leads", label: "Leads", icon: "users", tour: "nav-leads" },
+  { href: "/campaigns", label: "Ad Campaigns", icon: "megaphone", tour: "nav-campaigns" },
+  { href: "/sequences", label: "Follow-ups", icon: "repeat", tour: "nav-sequences" },
+  { href: "/properties", label: "Properties", icon: "building", tour: "nav-properties" },
+  { href: "/calendar", label: "Calendar", icon: "calendar", tour: "nav-calendar" },
+  { href: "/settings", label: "Settings", icon: "settings", tour: "nav-settings" },
 ] as const;
 
 /** Per-vertical label/icon overrides for nav items */
 function navItemFor(
   item: (typeof NAV)[number],
   pack: ReturnType<typeof useVertical>,
-): { label: string; icon: string } {
+): { label: string; icon: IconName } {
   if (item.href === "/properties") {
-    return { label: pack.context.plural, icon: pack.context.icon };
+    return {
+      label: pack.context.plural,
+      icon: VERTICAL_CONTEXT_ICON[pack.id] ?? "building",
+    };
   }
   return { label: item.label, icon: item.icon };
 }
@@ -54,7 +58,7 @@ function SimulateButton() {
       const data = await res.json();
       const name = data.lead?.name ?? "Lead";
       const prop = data.lead?.property?.name ?? "your property";
-      setToast(`⚡ ${name} just came in via Meta, ${prop}`);
+      setToast(`${name} just came in via Meta — ${prop}`);
       onboarding?.markAction("simulate");
       await qc.invalidateQueries({ queryKey: ["leads"] });
       await qc.invalidateQueries({ queryKey: ["leads-count"] });
@@ -76,12 +80,12 @@ function SimulateButton() {
         data-tour="simulate-lead"
         disabled={busy}
         onClick={simulate}
-        className="rounded-control border border-[var(--border)] bg-page px-3 py-1.5 text-sm text-ink-2 disabled:opacity-60"
+        className="flex items-center gap-1.5 rounded-control border border-[var(--border)] bg-page px-3 py-1.5 text-sm text-ink-2 disabled:opacity-60"
         title="Simulate incoming lead"
       >
-        <span className="md:hidden">{busy ? "…" : "⚡"}</span>
+        <Icon name="zap" size={14} />
         <span className="hidden md:inline">
-          {busy ? "Simulating…" : "⚡ Simulate incoming lead"}
+          {busy ? "Simulating…" : "Simulate incoming lead"}
         </span>
       </button>
       {toast && (
@@ -138,9 +142,17 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     (navMatch ? navItemFor(navMatch, pack).label : undefined) ??
     (pathname.startsWith("/followups")
       ? "Follow-ups"
-      : pathname.startsWith("/more")
-        ? "More"
-        : "LeadCoda");
+      : pathname.startsWith("/reports")
+        ? "Reports"
+        : pathname.startsWith("/billing")
+          ? "Billing"
+          : pathname.startsWith("/admin")
+            ? "Admin"
+            : pathname.startsWith("/integrations")
+              ? "Integrations"
+              : pathname.startsWith("/more")
+                ? "More"
+                : "LeadCoda");
 
   function setProperty(id: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -185,7 +197,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                     : "text-ink-2 hover:bg-surface-2/70 hover:text-ink",
                 )}
               >
-                <span className="w-5 text-center text-xs opacity-80">{navIcon}</span>
+                <span className="flex w-5 justify-center opacity-80">
+                  <Icon name={navIcon} size={16} />
+                </span>
                 <span className="flex-1">{navLabel}</span>
                 {count != null && (
                   <span className="rounded-pill bg-surface-2 px-1.5 text-[10px] tabular-nums text-muted">
@@ -204,7 +218,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 : "text-ink-2 hover:bg-surface-2/70 hover:text-ink",
             )}
           >
-            <span className="w-5 text-center text-xs opacity-80">📊</span>
+            <span className="flex w-5 justify-center opacity-80">
+              <Icon name="chart" size={16} />
+            </span>
             <span className="flex-1">Reports</span>
           </Link>
           {me?.isAdmin && (
@@ -217,7 +233,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                   : "text-ink-2 hover:bg-surface-2/70 hover:text-ink",
               )}
             >
-              <span className="w-5 text-center text-xs opacity-80">🛡️</span>
+              <span className="flex w-5 justify-center opacity-80">
+                <Icon name="shield" size={16} />
+              </span>
               <span className="flex-1">Admin</span>
             </Link>
           )}

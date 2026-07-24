@@ -3,51 +3,55 @@
 @tailwind utilities;
 
 :root {
-  /* LeadCoda brand: cool slate neutrals + Coda Blue */
-  --page: #f4f6fb;
+  /* LeadCoda brand: cool slate neutrals + Coda Emerald ("recovered revenue"
+     green). Data-viz series are a restrained tonal ramp of the brand hue plus
+     slate neutrals — color carries meaning, not decoration. */
+  --page: #f5f7fa;
   --surface: #ffffff;
-  --surface-2: #e9eef7;
-  --ink: #0b1526;
-  --ink-2: #44506b;
-  --muted: #7b87a3;
-  --grid: #dde3ef;
-  --border: rgba(13, 32, 74, 0.1);
-  --accent: #2563eb;
-  --good: #0ca30c;
+  --surface-2: #eaeff5;
+  --ink: #0d1b1a;
+  --ink-2: #44576b;
+  --muted: #7b8aa3;
+  --grid: #dde5ec;
+  --border: rgba(13, 54, 44, 0.12);
+  --accent: #047857;
+  --accent-2: #10b981;
+  --good: #059669;
   --warn: #fab219;
   --serious: #ec835a;
   --critical: #d03b3b;
-  --good-text: #006300;
-  --s1: #2a78d6;
-  --s2: #eb6834;
-  --s3: #1baf7a;
-  --s4: #eda100;
-  --s5: #e87ba4;
-  --s6: #008300;
-  --s7: #4a3aa7;
-  --s8: #e34948;
+  --good-text: #065f46;
+  --s1: #047857;
+  --s2: #34d399;
+  --s3: #64748b;
+  --s4: #94a3b8;
+  --s5: #0f766e;
+  --s6: #065f46;
+  --s7: #cbd5e1;
+  --s8: #c96262;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Coda Navy dark theme */
-    --page: #0a1229;
-    --surface: #101b38;
-    --surface-2: #1a2747;
-    --ink: #f4f7ff;
-    --ink-2: #b8c3dd;
-    --muted: #7b87a3;
-    --grid: #223052;
-    --border: rgba(148, 173, 226, 0.16);
-    --accent: #4f83f1;
+    /* Coda dark theme — deep green-slate, same emerald identity */
+    --page: #0a1614;
+    --surface: #101f1c;
+    --surface-2: #182b27;
+    --ink: #f2f8f6;
+    --ink-2: #b5c6c0;
+    --muted: #7f938d;
+    --grid: #22352f;
+    --border: rgba(148, 226, 199, 0.14);
+    --accent: #34d399;
+    --accent-2: #6ee7b7;
     --good-text: #7ddea0;
-    --s1: #3987e5;
-    --s2: #d95926;
-    --s3: #199e70;
-    --s4: #c98500;
-    --s5: #d55181;
-    --s6: #008300;
-    --s7: #9085e9;
+    --s1: #34d399;
+    --s2: #a7f3d0;
+    --s3: #94a3b8;
+    --s4: #64748b;
+    --s5: #2dd4bf;
+    --s6: #059669;
+    --s7: #475569;
     --s8: #e66767;
   }
 }
@@ -65,6 +69,19 @@ body {
     Helvetica,
     Arial,
     sans-serif;
+}
+
+/* Typographic voice: one distinctive display face for headings, body stays
+   Plus Jakarta Sans. This is the "someone designed this" signal. */
+:root {
+  --font-display: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
 }
 
 /* Brand elevation: every card floats softly off the page */

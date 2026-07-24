@@ -22,7 +22,7 @@ export type BrandContext = {
 const HEX_COLOR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 
 const DEFAULT_PRIMARY = "#1a1a2e";
-const DEFAULT_ACCENT = "#4f46e5";
+const DEFAULT_ACCENT = "#047857";
 
 /** Only ever emit a validated hex color into inline styles. */
 export function safeColor(value: string | null | undefined, fallback: string): string {

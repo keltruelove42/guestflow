@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Icon, type IconName } from "@/components/ui/icons";
 import { api } from "@/lib/api";
 
 type View = "picker" | "ad" | "reactivation" | "reviews" | "referral";
 
 type Channel = {
   id: Exclude<View, "picker">;
-  emoji: string;
+  icon: IconName;
   title: string;
   desc: string;
 };
@@ -18,25 +19,25 @@ type Channel = {
 const CHANNELS: Channel[] = [
   {
     id: "ad",
-    emoji: "📣",
+    icon: "megaphone",
     title: "Ad campaign",
     desc: "Meta, TikTok or Pinterest lead ads.",
   },
   {
     id: "reactivation",
-    emoji: "🔄",
+    icon: "repeat",
     title: "Reactivation",
     desc: "Win back past & dormant leads with one text or email.",
   },
   {
     id: "reviews",
-    emoji: "⭐",
+    icon: "star",
     title: "Reviews",
     desc: "Auto-ask happy customers for a Google/Airbnb review.",
   },
   {
     id: "referral",
-    emoji: "🎁",
+    icon: "gift",
     title: "Referral",
     desc: "Turn customers into referrals with a shareable link.",
   },
@@ -93,7 +94,9 @@ export function CampaignLauncher({
                 onClick={() => pick(c.id)}
                 className="cursor-pointer rounded-card border border-[var(--border)] bg-page p-4 text-left transition-colors hover:border-accent"
               >
-                <div className="text-2xl">{c.emoji}</div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-control bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-accent">
+                  <Icon name={c.icon} size={18} />
+                </div>
                 <div className="mt-2 text-sm font-semibold">{c.title}</div>
                 <div className="mt-0.5 text-xs text-muted">{c.desc}</div>
               </button>

@@ -16,11 +16,11 @@ export function LogoMark({ size = 32 }: { size?: number }) {
     >
       <defs>
         <linearGradient id="lc-g" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#1D4ED8" />
-          <stop offset="1" stopColor="#38BDF8" />
+          <stop stopColor="#047857" />
+          <stop offset="1" stopColor="#34D399" />
         </linearGradient>
       </defs>
-      <rect width="64" height="64" rx="15" fill="#0A1229" />
+      <rect width="64" height="64" rx="15" fill="#0A1614" />
       <rect width="64" height="64" rx="15" fill="url(#lc-g)" fillOpacity="0.92" />
       <ellipse cx="32" cy="32" rx="10.5" ry="13" stroke="#fff" strokeWidth="5" />
       <path d="M32 9v46" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
@@ -34,7 +34,7 @@ export function Wordmark({ light = false, className = "" }: { light?: boolean; c
   return (
     <span className={`font-bold tracking-tight ${className}`}>
       <span className={light ? "text-white" : "text-ink"}>Lead</span>
-      <span className={light ? "text-sky-300" : "text-[#2563eb]"}>Coda</span>
+      <span className={light ? "text-emerald-300" : "text-[var(--accent)]"}>Coda</span>
     </span>
   );
 }

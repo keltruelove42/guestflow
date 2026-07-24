@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
-type Me = { emailVerified?: boolean; email?: string };
+type Me = { emailVerified?: boolean; email?: string; orgMode?: string };
 
 /**
  * In-app nudge shown until the account's email is verified. Live sending is
@@ -20,7 +20,8 @@ export function VerifyBanner() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!me || me.emailVerified !== false) return null;
+  // Demo workspaces never send live — the verify nag is just noise there.
+  if (!me || me.emailVerified !== false || me.orgMode === "DEMO") return null;
 
   async function resend() {
     setBusy(true);

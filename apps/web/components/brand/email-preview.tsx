@@ -39,7 +39,7 @@ export function EmailHeaderPreview({
   body?: string | null;
 }) {
   const primary = color(brand.primaryColor, "#1a1a2e");
-  const accent = color(brand.accentColor, "#4f46e5");
+  const accent = color(brand.accentColor, "#047857");
   const family = FONTS[brand.font ?? "system"] ?? FONTS.system!;
   const name = (brand.businessName ?? "").trim();
 

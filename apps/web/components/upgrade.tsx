@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { Icon } from "@/components/ui/icons";
 
 /** Current workspace plan; "TRIAL" until a subscription exists. */
 export function usePlan() {
@@ -36,10 +37,10 @@ export function UpgradeChip({ label = "Growth" }: { label?: string }) {
   return (
     <Link
       href="/billing"
-      className="inline-flex items-center gap-1 rounded-pill bg-gradient-to-r from-[#2563eb] to-[#38bdf8] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm transition-transform hover:scale-105"
+      className="inline-flex items-center gap-1 rounded-pill bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm transition-transform hover:scale-105"
       title={`Included with the ${label} plan. Tap to upgrade.`}
     >
-      ⚡ {label}
+      <Icon name="zap" size={10} /> {label}
     </Link>
   );
 }
@@ -51,9 +52,9 @@ export function SidebarUpgrade() {
   return (
     <Link
       href="/billing"
-      className="mx-3 mb-2 flex items-center justify-center gap-1.5 rounded-control bg-gradient-to-r from-[#2563eb] to-[#38bdf8] px-3 py-2 text-xs font-semibold text-white shadow-md transition-transform hover:scale-[1.02]"
+      className="mx-3 mb-2 flex items-center justify-center gap-1.5 rounded-control bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] px-3 py-2 text-xs font-semibold text-white shadow-md transition-transform hover:scale-[1.02]"
     >
-      ⚡ Upgrade · from $24/mo
+      <Icon name="zap" size={12} /> Upgrade · from $24/mo
     </Link>
   );
 }

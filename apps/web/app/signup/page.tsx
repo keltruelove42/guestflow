@@ -19,7 +19,7 @@ const NAVY = {
 const COMING_SOON: Array<{ icon: string; label: string }> = [];
 
 const DEFAULT_PRIMARY = "#1a1a2e";
-const DEFAULT_ACCENT = "#4f46e5";
+const DEFAULT_ACCENT = "#047857";
 const HEX6 = /^#[0-9a-fA-F]{6}$/;
 
 /** Mirrors the org-name derivation in /api/v1/auth/register so we can prefill it. */
@@ -220,13 +220,13 @@ export default function SignupPage() {
       style={{ background: NAVY.page }}
     >
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 h-[420px] w-[640px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[130px]" />
+        <div className="absolute -top-40 left-1/2 h-[420px] w-[640px] -translate-x-1/2 rounded-full bg-emerald-600/20 blur-[130px]" />
       </div>
 
       <Link href="/" className="relative z-10 mb-8 flex items-center gap-2">
         <LogoMark size={32} />
         <span className="text-lg font-bold tracking-tight">
-          Lead<span className="text-sky-300">Coda</span>
+          Lead<span className="text-emerald-300">Coda</span>
         </span>
       </Link>
 
@@ -244,7 +244,7 @@ export default function SignupPage() {
             <span
               key={s}
               className={`h-1.5 w-8 rounded-full ${
-                step === s ? "bg-blue-500" : step > s ? "bg-blue-500/40" : "bg-white/15"
+                step === s ? "bg-emerald-500" : step > s ? "bg-emerald-500/40" : "bg-white/15"
               }`}
             />
           ))}
@@ -264,7 +264,7 @@ export default function SignupPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoComplete="name"
-                className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500"
                 style={{ borderColor: NAVY.border }}
               />
               <input
@@ -274,7 +274,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500"
                 style={{ borderColor: NAVY.border }}
               />
               <input
@@ -285,19 +285,19 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
-                className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500"
                 style={{ borderColor: NAVY.border }}
               />
               <button
                 type="submit"
-                className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold hover:bg-blue-500"
+                className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold hover:bg-emerald-500"
               >
                 Continue →
               </button>
             </form>
             <p className="mt-4 text-center text-xs text-slate-500">
               Already have an account?{" "}
-              <Link href="/login" className="text-blue-400 hover:underline">
+              <Link href="/login" className="text-emerald-400 hover:underline">
                 Log in
               </Link>
             </p>
@@ -321,7 +321,7 @@ export default function SignupPage() {
                   type="button"
                   disabled={busy !== null}
                   onClick={() => createWorkspace(v.id)}
-                  className="rounded-xl border p-4 text-left transition-colors hover:border-blue-400/60 hover:bg-blue-500/10 disabled:opacity-60"
+                  className="rounded-xl border p-4 text-left transition-colors hover:border-emerald-400/60 hover:bg-emerald-500/10 disabled:opacity-60"
                   style={{ background: NAVY.card, borderColor: NAVY.border }}
                 >
                   <span className="text-xl">{v.icon}</span>
@@ -370,7 +370,7 @@ export default function SignupPage() {
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     placeholder="Your business name"
-                    className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                    className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500"
                     style={{ borderColor: NAVY.border }}
                   />
                 </div>
@@ -424,7 +424,7 @@ export default function SignupPage() {
                 type="button"
                 disabled={savingBrand !== null || uploading}
                 onClick={() => void finishBrand(true)}
-                className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold hover:bg-blue-500 disabled:opacity-60"
+                className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold hover:bg-emerald-500 disabled:opacity-60"
               >
                 {savingBrand === "save" ? "Saving…" : "Continue →"}
               </button>
@@ -478,7 +478,7 @@ export default function SignupPage() {
             <button
               type="button"
               onClick={goToDashboard}
-              className="mt-4 w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold hover:bg-blue-500"
+              className="mt-4 w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold hover:bg-emerald-500"
             >
               Go to dashboard →
             </button>
@@ -528,7 +528,7 @@ function ColorField({
           }}
           placeholder={fallback}
           spellCheck={false}
-          className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+          className="w-full rounded-xl border bg-white/5 px-3.5 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500"
           style={{ borderColor: NAVY.border }}
         />
       </div>

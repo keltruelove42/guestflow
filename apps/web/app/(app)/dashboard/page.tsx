@@ -111,7 +111,7 @@ function DashboardInner() {
     !onboarding.local.checklistDismissed &&
     onboarding.stats.pct < 100;
 
-  const propLabel = property ? "filtered" : "all properties";
+  const propLabel = property ? "filtered" : `all ${pack.context.plural.toLowerCase()}`;
 
   return (
     <div className="space-y-4">
@@ -337,7 +337,7 @@ function KpiTile({
 }) {
   return (
     <div className="relative overflow-hidden rounded-card border border-[var(--border)] bg-surface px-4 py-4 transition-shadow hover:shadow-lg">
-      <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#2563eb] to-[#38bdf8]" />
+      <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)]" />
       <div className="text-[11px] font-semibold uppercase tracking-wider text-muted">
         {label}
       </div>

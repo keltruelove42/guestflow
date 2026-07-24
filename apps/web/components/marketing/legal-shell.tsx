@@ -15,26 +15,26 @@ export function LegalShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen overflow-x-clip bg-[#050b1e] text-white antialiased">
+    <div className="min-h-screen overflow-x-clip bg-[#04110d] text-white antialiased">
       <header className="border-b border-white/10">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
           <Link href="/" className="flex items-center gap-2.5">
             <LogoMark size={28} />
             <span className="font-bold tracking-tight">
               <span className="text-white">Lead</span>
-              <span className="text-sky-300">Coda</span>
+              <span className="text-emerald-300">Coda</span>
             </span>
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
           >
             Start free trial
           </Link>
         </div>
       </header>
 
-      <article className="mx-auto max-w-3xl px-5 py-12 [&_h2]:mt-8 [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-white [&_p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-slate-300 [&_a]:text-sky-300 [&_a]:underline [&_a]:underline-offset-2">
+      <article className="mx-auto max-w-3xl px-5 py-12 [&_h2]:mt-8 [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-white [&_p]:mt-3 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-slate-300 [&_a]:text-emerald-300 [&_a]:underline [&_a]:underline-offset-2">
         <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
         <p className="!mt-2 text-xs !text-slate-500">Last updated: {updated}</p>
         {children}

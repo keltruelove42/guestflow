@@ -9,8 +9,8 @@ import { DemoModal } from "./landing";
    Flat workspace pricing (not per seat) positioned under Apollo/GHL. */
 
 const NAVY = {
-  page: "#050b1e",
-  panel: "#0a142e",
+  page: "#04110d",
+  panel: "#0a1a15",
   card: "rgba(255,255,255,0.045)",
   border: "rgba(255,255,255,0.09)",
 };
@@ -226,7 +226,7 @@ const COMPARE: Array<{ section: string; rows: Array<[string, string, string, str
 ];
 
 function Check() {
-  return <span className="text-sky-300">✓</span>;
+  return <span className="text-emerald-300">✓</span>;
 }
 
 export function PricingPage() {
@@ -252,8 +252,8 @@ export function PricingPage() {
     >
       {/* glow accents */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 h-[480px] w-[720px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[140px]" />
-        <div className="absolute bottom-0 right-0 h-[360px] w-[480px] rounded-full bg-sky-500/10 blur-[120px]" />
+        <div className="absolute -top-40 left-1/2 h-[480px] w-[720px] -translate-x-1/2 rounded-full bg-emerald-600/20 blur-[140px]" />
+        <div className="absolute bottom-0 right-0 h-[360px] w-[480px] rounded-full bg-teal-400/10 blur-[120px]" />
       </div>
 
       {/* ===== Nav ===== */}
@@ -261,7 +261,7 @@ export function PricingPage() {
         <Link href="/" className="flex items-center gap-2">
           <LogoMark size={32} />
           <span className="text-lg font-bold tracking-tight">
-            Lead<span className="text-sky-300">Coda</span>
+            Lead<span className="text-emerald-300">Coda</span>
           </span>
         </Link>
         <nav className="hidden items-center gap-7 text-sm text-slate-300 md:flex">
@@ -286,7 +286,7 @@ export function PricingPage() {
           )}
           <Link
             href="/signup"
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold hover:bg-blue-500"
+            className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500"
           >
             Start free trial
           </Link>
@@ -295,12 +295,12 @@ export function PricingPage() {
 
       {/* ===== Hero ===== */}
       <section className="relative z-10 mx-auto max-w-6xl px-5 pb-6 pt-12 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
+        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
           ⚡ Flat pricing. Not per seat.
         </span>
         <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-[1.1] tracking-tight md:text-5xl">
           Pricing that pays for itself with{" "}
-          <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
             one saved lead
           </span>
           .
@@ -315,16 +315,16 @@ export function PricingPage() {
           <button
             type="button"
             onClick={() => setAnnual(false)}
-            className={`rounded-full px-4 py-1.5 text-sm ${!annual ? "bg-blue-600 font-semibold text-white" : "text-slate-300"}`}
+            className={`rounded-full px-4 py-1.5 text-sm ${!annual ? "bg-emerald-600 font-semibold text-white" : "text-slate-300"}`}
           >
             Monthly
           </button>
           <button
             type="button"
             onClick={() => setAnnual(true)}
-            className={`rounded-full px-4 py-1.5 text-sm ${annual ? "bg-blue-600 font-semibold text-white" : "text-slate-300"}`}
+            className={`rounded-full px-4 py-1.5 text-sm ${annual ? "bg-emerald-600 font-semibold text-white" : "text-slate-300"}`}
           >
-            Annual <span className={annual ? "text-sky-200" : "text-sky-300"}>· save 20%</span>
+            Annual <span className={annual ? "text-emerald-200" : "text-emerald-300"}>· save 20%</span>
           </button>
         </div>
       </section>
@@ -336,7 +336,7 @@ export function PricingPage() {
             <div
               key={p.key}
               className={`relative flex flex-col rounded-2xl border p-6 ${
-                p.highlight ? "border-blue-400/60 shadow-2xl shadow-blue-600/20" : ""
+                p.highlight ? "border-emerald-400/60 shadow-2xl shadow-emerald-600/20" : ""
               }`}
               style={{
                 background: p.highlight ? NAVY.panel : NAVY.card,
@@ -344,7 +344,7 @@ export function PricingPage() {
               }}
             >
               {p.highlight && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide">
                   Most popular
                 </span>
               )}
@@ -374,7 +374,7 @@ export function PricingPage() {
                   href="/signup"
                   className={`mt-5 rounded-xl py-2.5 text-center text-sm font-semibold ${
                     p.highlight
-                      ? "bg-blue-600 hover:bg-blue-500"
+                      ? "bg-emerald-600 hover:bg-emerald-500"
                       : "border border-white/20 hover:bg-white/5"
                   }`}
                 >
@@ -434,7 +434,7 @@ export function PricingPage() {
                   <h3 className="font-bold">{a.name}</h3>
                 </div>
                 <div className="text-right">
-                  <div className="text-xl font-extrabold text-sky-300">{a.price}</div>
+                  <div className="text-xl font-extrabold text-emerald-300">{a.price}</div>
                   <div className="text-[11px] text-slate-500">{a.per}</div>
                 </div>
               </div>
@@ -457,12 +457,12 @@ export function PricingPage() {
               className="flex flex-col rounded-2xl border p-6"
               style={{ background: NAVY.card, borderColor: NAVY.border }}
             >
-              <div className="text-sky-300">★★★★★</div>
+              <div className="text-emerald-300">★★★★★</div>
               <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-slate-300">
                 “{t.quote}”
               </blockquote>
               <figcaption className="mt-4 flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600/30 text-xs font-bold text-sky-200">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600/30 text-xs font-bold text-emerald-200">
                   {t.initials}
                 </span>
                 <div>
@@ -480,7 +480,7 @@ export function PricingPage() {
             <b className="text-white">&lt; 60 sec</b> first response to new leads
           </span>
           <span>
-            <b className="text-white">6 industries</b> with tailored workspaces
+            <b className="text-white">8 industries</b> with tailored workspaces
           </span>
           <span>
             <b className="text-white">5-7×</b> touches it takes to win a quiet lead
@@ -502,7 +502,7 @@ export function PricingPage() {
               <tr className="border-b text-left" style={{ borderColor: NAVY.border }}>
                 <th className="px-5 py-4 font-semibold text-slate-400">Features</th>
                 <th className="px-5 py-4 font-bold">Starter</th>
-                <th className="px-5 py-4 font-bold text-sky-300">Growth</th>
+                <th className="px-5 py-4 font-bold text-emerald-300">Growth</th>
                 <th className="px-5 py-4 font-bold">Pro</th>
               </tr>
             </thead>
@@ -579,7 +579,7 @@ export function PricingPage() {
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/signup"
-              className="rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold shadow-lg shadow-blue-600/30 hover:bg-blue-500"
+              className="rounded-xl bg-emerald-600 px-6 py-3.5 text-base font-semibold shadow-lg shadow-emerald-600/30 hover:bg-emerald-500"
             >
               Start free trial
             </Link>

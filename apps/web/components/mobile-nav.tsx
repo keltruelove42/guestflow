@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Icon, type IconName } from "@/components/ui/icons";
 
-const TABS = [
-  { href: "/dashboard", label: "Home", icon: "◈" },
-  { href: "/leads", label: "Leads", icon: "👥" },
-  { href: "/followups", label: "Follow-ups", icon: "🔁" },
-  { href: "/more", label: "More", icon: "⋯" },
+const TABS: ReadonlyArray<{ href: string; label: string; icon: IconName }> = [
+  { href: "/dashboard", label: "Home", icon: "home" },
+  { href: "/leads", label: "Leads", icon: "users" },
+  { href: "/followups", label: "Follow-ups", icon: "repeat" },
+  { href: "/more", label: "More", icon: "more" },
 ] as const;
 
 /** Thumb-zone bottom tab bar, mobile only. */
@@ -32,8 +33,8 @@ export function MobileTabBar({ leadsCount }: { leadsCount?: number }) {
                 active ? "font-semibold text-ink" : "text-muted",
               )}
             >
-              <span className="relative text-base leading-none">
-                {tab.icon}
+              <span className="relative leading-none">
+                <Icon name={tab.icon} size={18} />
                 {tab.href === "/leads" && !!leadsCount && (
                   <span className="absolute -right-3 -top-1.5 rounded-pill bg-accent px-1 text-[9px] font-semibold leading-[14px] text-white">
                     {leadsCount > 99 ? "99+" : leadsCount}

@@ -8,8 +8,8 @@ import { LogoMark } from "@/components/brand/logo";
    simplicity). Self-contained: no app-theme CSS vars. */
 
 const NAVY = {
-  page: "#050b1e",
-  panel: "#0a142e",
+  page: "#04110d",
+  panel: "#0a1a15",
   card: "rgba(255,255,255,0.045)",
   border: "rgba(255,255,255,0.09)",
 };
@@ -155,7 +155,7 @@ export function DemoModal({ onClose }: { onClose: () => void }) {
             <button
               type="button"
               onClick={onClose}
-              className="mt-5 w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-500"
+              className="mt-5 w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
             >
               Done
             </button>
@@ -182,20 +182,20 @@ export function DemoModal({ onClose }: { onClose: () => void }) {
                   placeholder={label}
                   value={form[key]}
                   onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                  className="w-full rounded-xl border bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                  className="w-full rounded-xl border bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none focus:border-emerald-500"
                   style={{ borderColor: NAVY.border }}
                 />
               ))}
               <button
                 type="submit"
                 disabled={busy}
-                className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60"
+                className="w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
               >
                 {busy ? "Sending…" : "Request my demo"}
               </button>
               <p className="text-center text-[11px] text-slate-500">
                 Prefer to poke around first?{" "}
-                <Link href="/signup" className="text-blue-400 hover:underline">
+                <Link href="/signup" className="text-emerald-400 hover:underline">
                   Start the free trial
                 </Link>{" "}
                 no credit card needed.
@@ -219,7 +219,7 @@ function HeroMock() {
         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
           Needs your reply
         </span>
-        <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-[10px] font-medium text-blue-300">
+        <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
           automation paused
         </span>
       </div>
@@ -241,7 +241,7 @@ function HeroMock() {
             <div className="truncate text-xs text-slate-400">{m}</div>
           </div>
           <span className="text-[10px] text-slate-500">{t}</span>
-          <span className="rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white">
+          <span className="rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white">
             Reply
           </span>
         </div>
@@ -282,8 +282,8 @@ export function LandingPage() {
     >
       {/* glow accents */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 h-[480px] w-[720px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[140px]" />
-        <div className="absolute bottom-0 right-0 h-[360px] w-[480px] rounded-full bg-sky-500/10 blur-[120px]" />
+        <div className="absolute -top-40 left-1/2 h-[480px] w-[720px] -translate-x-1/2 rounded-full bg-emerald-600/20 blur-[140px]" />
+        <div className="absolute bottom-0 right-0 h-[360px] w-[480px] rounded-full bg-teal-400/10 blur-[120px]" />
       </div>
 
       {/* ===== Nav ===== */}
@@ -291,7 +291,7 @@ export function LandingPage() {
         <div className="flex items-center gap-2">
           <LogoMark size={32} />
           <span className="text-lg font-bold tracking-tight">
-            Lead<span className="text-sky-300">Coda</span>
+            Lead<span className="text-emerald-300">Coda</span>
           </span>
         </div>
         <nav className="hidden items-center gap-7 text-sm text-slate-300 md:flex">
@@ -320,7 +320,7 @@ export function LandingPage() {
           )}
           <Link
             href="/signup"
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold hover:bg-blue-500"
+            className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold hover:bg-emerald-500"
           >
             Start free trial
           </Link>
@@ -331,12 +331,12 @@ export function LandingPage() {
       <section className="relative z-10 mx-auto max-w-6xl px-5 pb-20 pt-14 md:pt-20">
         <div className="grid items-center gap-12 md:grid-cols-2 [&>*]:min-w-0">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
               ⚡ LeadCoda brings every lead to its close
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight md:text-[3.4rem]">
               Never lose another lead to{" "}
-              <span className="bg-gradient-to-r from-blue-400 to-sky-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
                 slow follow-up
               </span>
               .
@@ -348,7 +348,7 @@ export function LandingPage() {
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/signup"
-                className="rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold shadow-lg shadow-blue-600/30 hover:bg-blue-500"
+                className="rounded-xl bg-emerald-600 px-6 py-3.5 text-base font-semibold shadow-lg shadow-emerald-600/30 hover:bg-emerald-500"
               >
                 Start free trial
               </Link>
@@ -410,7 +410,7 @@ export function LandingPage() {
               className="rounded-2xl border p-6"
               style={{ background: NAVY.card, borderColor: NAVY.border }}
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 text-sm font-bold">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-300 text-sm font-bold">
                 {n}
               </span>
               <h3 className="mt-4 text-lg font-bold">{t}</h3>
@@ -424,10 +424,10 @@ export function LandingPage() {
       <section className="relative z-10 mx-auto max-w-6xl px-5 py-10">
         <div
           className="flex flex-col items-start justify-between gap-6 rounded-3xl border p-8 md:flex-row md:items-center"
-          style={{ background: NAVY.panel, borderColor: "rgba(96,165,250,0.35)" }}
+          style={{ background: NAVY.panel, borderColor: "rgba(52,211,153,0.35)" }}
         >
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
               📞 Coda Concierge · your BDR for hire
             </span>
             <h2 className="mt-4 text-2xl font-extrabold tracking-tight md:text-3xl">
@@ -442,7 +442,7 @@ export function LandingPage() {
           </div>
           <Link
             href="/pricing"
-            className="shrink-0 rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold shadow-lg shadow-blue-600/30 hover:bg-blue-500"
+            className="shrink-0 rounded-xl bg-emerald-600 px-6 py-3.5 text-base font-semibold shadow-lg shadow-emerald-600/30 hover:bg-emerald-500"
           >
             See Concierge pricing →
           </Link>
@@ -462,7 +462,7 @@ export function LandingPage() {
           {INDUSTRIES.map((ind) => (
             <div
               key={ind.name}
-              className="group rounded-2xl border p-5 transition-colors hover:border-blue-400/40"
+              className="group rounded-2xl border p-5 transition-colors hover:border-emerald-400/40"
               style={{ background: NAVY.card, borderColor: NAVY.border }}
             >
               <div className="flex items-start justify-between">
@@ -501,8 +501,8 @@ export function LandingPage() {
           className="rounded-3xl border p-10 md:p-14"
           style={{
             background:
-              "linear-gradient(135deg, rgba(37,99,235,0.25), rgba(56,189,248,0.08))",
-            borderColor: "rgba(96,165,250,0.25)",
+              "linear-gradient(135deg, rgba(4,120,87,0.28), rgba(52,211,153,0.08))",
+            borderColor: "rgba(52,211,153,0.25)",
           }}
         >
           <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
@@ -515,7 +515,7 @@ export function LandingPage() {
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/signup"
-              className="rounded-xl bg-blue-600 px-7 py-3.5 text-base font-semibold shadow-lg shadow-blue-600/30 hover:bg-blue-500"
+              className="rounded-xl bg-emerald-600 px-7 py-3.5 text-base font-semibold shadow-lg shadow-emerald-600/30 hover:bg-emerald-500"
             >
               Start your free trial
             </Link>

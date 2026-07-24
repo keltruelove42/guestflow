@@ -270,7 +270,7 @@ function BillingInner() {
               {a.featured ? (
                 <button
                   type="button"
-                  className="mt-2.5 inline-block rounded-control bg-gradient-to-r from-[#2563eb] to-[#38bdf8] px-3 py-1.5 text-xs font-medium text-white"
+                  className="mt-2.5 inline-block rounded-control bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] px-3 py-1.5 text-xs font-medium text-white"
                   onClick={() => setConciergeOpen(true)}
                 >
                   ⚡ Get Concierge
@@ -556,7 +556,7 @@ function ConciergeModal({ onClose }: { onClose: () => void }) {
           </div>
           <a
             href={`mailto:hello@leadcoda.app?subject=${encodeURIComponent("Coda Concierge: I want in")}&body=${encodeURIComponent("Tell us a bit about your business and lead volume, and we will reach out within one business day to get Concierge running for you.")}`}
-            className="block rounded-control bg-gradient-to-r from-[#2563eb] to-[#38bdf8] py-2.5 text-center text-sm font-semibold text-white"
+            className="block rounded-control bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] py-2.5 text-center text-sm font-semibold text-white"
           >
             ⚡ Request Concierge
           </a>

@@ -6,7 +6,7 @@ import { getSession } from "@/lib/auth";
 const DEFAULTS = {
   logoUrl: null as string | null,
   primaryColor: "#1a1a2e",
-  accentColor: "#4f46e5",
+  accentColor: "#047857",
   businessName: null as string | null,
   font: null as string | null,
 };
