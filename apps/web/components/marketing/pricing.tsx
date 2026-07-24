@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Fragment, useState } from "react";
 import { LogoMark } from "@/components/brand/logo";
+import { Icon, type IconName } from "@/components/ui/icons";
 import { DemoModal } from "./landing";
 
 /* LeadCoda pricing page. Same dark-navy brand system as the landing page.
@@ -95,7 +96,7 @@ const PLANS: Plan[] = [
 
 const ADDONS = [
   {
-    icon: "🤍",
+    icon: "heart" as IconName,
     name: "White-Glove Setup",
     price: "$199",
     per: "one time",
@@ -103,7 +104,7 @@ const ADDONS = [
     note: "Comparable services run $500 to $1,500 elsewhere.",
   },
   {
-    icon: "🛠️",
+    icon: "wrench" as IconName,
     name: "Professional Services",
     price: "$89",
     per: "per hour",
@@ -111,7 +112,7 @@ const ADDONS = [
     note: "No retainer, no minimum. Book an hour when you need one.",
   },
   {
-    icon: "🧭",
+    icon: "compass" as IconName,
     name: "Growth Consulting",
     price: "$299",
     per: "per month",
@@ -119,7 +120,7 @@ const ADDONS = [
     note: "Cancel anytime. Most agencies charge $1,000+ for the same.",
   },
   {
-    icon: "📞",
+    icon: "phone" as IconName,
     name: "Coda Concierge",
     price: "from $499",
     per: "per month",
@@ -133,7 +134,7 @@ const TESTIMONIALS = [
     initials: "MK",
     name: "Mike",
     role: "Owner, plumbing & HVAC company",
-    icon: "🔧",
+    icon: "wrench" as IconName,
     quote:
       "We used to lose estimates just by being slow. Now every inquiry gets a text in under a minute and we book jobs while competitors are still checking voicemail.",
   },
@@ -141,7 +142,7 @@ const TESTIMONIALS = [
     initials: "RB",
     name: "Riley",
     role: "Short-term rental manager, 14 properties",
-    icon: "🏡",
+    icon: "home" as IconName,
     quote:
       "The abandoned-inquiry rescue alone pays for the whole year. Guests who bailed at checkout come back and book. I stopped doing follow-up by hand entirely.",
   },
@@ -149,7 +150,7 @@ const TESTIMONIALS = [
     initials: "BL",
     name: "Bella",
     role: "Salon owner",
-    icon: "💅",
+    icon: "scissors" as IconName,
     quote:
       "My book stays full because the rebooking nudges go out on schedule without me thinking about it. Setup took one afternoon and the templates sounded like me.",
   },
@@ -430,7 +431,7 @@ export function PricingPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{a.icon}</span>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300"><Icon name={a.icon} size={20} /></span>
                   <h3 className="font-bold">{a.name}</h3>
                 </div>
                 <div className="text-right">
@@ -467,7 +468,7 @@ export function PricingPage() {
                 </span>
                 <div>
                   <div className="text-sm font-semibold">
-                    {t.name} <span className="ml-1">{t.icon}</span>
+                    {t.name} <span className="ml-1 inline-flex align-[-2px] text-emerald-300"><Icon name={t.icon} size={13} /></span>
                   </div>
                   <div className="text-xs text-slate-500">{t.role}</div>
                 </div>

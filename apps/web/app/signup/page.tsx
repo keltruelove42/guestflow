@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { VERTICAL_LIST, type VerticalId } from "@guestflow/shared";
 import { LogoMark } from "@/components/brand/logo";
+import { Icon, type IconName } from "@/components/ui/icons";
 import { EmailHeaderPreview } from "@/components/brand/email-preview";
 import { Turnstile, turnstileEnabled } from "@/components/turnstile";
 import { api } from "@/lib/api";
@@ -60,10 +61,10 @@ type SequenceItem = {
   steps: SeqStep[];
 };
 
-const CHANNEL_ICON: Record<SeqStep["channel"], string> = {
-  EMAIL: "✉️",
-  SMS: "💬",
-  CALL: "📞",
+const CHANNEL_ICON: Record<SeqStep["channel"], IconName> = {
+  EMAIL: "mail",
+  SMS: "message",
+  CALL: "phone",
 };
 
 function delayLabel(minutes: number): string {
@@ -447,7 +448,7 @@ export default function SignupPage() {
                   <ul className="mt-3 space-y-2.5">
                     {sequence.steps.map((s, i) => (
                       <li key={s.id ?? i} className="flex items-start gap-2.5">
-                        <span className="text-base leading-5">{CHANNEL_ICON[s.channel]}</span>
+                        <span className="mt-0.5 text-emerald-300"><Icon name={CHANNEL_ICON[s.channel]} size={14} /></span>
                         <span className="min-w-0">
                           <span className="block text-[11px] uppercase tracking-wide text-slate-500">
                             {delayLabel(s.delayMinutes)}

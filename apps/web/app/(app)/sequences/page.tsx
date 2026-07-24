@@ -10,14 +10,15 @@ import { useSequences, type Sequence } from "@/lib/queries";
 import { SequenceCard } from "./sequence-card";
 import { SequenceEditor } from "./sequence-editor";
 import { VariablesModal } from "./variables-modal";
+import { Icon, type IconName } from "@/components/ui/icons";
 
 /** Folder definitions: one per follow-up type, in display order. */
-const FOLDERS: Array<{ trigger: string; icon: string; title: string }> = [
-  { trigger: "AD_LEAD_CAPTURED", icon: "⚡", title: "New lead response" },
-  { trigger: "INQUIRY_ABANDONED", icon: "🛟", title: "Abandoned inquiry rescue" },
-  { trigger: "QUOTE_UNACCEPTED_48H", icon: "💬", title: "Quote & offer follow-up" },
-  { trigger: "CHECKOUT_PLUS_90D", icon: "🔁", title: "Rebook & win-back" },
-  { trigger: "MANUAL_ONLY", icon: "✋", title: "Manual plays" },
+const FOLDERS: Array<{ trigger: string; icon: IconName; title: string }> = [
+  { trigger: "AD_LEAD_CAPTURED", icon: "zap", title: "New lead response" },
+  { trigger: "INQUIRY_ABANDONED", icon: "inbox", title: "Abandoned inquiry rescue" },
+  { trigger: "QUOTE_UNACCEPTED_48H", icon: "message", title: "Quote & offer follow-up" },
+  { trigger: "CHECKOUT_PLUS_90D", icon: "repeat", title: "Rebook & win-back" },
+  { trigger: "MANUAL_ONLY", icon: "userCheck", title: "Manual plays" },
 ];
 
 export default function SequencesPage() {
@@ -87,7 +88,7 @@ export default function SequencesPage() {
               className="rounded-card border border-[var(--border)] bg-surface"
             >
               <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 px-4 py-3 marker:hidden [&::-webkit-details-marker]:hidden">
-                <span className="text-base">{folder.icon}</span>
+                <span className="text-accent"><Icon name={folder.icon} size={15} /></span>
                 <span className="text-sm font-semibold">{folder.title}</span>
                 <Badge tone="muted" size="sm">
                   {list.length}

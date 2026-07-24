@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Icon } from "@/components/ui/icons";
 import { useOnboarding } from "./onboarding-provider";
 
 const KEY = (orgId: string) => `gf-mobile-welcome-${orgId}`;
@@ -53,20 +54,20 @@ export function MobileFirstRun() {
         </p>
         <ul className="mt-3 space-y-2.5 text-sm">
           <li className="flex items-center gap-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2">
-              👥
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-2">
+              <Icon name="users" size={14} />
             </span>
             See new leads the moment they come in
           </li>
           <li className="flex items-center gap-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2">
-              💬
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-2">
+              <Icon name="message" size={14} />
             </span>
             Reply by email or SMS in two taps
           </li>
           <li className="flex items-center gap-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2">
-              🔁
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-2">
+              <Icon name="repeat" size={14} />
             </span>
             Check follow-ups that need a human touch
           </li>

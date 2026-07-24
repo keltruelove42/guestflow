@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import type { TrialStatus } from "@/components/trial-banner";
+import { Icon } from "@/components/ui/icons";
 
 const PLANS = [
   {
@@ -102,7 +103,7 @@ function BillingInner() {
     <div className="mx-auto max-w-3xl space-y-5">
       {status === "success" && (
         <div className="rounded-card border border-[var(--border)] bg-[color-mix(in_srgb,var(--good)_12%,transparent)] p-4 text-sm">
-          🎉 You are all set. Your plan is active, and a receipt is on its way to your
+          You are all set. Your plan is active, and a receipt is on its way to your
           inbox.
         </div>
       )}
@@ -222,7 +223,7 @@ function BillingInner() {
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {[
             {
-              icon: "📞",
+              icon: "phone" as const,
               name: "Coda Concierge",
               sub: "Your BDR for hire",
               price: "from $499/mo",
@@ -230,21 +231,21 @@ function BillingInner() {
               featured: true,
             },
             {
-              icon: "🤍",
+              icon: "heart" as const,
               name: "White-Glove Setup",
               sub: "We build your workspace",
               price: "$199 one time",
               desc: "Lead migration, integrations connected, sequences tailored to your business.",
             },
             {
-              icon: "🧭",
+              icon: "compass" as const,
               name: "Growth Consulting",
               sub: "Monthly strategy session",
               price: "$299/mo",
               desc: "Funnel review, follow-up tuning, and a written action plan every month.",
             },
             {
-              icon: "🛠️",
+              icon: "wrench" as const,
               name: "Professional Services",
               sub: "On-demand expert hours",
               price: "$89/hr",
@@ -260,7 +261,7 @@ function BillingInner() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="text-sm font-semibold">
-                    {a.icon} {a.name}
+                    <span className="mr-1 inline-flex align-[-2px] text-accent"><Icon name={a.icon} size={13} /></span>{a.name}
                   </div>
                   <div className="text-[11px] text-muted">{a.sub}</div>
                 </div>
@@ -273,7 +274,7 @@ function BillingInner() {
                   className="mt-2.5 inline-block rounded-control bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] px-3 py-1.5 text-xs font-medium text-white"
                   onClick={() => setConciergeOpen(true)}
                 >
-                  ⚡ Get Concierge
+                  Get Concierge
                 </button>
               ) : (
                 <a
@@ -505,7 +506,7 @@ function ConciergeModal({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
-          <h3 className="font-semibold">📞 Coda Concierge</h3>
+          <h3 className="font-semibold">Coda Concierge</h3>
           <button type="button" className="text-sm text-muted" onClick={onClose}>
             Close
           </button>
@@ -558,7 +559,7 @@ function ConciergeModal({ onClose }: { onClose: () => void }) {
             href={`mailto:hello@leadcoda.app?subject=${encodeURIComponent("Coda Concierge: I want in")}&body=${encodeURIComponent("Tell us a bit about your business and lead volume, and we will reach out within one business day to get Concierge running for you.")}`}
             className="block rounded-control bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] py-2.5 text-center text-sm font-semibold text-white"
           >
-            ⚡ Request Concierge
+            Request Concierge
           </a>
           <p className="text-center text-[11px] text-muted">
             We reach out within one business day to set everything up.

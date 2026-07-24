@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { LogoMark } from "@/components/brand/logo";
+import { Icon, type IconName } from "@/components/ui/icons";
 
 /* LeadCoda marketing site, dark navy (userpilot-style depth, hubspot-style
    simplicity). Self-contained: no app-theme CSS vars. */
@@ -16,49 +17,49 @@ const NAVY = {
 
 const INDUSTRIES = [
   {
-    icon: "🏡",
+    icon: "home" as IconName,
     name: "Vacation & long-term rentals",
     blurb: "Rescue abandoned booking inquiries and fill your calendar.",
     live: true,
   },
   {
-    icon: "🔧",
+    icon: "wrench" as IconName,
     name: "Home services & trades",
     blurb: "Text back every missed call and win the estimate.",
     live: true,
   },
   {
-    icon: "💅",
+    icon: "scissors" as IconName,
     name: "Salon & beauty",
     blurb: "Keep your book full with automatic rebooking nudges.",
     live: true,
   },
   {
-    icon: "🏠",
+    icon: "key" as IconName,
     name: "Real estate",
     blurb: "Follow up on every listing inquiry before the other agent does.",
     live: true,
   },
   {
-    icon: "🚗",
+    icon: "car" as IconName,
     name: "Auto & marine dealers",
     blurb: "Turn test-drive requests into signed deals.",
     live: true,
   },
   {
-    icon: "🏨",
+    icon: "bed" as IconName,
     name: "Hotels & B&Bs",
     blurb: "Convert direct-booking inquiries into stays.",
     live: true,
   },
   {
-    icon: "💻",
+    icon: "laptop" as IconName,
     name: "B2B SaaS & software",
     blurb: "Chase every trial and demo request until it closes.",
     live: true,
   },
   {
-    icon: "🛍️",
+    icon: "package" as IconName,
     name: "D2C & ecommerce",
     blurb: "Rescue abandoned carts and bring buyers back for more.",
     live: true,
@@ -67,47 +68,47 @@ const INDUSTRIES = [
 
 const FEATURES = [
   {
-    icon: "🗂️",
+    icon: "layers" as IconName,
     title: "A real CRM underneath",
     desc: "Every lead gets a pipeline stage, full timeline, notes, and consent tracking. Your whole book of business in one place, with a live dashboard of how it's performing.",
   },
   {
-    icon: "⚡",
+    icon: "zap" as IconName,
     title: "Instant text-back",
     desc: "New inquiry? A friendly SMS goes out in under a minute, while your competitor is still checking voicemail.",
   },
   {
-    icon: "🔁",
+    icon: "repeat" as IconName,
     title: "Follow-up sequences",
     desc: "Proven email + SMS templates for your industry, pre-loaded. Edit anything, or write your own.",
   },
   {
-    icon: "🙋",
+    icon: "userCheck" as IconName,
     title: "Human handoff",
     desc: "The moment a lead replies, automation pauses and the conversation is flagged for you. No robot awkwardness.",
   },
   {
-    icon: "📣",
+    icon: "megaphone" as IconName,
     title: "Lead ads, connected",
     desc: "Meta, TikTok and Pinterest instant forms drop straight into your pipeline and start their own follow-up.",
   },
   {
-    icon: "📥",
+    icon: "inbox" as IconName,
     title: "Bring your past leads",
     desc: "Import a spreadsheet or sync Klaviyo, and put old inquiries into revival sequences with consent built in.",
   },
   {
-    icon: "📊",
+    icon: "chart" as IconName,
     title: "A reporting dashboard, built in",
     desc: "New leads per week, cost per lead, reply rates, lead sources, and won revenue attributed to the exact campaign and sequence that earned it.",
   },
   {
-    icon: "🧠",
+    icon: "brain" as IconName,
     title: "Knows your business",
     desc: "Teach it your services, pricing, and policies once. Follow-ups and replies pull the right details automatically.",
   },
   {
-    icon: "📱",
+    icon: "smartphone" as IconName,
     title: "Runs from your pocket",
     desc: "Reply to leads and check follow-ups from your phone. The heavy setup stays comfortable on desktop.",
   },
@@ -147,7 +148,7 @@ export function DemoModal({ onClose }: { onClose: () => void }) {
       >
         {sent ? (
           <div className="text-center">
-            <div className="text-3xl">🎉</div>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300"><Icon name="check" size={24} /></div>
             <h3 className="mt-3 text-lg font-semibold text-white">You&apos;re on the list</h3>
             <p className="mt-2 text-sm text-slate-300">
               We&apos;ll reach out within one business day to schedule your walkthrough.
@@ -466,7 +467,7 @@ export function LandingPage() {
               style={{ background: NAVY.card, borderColor: NAVY.border }}
             >
               <div className="flex items-start justify-between">
-                <span className="text-2xl">{ind.icon}</span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300"><Icon name={ind.icon} size={20} /></span>
               </div>
               <h3 className="mt-3 font-bold">{ind.name}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{ind.blurb}</p>
@@ -487,7 +488,7 @@ export function LandingPage() {
               className="rounded-2xl border p-5"
               style={{ background: NAVY.card, borderColor: NAVY.border }}
             >
-              <span className="text-xl">{f.icon}</span>
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300"><Icon name={f.icon} size={17} /></span>
               <h3 className="mt-3 font-bold">{f.title}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{f.desc}</p>
             </div>

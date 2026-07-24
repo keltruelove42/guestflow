@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { VerticalPack } from "@guestflow/shared";
+import { Icon } from "@/components/ui/icons";
 
 /** Shared lead shape used by the board and queue (subset of API response). */
 export type BoardLead = {
@@ -140,18 +141,18 @@ export function LeadsBoard({
                       </span>
                     )}
                     {l.needsAttention && (
-                      <span className="rounded-pill bg-[color-mix(in_srgb,var(--serious)_20%,transparent)] px-1.5 py-0.5 text-[10px]">
-                        💬 reply
+                      <span className="flex items-center gap-1 rounded-pill bg-[color-mix(in_srgb,var(--serious)_20%,transparent)] px-1.5 py-0.5 text-[10px]">
+                        <Icon name="message" size={9} /> reply
                       </span>
                     )}
                     {l.enrollments[0] && !l.needsAttention && (
-                      <span className="rounded-pill bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted">
-                        🔁 step {l.enrollments[0].currentStep + 1}
+                      <span className="flex items-center gap-1 rounded-pill bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted">
+                        <Icon name="repeat" size={9} /> step {l.enrollments[0].currentStep + 1}
                       </span>
                     )}
                     {l.missingNextStep && (
-                      <span className="rounded-pill bg-[color-mix(in_srgb,var(--critical)_15%,transparent)] px-1.5 py-0.5 text-[10px]">
-                        ⚠ no next step
+                      <span className="flex items-center gap-1 rounded-pill bg-[color-mix(in_srgb,var(--critical)_15%,transparent)] px-1.5 py-0.5 text-[10px]">
+                        <Icon name="alert" size={9} /> no next step
                       </span>
                     )}
                     {l.tags.slice(0, 2).map((t) => (

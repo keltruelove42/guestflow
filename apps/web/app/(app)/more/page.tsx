@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { Icon, type IconName } from "@/components/ui/icons";
 
 const SETTINGS_LINKS = [
   { href: "/settings/brand", icon: "🎨", label: "Brand" },
@@ -12,8 +13,8 @@ const SETTINGS_LINKS = [
 ] as const;
 
 const DESKTOP_FEATURES = [
-  { icon: "📣", label: "Ad Campaigns", desc: "Launch and edit lead-gen campaigns" },
-  { icon: "🔁", label: "Sequence editor", desc: "Design automated follow-up flows" },
+  { icon: "megaphone", label: "Ad Campaigns", desc: "Launch and edit lead-gen campaigns" },
+  { icon: "repeat", label: "Sequence editor", desc: "Design automated follow-up flows" },
   { icon: "🏘️", label: "Properties", desc: "Manage listings, photos & calendars" },
   { icon: "🔌", label: "Integrations", desc: "Connect Meta, Hostfully, Twilio & more" },
 ];
@@ -68,7 +69,7 @@ export default function MorePage() {
               href={s.href}
               className="flex min-h-[48px] items-center gap-3 border-b border-[var(--border)] px-4 py-3 last:border-0"
             >
-              <span className="text-base">{s.icon}</span>
+              <span className="text-ink-2"><Icon name={s.icon as IconName} size={15} /></span>
               <span className="text-sm font-medium">{s.label}</span>
               <span className="ml-auto text-muted">›</span>
             </Link>
@@ -87,7 +88,7 @@ export default function MorePage() {
               key={f.label}
               className="flex min-h-[52px] items-center gap-3 border-b border-[var(--border)] px-4 py-3 last:border-0"
             >
-              <span className="text-base">{f.icon}</span>
+              <span className="text-ink-2"><Icon name={f.icon as IconName} size={15} /></span>
               <div className="min-w-0">
                 <div className="text-sm font-medium">{f.label}</div>
                 <div className="truncate text-xs text-muted">{f.desc}</div>

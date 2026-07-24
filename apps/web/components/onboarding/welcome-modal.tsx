@@ -2,6 +2,7 @@
 
 import { useOnboarding } from "./onboarding-provider";
 import { useVertical } from "@/components/vertical-provider";
+import { Icon } from "@/components/ui/icons";
 
 export function WelcomeModal() {
   const { ready, facts, local, dismissWelcome } = useOnboarding();
@@ -48,15 +49,15 @@ export function WelcomeModal() {
 
         <div className="grid gap-2 px-6 py-5 sm:grid-cols-3">
           {[
-            { icon: "📣", label: pack.copy.welcomeBullets[0] },
-            { icon: "🔁", label: pack.copy.welcomeBullets[1] },
-            { icon: "✉️", label: pack.copy.welcomeBullets[2] },
+            { icon: "megaphone" as const, label: pack.copy.welcomeBullets[0] },
+            { icon: "repeat" as const, label: pack.copy.welcomeBullets[1] },
+            { icon: "mail" as const, label: pack.copy.welcomeBullets[2] },
           ].map((item) => (
             <div
               key={item.label}
               className="rounded-control border border-[var(--border)] bg-page px-3 py-3 text-center"
             >
-              <div className="text-lg">{item.icon}</div>
+              <div className="flex justify-center text-accent"><Icon name={item.icon} size={18} /></div>
               <div className="mt-1 text-xs font-medium text-ink-2">{item.label}</div>
             </div>
           ))}

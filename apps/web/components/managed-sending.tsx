@@ -66,7 +66,7 @@ export function ManagedSendingCard() {
         {status.emailConfigured && (
           <div className="rounded-control border border-[var(--border)] bg-page p-4">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-sm font-medium">📧 Your email domain</div>
+              <div className="text-sm font-medium">Your email domain</div>
               {emailState?.status === "verified" ? (
                 <span className="rounded-pill bg-[color-mix(in_srgb,var(--good)_18%,transparent)] px-2 py-0.5 text-[11px] text-[var(--good-text)]">
                   Live · {emailState.from}
@@ -102,7 +102,7 @@ export function ManagedSendingCard() {
         {status.smsConfigured && (
           <div className="rounded-control border border-[var(--border)] bg-page p-4">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-sm font-medium">📱 Your text number</div>
+              <div className="text-sm font-medium">Your text number</div>
               {smsState ? (
                 <span className="rounded-pill bg-[color-mix(in_srgb,var(--good)_18%,transparent)] px-2 py-0.5 text-[11px] text-[var(--good-text)]">
                   Live · {smsState.fromNumber}

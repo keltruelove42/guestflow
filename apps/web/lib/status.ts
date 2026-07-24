@@ -1,4 +1,5 @@
 import type { BadgeTone } from "@/components/ui/badge";
+import type { IconName } from "@/components/ui/icons";
 
 /**
  * Single source of truth for status → color/tone, replacing the per-page
@@ -32,9 +33,9 @@ export const AVAILABILITY_KIND: Record<string, { bg: string; label: string }> = 
   HOLD: { bg: "var(--s4)", label: "Hold" },
 };
 
-/** Sequence/message channel → icon. */
-export const CHANNEL_ICON: Record<string, string> = {
-  SMS: "💬",
-  EMAIL: "✉️",
-  CALL: "📞",
+/** Sequence/message channel → icon name (render with <Icon name={...} />). */
+export const CHANNEL_ICON: Record<string, IconName> = {
+  SMS: "message",
+  EMAIL: "mail",
+  CALL: "phone",
 };

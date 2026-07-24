@@ -4,6 +4,7 @@ import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { Icon } from "@/components/ui/icons";
 import { WeeklyLeadsChart, type WeekRow } from "@/components/dashboard/weekly-chart";
 import { SourceBars } from "@/components/dashboard/source-bars";
 import { TouchpointAnalytics } from "@/components/dashboard/touchpoint-analytics";
@@ -203,8 +204,8 @@ function DashboardInner() {
                 key={a.id}
                 className="flex gap-3 border-b border-[var(--border)] py-2.5 last:border-0"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-sm">
-                  {activityIcon(a.type)}
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-2">
+                  <Icon name={activityIcon(a.type)} size={14} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] leading-snug text-ink">
@@ -243,8 +244,8 @@ function DashboardInner() {
                   key={l.id}
                   className="flex items-center gap-3 rounded-control px-1 py-2 hover:bg-surface-2/70"
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-sm">
-                    💬
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-2">
+                    <Icon name="message" size={13} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5">

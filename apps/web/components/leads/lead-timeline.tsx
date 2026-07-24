@@ -3,11 +3,12 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { LeadEvent, PendingMessage } from "./types";
+import { Icon, type IconName } from "@/components/ui/icons";
 
-export function eventEmoji(ev: LeadEvent): string {
-  if (ev.type === "SMS_SENT" || (ev.type === "REPLIED" && ev.channel === "SMS")) return "💬";
-  if (ev.type === "EMAIL_SENT") return "✉️";
-  return "🕐";
+export function eventIcon(ev: LeadEvent): IconName {
+  if (ev.type === "SMS_SENT" || (ev.type === "REPLIED" && ev.channel === "SMS")) return "message";
+  if (ev.type === "EMAIL_SENT") return "mail";
+  return "dot";
 }
 
 /**
@@ -35,8 +36,13 @@ export function LeadTimeline({
               ? ` · ${ev.meta.delivery}`
               : ""}
           </div>
-          <div className="text-sm font-medium">
-            {showEmoji ? `${eventEmoji(ev)} ${ev.title}` : ev.title}
+          <div className="flex items-center gap-1.5 text-sm font-medium">
+            {showEmoji && (
+              <span className="text-ink-2">
+                <Icon name={eventIcon(ev)} size={12} />
+              </span>
+            )}
+            {ev.title}
           </div>
           {ev.body && (
             <p className="mt-0.5 line-clamp-3 whitespace-pre-wrap text-xs text-ink-2">

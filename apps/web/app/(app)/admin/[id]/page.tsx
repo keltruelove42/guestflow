@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Icon, type IconName } from "@/components/ui/icons";
 import { Field, Input, Select } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { Toast, useToast } from "@/components/ui/toast";
@@ -56,22 +57,22 @@ const PLAN_TONE: Record<string, BadgeTone> = {
   ENTERPRISE: "good",
 };
 
-function eventEmoji(type: string): string {
+function eventIconName(type: string): IconName {
   switch (type) {
     case "EMAIL_SENT":
-      return "✉️";
+      return "mail";
     case "SMS_SENT":
-      return "💬";
+      return "message";
     case "EMAIL_OPENED":
-      return "👁️";
+      return "sparkles";
     case "REPLIED":
-      return "↩️";
+      return "reply";
     case "BOOKED":
-      return "✅";
+      return "check";
     case "CODE_REDEEMED":
-      return "🎟️";
+      return "tag";
     default:
-      return "•";
+      return "dot";
   }
 }
 
@@ -302,8 +303,8 @@ export default function AdminOrgDetailPage() {
         <div className="space-y-2">
           {recentEvents.map((ev) => (
             <div key={ev.id} className="flex items-start gap-3 text-sm">
-              <span className="w-5 shrink-0 text-center">
-                {eventEmoji(ev.type)}
+              <span className="flex w-5 shrink-0 justify-center pt-0.5 text-ink-2">
+                <Icon name={eventIconName(ev.type)} size={13} />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-ink-2">{ev.title}</div>

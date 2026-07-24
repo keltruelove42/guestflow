@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icons";
 import { CHANNEL_ICON } from "@/lib/status";
 import type { Sequence } from "@/lib/queries";
 import { formatDelay, formatDelayLong } from "./delay";
@@ -38,7 +39,7 @@ export function SequenceCard({
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {s.steps.map((step, i) => (
               <Badge key={step.id ?? i} tone="neutral" size="xs">
-                {CHANNEL_ICON[step.channel]}
+                <Icon name={CHANNEL_ICON[step.channel] ?? "dot"} size={10} />
                 {i === 0 && step.delayMinutes === 0 ? "Instant" : `+${formatDelay(step.delayMinutes)}`}
               </Badge>
             ))}
@@ -63,8 +64,8 @@ export function SequenceCard({
         <ol className="relative mt-4 space-y-0 border-l border-[var(--border)] pl-4">
           {s.steps.map((step, i) => (
             <li key={step.id ?? i} className="relative pb-4 last:pb-0">
-              <span className="absolute -left-[21px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-surface text-[10px]">
-                {CHANNEL_ICON[step.channel]}
+              <span className="absolute -left-[21px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-surface text-ink-2">
+                <Icon name={CHANNEL_ICON[step.channel] ?? "dot"} size={10} />
               </span>
               <div className="text-[10px] font-medium uppercase tracking-wide text-muted">
                 Wait {formatDelayLong(step.delayMinutes)} · {step.channel}

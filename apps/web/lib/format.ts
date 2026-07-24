@@ -1,3 +1,5 @@
+import type { IconName } from "@/components/ui/icons";
+
 export function formatCents(cents: number): string {
   return `$${(cents / 100).toLocaleString("en-US", {
     minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
@@ -61,14 +63,14 @@ export function stageCssVar(stage: string): string {
   return map[stage] ?? "var(--muted)";
 }
 
-export function activityIcon(type: string): string {
-  if (type.includes("EMAIL") || type === "MANUAL_MESSAGE") return "✉️";
-  if (type.includes("SMS")) return "💬";
-  if (type === "REPLIED") return "↩️";
-  if (type === "BOOKED") return "✅";
-  if (type.includes("INQUIRY") || type === "CAPTURED") return "📥";
-  if (type.includes("SEQUENCE") || type === "ENROLLED") return "🔁";
-  if (type === "CALL_DUE") return "📞";
-  if (type === "STAGE_CHANGED") return "🏷️";
-  return "•";
+export function activityIcon(type: string): IconName {
+  if (type.includes("EMAIL") || type === "MANUAL_MESSAGE") return "mail";
+  if (type.includes("SMS")) return "message";
+  if (type === "REPLIED") return "reply";
+  if (type === "BOOKED") return "check";
+  if (type.includes("INQUIRY") || type === "CAPTURED") return "inbox";
+  if (type.includes("SEQUENCE") || type === "ENROLLED") return "repeat";
+  if (type === "CALL_DUE") return "phone";
+  if (type === "STAGE_CHANGED") return "tag";
+  return "dot";
 }

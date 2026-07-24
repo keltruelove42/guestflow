@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import { Icon } from "@/components/ui/icons";
 
 type Attention = {
   id: string;
@@ -90,7 +91,7 @@ export default function FollowupsPage() {
           {isLoading && <p className="p-4 text-sm text-muted">Loading…</p>}
           {!isLoading && attention.length === 0 && (
             <p className="p-4 text-sm text-muted">
-              Nothing waiting on you, automated follow-ups are handling it. 🎉
+              Nothing waiting on you — automated follow-ups are handling it.
             </p>
           )}
           {attention.map((a) => (
@@ -99,8 +100,8 @@ export default function FollowupsPage() {
               href={`/leads?open=${a.id}`}
               className="flex min-h-[56px] items-center gap-3 border-b border-[var(--border)] px-4 py-3 last:border-0 active:bg-surface-2/60"
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-sm">
-                💬
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-2">
+                <Icon name="message" size={14} />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{a.name}</div>

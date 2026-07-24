@@ -10,6 +10,7 @@ import { HeatDot, LeadsBoard, LeadsToday, type BoardLead } from "@/components/le
 import { LeadDrawer } from "@/components/leads/lead-drawer";
 import type { Lead } from "@/components/leads/types";
 import { Button } from "@/components/ui/button";
+import { Icon, type IconName } from "@/components/ui/icons";
 import { Toast, useToast } from "@/components/ui/toast";
 import { api } from "@/lib/api";
 import { useMessagingStatus, useSequences } from "@/lib/queries";
@@ -139,19 +140,20 @@ export default function LeadsPage() {
         <div className="inline-flex items-center gap-1 rounded-pill border border-[var(--border)] bg-surface p-1">
           {(
             [
-              ["board", "▦ Pipeline"],
-              ["table", "☰ Table"],
-              ["today", "⚡ Work Today"],
+              ["board", "columns", "Pipeline"],
+              ["table", "list", "Table"],
+              ["today", "zap", "Work Today"],
             ] as const
-          ).map(([key, label]) => (
+          ).map(([key, icon, label]) => (
             <button
               key={key}
               type="button"
               onClick={() => setView(key)}
-              className={`rounded-pill px-3 py-1.5 text-xs font-medium ${
+              className={`flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs font-medium ${
                 view === key ? "bg-accent text-white" : "text-ink-2"
               }`}
             >
+              <Icon name={icon} size={12} />
               {label}
             </button>
           ))}
@@ -159,24 +161,25 @@ export default function LeadsPage() {
         <div className="flex flex-wrap gap-1.5">
           {(
             [
-              ["all", "All"],
-              ["hot", "🔥 Hot"],
-              ["attention", "💬 Needs reply"],
-              ["new7", "🆕 New this week"],
-              ["nonext", "⚠ No next step"],
-              ["cold", "🧊 Going cold"],
+              ["all", null, "All"],
+              ["hot", "flame", "Hot"],
+              ["attention", "message", "Needs reply"],
+              ["new7", "sparkles", "New this week"],
+              ["nonext", "alert", "No next step"],
+              ["cold", "snowflake", "Going cold"],
             ] as const
-          ).map(([key, label]) => (
+          ).map(([key, icon, label]) => (
             <button
               key={key}
               type="button"
               onClick={() => setSmartView(key)}
-              className={`rounded-pill px-2.5 py-1 text-[11px] ${
+              className={`flex items-center gap-1 rounded-pill px-2.5 py-1 text-[11px] ${
                 smartView === key
                   ? "bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] font-medium text-accent"
                   : "bg-surface-2 text-ink-2"
               }`}
             >
+              {icon && <Icon name={icon as IconName} size={11} />}
               {label}
             </button>
           ))}
@@ -291,8 +294,9 @@ export default function LeadsPage() {
                   {l.property?.name ? ` · ${l.property.name}` : ""}
                 </div>
                 {enr && (
-                  <div className="mt-0.5 truncate text-[11px] text-muted">
-                    🔁 {enr.sequence.name} · step {enr.currentStep + 1}
+                  <div className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted">
+                    <Icon name="repeat" size={10} className="shrink-0" />
+                    {enr.sequence.name} · step {enr.currentStep + 1}
                   </div>
                 )}
               </div>
