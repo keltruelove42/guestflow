@@ -14,3 +14,7 @@ apps/mobile/.expo
 apps/web/.next
 packages/db/prisma/*.db
 packages/db/prisma/*.db-journal
+# Local sandbox only: makes the Prisma CLI use the WASM/JS schema engine via
+# the pg driver adapter (native engine CDN is unreachable in the dev sandbox).
+# Never ship this — Vercel uses the default native engine path.
+packages/db/prisma.config.ts
