@@ -1,5 +1,6 @@
 import { prisma } from "@guestflow/db";
 import { bestChannel, deliverToLead } from "./send";
+import { shouldDeferForQuietHours } from "../messaging/quietHours";
 
 /**
  * Review flywheel. After a booking, ask the customer for a review with a
@@ -20,7 +21,14 @@ export async function sendReviewRequest(
 ): Promise<ReviewResult> {
   const org = await prisma.org.findUnique({
     where: { id: orgId },
-    select: { reviewUrl: true, reviewMessage: true },
+    select: {
+      reviewUrl: true,
+      reviewMessage: true,
+      mode: true,
+      quietStart: true,
+      quietEnd: true,
+      timezone: true,
+    },
   });
   if (!org?.reviewUrl) return { sent: false, reason: "No review link set" };
 
@@ -37,8 +45,39 @@ export async function sendReviewRequest(
   });
   if (!lead) return { sent: false, reason: "Lead not found" };
 
-  const channel = bestChannel(lead);
+  let channel = bestChannel(lead);
   if (!channel) return { sent: false, reason: "No consented channel" };
+
+  // Quiet-hours guard: a review ask is a proactive blast, not a reply — never
+  // text it overnight. Foolproof fallback: if SMS is in quiet hours but the
+  // customer takes email, send by email (waits in the inbox) so the flywheel
+  // never silently drops the ask. Demo orgs are exempt.
+  if (channel === "SMS" && org.mode !== "DEMO") {
+    const quiet = shouldDeferForQuietHours({
+      now,
+      quietStart: org.quietStart,
+      quietEnd: org.quietEnd,
+      timeZone: org.timezone,
+    });
+    if (quiet.defer) {
+      const emailReachable = Boolean(
+        lead.email && lead.emailConsent && !lead.unsubscribedAt,
+      );
+      if (emailReachable) {
+        channel = "EMAIL";
+      } else {
+        const resume = quiet.sendAt.toLocaleString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          timeZone: org.timezone,
+        });
+        return {
+          sent: false,
+          reason: `It's quiet hours for your customer — review texts resume at ${resume}.`,
+        };
+      }
+    }
+  }
 
   const appUrl = process.env.APP_URL ?? "http://localhost:3000";
   // The review_link merge tag resolves to the tracked redirect.
