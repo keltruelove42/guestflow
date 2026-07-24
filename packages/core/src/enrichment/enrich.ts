@@ -169,6 +169,12 @@ async function pushToProvider(orgId: string, leadId: string, url: string): Promi
   });
   if (!lead) return;
   const appUrl = process.env.APP_URL ?? "http://localhost:3000";
+  // Carry the shared secret in the callback so the provider's write-back
+  // passes the inbound webhook's auth check.
+  const secret = process.env.INBOUND_EMAIL_SECRET?.trim();
+  const callbackUrl =
+    `${appUrl}/api/webhooks/enrich?leadId=${leadId}` +
+    (secret ? `&secret=${encodeURIComponent(secret)}` : "");
   await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -179,7 +185,7 @@ async function pushToProvider(orgId: string, leadId: string, url: string): Promi
       email: lead.email,
       phone: lead.phone,
       // Where the provider should POST enriched results back to.
-      callbackUrl: `${appUrl}/api/webhooks/enrich?leadId=${leadId}`,
+      callbackUrl,
     }),
   });
 }
