@@ -247,6 +247,16 @@ export async function changeStage(
         attributedSequenceId: lastEnrollment?.sequenceId ?? null,
       },
     });
+
+    // Review flywheel: ask for a review after a booking (best-effort, gated).
+    const org = await prisma.org.findUnique({
+      where: { id: lead.orgId },
+      select: { reviewEnabled: true },
+    });
+    if (org?.reviewEnabled) {
+      const { sendReviewRequest } = await import("../engines/review");
+      void sendReviewRequest(lead.orgId, leadId, now).catch(() => {});
+    }
   }
 
   return updated;

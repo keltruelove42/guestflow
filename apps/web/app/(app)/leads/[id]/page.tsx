@@ -69,6 +69,12 @@ type LeadDetail = {
 
 type OrgUser = { id: string; name: string; email: string };
 
+type OrgReferral = {
+  slug: string;
+  link: string | null;
+  stats: unknown;
+};
+
 type ExtractResult = {
   fields: {
     summary: string;
@@ -120,6 +126,15 @@ export default function LeadRecordPage() {
   });
 
   const { data: delivery } = useMessagingStatus();
+
+  const { data: referral } = useQuery({
+    queryKey: ["org-referral"],
+    queryFn: () =>
+      api<OrgReferral>("/api/v1/org/referral").catch(
+        () => ({ slug: "", link: null, stats: null }) as OrgReferral,
+      ),
+    staleTime: 5 * 60 * 1000,
+  });
 
   useEffect(() => {
     if (lead) {
@@ -208,6 +223,31 @@ export default function LeadRecordPage() {
     },
     onError: (e) => showToast(e instanceof Error ? e.message : "Could not enrich lead"),
   });
+
+  const requestReview = useMutation({
+    mutationFn: () =>
+      api<{ ok: true; channel: "EMAIL" | "SMS" }>(`/api/v1/leads/${id}/review`, {
+        method: "POST",
+        errorMessage: "Could not send review request",
+      }),
+    onSuccess: async (data) => {
+      await qc.invalidateQueries({ queryKey: ["lead", id] });
+      showToast(`Review request sent (${data.channel})`);
+    },
+    onError: (e) =>
+      showToast(e instanceof Error ? e.message : "Could not send review request"),
+  });
+
+  const copyReferralLink = async () => {
+    if (!referral?.link) return;
+    const url = `${referral.link}?ref=${id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast("Referral link copied");
+    } catch {
+      showToast("Could not copy referral link");
+    }
+  };
 
   const canEmail = canEmailLead(lead);
   const canSms = canSmsLead(lead);
@@ -582,6 +622,35 @@ export default function LeadRecordPage() {
               >
                 Add
               </Button>
+            </div>
+          </section>
+
+          <section className="rounded-card border border-[var(--border)] bg-surface p-4">
+            <h3 className="mb-3 text-sm font-semibold">Grow</h3>
+            <div className="flex flex-col items-start gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={requestReview.isPending}
+                onClick={() => requestReview.mutate()}
+                title="Ask this lead to leave a review"
+              >
+                {requestReview.isPending ? "Sending…" : "⭐ Request review"}
+              </Button>
+              {referral?.link ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={copyReferralLink}
+                  title="Copy this lead's personal referral link"
+                >
+                  🎁 Refer a friend
+                </Button>
+              ) : (
+                <span className="px-1 text-xs text-muted">
+                  Set a booking page to enable referrals
+                </span>
+              )}
             </div>
           </section>
 
