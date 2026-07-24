@@ -27,14 +27,27 @@ export async function POST(req: Request) {
   const email = String(body.email ?? "").trim() || null;
   const phone = String(body.phone ?? "").trim() || null;
   if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
-  if (!email && !phone) {
-    return NextResponse.json({ error: "Add an email or a phone number" }, { status: 400 });
-  }
+
+  // A manual "Add lead" is an explicit human action: always create a new lead.
+  // (Silent merge-on-shared-phone was making every test lead collapse into the
+  // first.) We still surface a soft duplicate hint so real dupes aren't hidden.
+  const dupOr = [
+    ...(email ? [{ email }] : []),
+    ...(phone ? [{ phone }] : []),
+  ];
+  const dup = dupOr.length
+    ? await prisma.lead.findFirst({
+        where: { orgId: session.orgId, OR: dupOr },
+        select: { id: true, name: true },
+      })
+    : null;
 
   const result = await importLeads({
     orgId: session.orgId,
     source: "MANUAL",
     sourceTitle: "Added manually",
+    dedupeBy: "none",
+    requireContact: false,
     emailConsent: Boolean(body.emailConsent),
     smsConsent: Boolean(body.smsConsent),
     rows: [
@@ -57,7 +70,8 @@ export async function POST(req: Request) {
   }
   return NextResponse.json({
     leadId: result.leadIds[0],
-    merged: result.merged > 0,
+    merged: false,
+    duplicate: dup ? { id: dup.id, name: dup.name } : null,
   });
 }
 
@@ -88,6 +102,7 @@ export async function GET(req: Request) {
         take: 1,
       },
       events: { orderBy: { occurredAt: "desc" }, take: 1 },
+      notes: { orderBy: { createdAt: "desc" }, take: 1, select: { text: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -112,8 +127,14 @@ export async function GET(req: Request) {
       hasActiveEnrollment: l.enrollments.some((e) => e.status === "ACTIVE"),
       followUpAt: l.followUpAt,
     });
-    const { events: _events, ...rest } = l;
-    return { ...rest, lastEventAt: lastEvent?.occurredAt ?? null, heat, missingNextStep };
+    const { events: _events, notes: _notes, ...rest } = l;
+    return {
+      ...rest,
+      lastEventAt: lastEvent?.occurredAt ?? null,
+      latestNote: l.notes[0]?.text ?? null,
+      heat,
+      missingNextStep,
+    };
   });
 
   return NextResponse.json(enriched);

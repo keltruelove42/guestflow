@@ -198,6 +198,8 @@ export function getCoachTips(vertical: {
 }): CoachTip[] {
   const plural = vertical.plural;
   const singular = vertical.singular.toLowerCase();
+  // Order follows the sidebar top-to-bottom so each tip anchors to the item
+  // right below the last — no jumping around the nav.
   return [
     {
       target: "nav-properties",
@@ -205,9 +207,9 @@ export function getCoachTips(vertical: {
       body: `Everything ties back to a ${singular}. Add or review yours here.`,
     },
     {
-      target: "nav-settings",
-      title: "Bring leads in",
-      body: "Connect your ad channels and tools so LeadCoda can capture inquiries automatically.",
+      target: "nav-leads",
+      title: "Your leads live here",
+      body: "Every inquiry lands in this pipeline. Open a lead to see its timeline and reply by email or text.",
     },
     {
       target: "nav-sequences",
@@ -220,14 +222,14 @@ export function getCoachTips(vertical: {
       body: "Launch instant-form campaigns; new leads land in your CRM automatically.",
     },
     {
+      target: "nav-settings",
+      title: "Connect your tools",
+      body: "In Settings → Integrations, link your ad channels, calendar, and tools so leads flow in automatically.",
+    },
+    {
       target: "simulate-lead",
       title: "Try a live capture",
       body: "In demo mode, simulate an incoming lead to watch enrollment and sends.",
-    },
-    {
-      target: "nav-leads",
-      title: "Reply from the CRM",
-      body: "Open a lead to see the timeline and send an email or text.",
     },
     {
       target: "onboarding-checklist",

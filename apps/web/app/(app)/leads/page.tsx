@@ -26,6 +26,7 @@ export default function LeadsPage() {
   const [adding, setAdding] = useState(false);
   const [view, setView] = useState<"board" | "table" | "today">("board");
   const [smartView, setSmartView] = useState<string>("all");
+  const [search, setSearch] = useState("");
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const pack = useVertical();
 
@@ -45,6 +46,25 @@ export default function LeadsPage() {
 
   const { data: delivery } = useMessagingStatus();
   const { data: allSequences = [] } = useSequences();
+
+  // Client-side search across name / email / phone / property / tags.
+  const q = search.trim().toLowerCase();
+  const visibleLeads = q
+    ? leads.filter((l) => {
+        const hay = [
+          l.name,
+          l.email,
+          l.phone,
+          l.property?.name,
+          l.latestNote,
+          ...(l.tags ?? []),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return hay.includes(q);
+      })
+    : leads;
 
   const patchLead = useMutation({
     mutationFn: ({ id, body }: { id: string; body: Record<string, unknown> }) =>
@@ -135,6 +155,30 @@ export default function LeadsPage() {
         </div>
       )}
 
+      {/* Search */}
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+          <Icon name="search" size={15} />
+        </span>
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search leads by name, email, phone, tag…"
+          className="w-full rounded-control border border-[var(--border)] bg-surface py-2 pl-9 pr-8 text-sm text-ink outline-none placeholder:text-muted focus:border-accent"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Clear search"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
+          >
+            <Icon name="x" size={15} />
+          </button>
+        )}
+      </div>
+
       {/* View tabs + smart filters */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="inline-flex items-center gap-1 rounded-pill border border-[var(--border)] bg-surface p-1">
@@ -188,7 +232,7 @@ export default function LeadsPage() {
 
       {view === "board" && (
         <LeadsBoard
-          leads={applySmartView(leads, smartView)}
+          leads={applySmartView(visibleLeads, smartView)}
           pack={pack}
           onStageChange={(id, stage) => patchLead.mutate({ id, body: { stage } })}
         />
@@ -196,7 +240,7 @@ export default function LeadsPage() {
 
       {view === "today" && (
         <LeadsToday
-          leads={applySmartView(leads, smartView)}
+          leads={applySmartView(visibleLeads, smartView)}
           onSnooze={(id, days) =>
             patchLead.mutate({
               id,
@@ -324,7 +368,7 @@ export default function LeadsPage() {
                   onChange={(e) =>
                     setChecked(
                       e.target.checked
-                        ? new Set(applySmartView(leads, smartView).map((l) => l.id))
+                        ? new Set(applySmartView(visibleLeads, smartView).map((l) => l.id))
                         : new Set(),
                     )
                   }
@@ -357,7 +401,7 @@ export default function LeadsPage() {
                 </td>
               </tr>
             )}
-            {applySmartView(leads, smartView).map((l) => {
+            {applySmartView(visibleLeads, smartView).map((l) => {
               const contact = l.email ?? l.phone ?? "not provided (optional)";
               const enr = l.enrollments[0];
               return (
@@ -452,7 +496,14 @@ export default function LeadsPage() {
       {adding && (
         <AddLeadModal
           onClose={() => setAdding(false)}
-          onCreated={(id) => setSelectedId(id)}
+          onCreated={(id, meta) => {
+            setSelectedId(id);
+            showToast(
+              meta?.duplicate
+                ? `Lead added — heads up, its contact info matches “${meta.duplicate.name}”.`
+                : "Lead added.",
+            );
+          }}
         />
       )}
 

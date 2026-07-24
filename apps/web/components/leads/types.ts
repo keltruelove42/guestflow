@@ -31,7 +31,7 @@ export type PendingMessage = {
 export type LeadEnrollment = {
   status: string;
   currentStep: number;
-  sequence: { name: string };
+  sequence: { id: string; name: string };
 };
 
 /** Detail payload rendered by the lead drawer. */

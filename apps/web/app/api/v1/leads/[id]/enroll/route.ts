@@ -22,7 +22,9 @@ export async function POST(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "sequenceId required" }, { status: 400 });
   }
 
-  const result = await manualEnroll(lead.id, parsed.data.sequenceId);
+  const result = await manualEnroll(lead.id, parsed.data.sequenceId, {
+    replace: parsed.data.replace,
+  });
   if (!result.enrolled) {
     return NextResponse.json({ error: result.reason }, { status: 409 });
   }

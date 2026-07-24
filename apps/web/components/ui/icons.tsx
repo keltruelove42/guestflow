@@ -46,7 +46,9 @@ export type IconName =
   | "brain"
   | "smartphone"
   | "heart"
-  | "compass";
+  | "compass"
+  | "search"
+  | "x";
 
 type Props = SVGProps<SVGSVGElement> & { size?: number };
 
@@ -316,6 +318,18 @@ const PATHS: Record<IconName, React.ReactNode> = {
     <>
       <circle cx="12" cy="12" r="10" />
       <path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </>
+  ),
+  x: (
+    <>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
     </>
   ),
 };

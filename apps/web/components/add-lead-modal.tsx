@@ -15,7 +15,10 @@ export function AddLeadModal({
   onCreated,
 }: {
   onClose: () => void;
-  onCreated?: (leadId: string) => void;
+  onCreated?: (
+    leadId: string,
+    meta?: { duplicate?: { id: string; name: string } | null },
+  ) => void;
 }) {
   const qc = useQueryClient();
   const pack = useVertical();
@@ -32,12 +35,14 @@ export function AddLeadModal({
 
   async function save() {
     if (!name.trim()) return setError("Name is required");
-    if (!email.trim() && !phone.trim())
-      return setError("Add an email or a phone number");
     setSaving(true);
     setError(null);
     try {
-      const res = await api<{ leadId: string; merged: boolean }>("/api/v1/leads", {
+      const res = await api<{
+        leadId: string;
+        merged: boolean;
+        duplicate: { id: string; name: string } | null;
+      }>("/api/v1/leads", {
         method: "POST",
         body: {
           name,
@@ -52,7 +57,7 @@ export function AddLeadModal({
       });
       await qc.invalidateQueries({ queryKey: ["leads"] });
       await qc.invalidateQueries({ queryKey: ["leads-count"] });
-      onCreated?.(res.leadId);
+      onCreated?.(res.leadId, { duplicate: res.duplicate });
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not add lead");
@@ -68,7 +73,7 @@ export function AddLeadModal({
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" />
         </Field>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Email">
+          <Field label="Email" hint="Optional">
             <Input
               type="email"
               value={email}
@@ -76,7 +81,7 @@ export function AddLeadModal({
               placeholder="jane@example.com"
             />
           </Field>
-          <Field label="Phone">
+          <Field label="Phone" hint="Optional">
             <Input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -84,6 +89,10 @@ export function AddLeadModal({
             />
           </Field>
         </div>
+        <p className="-mt-1 text-[11px] text-muted">
+          Only a name is required. Add an email or phone whenever you have it —
+          you&apos;ll need one to send follow-ups.
+        </p>
         {properties.length > 0 && (
           <Field label={pack.context.singular}>
             <Select value={propertyName} onChange={(e) => setPropertyName(e.target.value)}>

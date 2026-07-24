@@ -12,8 +12,18 @@ export type ClearDemoResult = {
 /**
  * Delete every row tagged isDemo for an org.
  * Real (user-created) rows are left untouched.
+ *
+ * `clearTemplates` also removes demo *template sequences* that have no real
+ * (non-demo) lead enrollments. This is used by the demo re-seed / restore path
+ * so a workspace can't accumulate stale sequences from a previous vertical
+ * (e.g. rental sequences lingering in a SaaS workspace). Live follow-ups on
+ * real leads are always preserved. The standalone "Clear demo data" button
+ * leaves templates in place (default), so users keep their starter templates.
  */
-export async function clearDemoData(orgId: string): Promise<ClearDemoResult> {
+export async function clearDemoData(
+  orgId: string,
+  opts?: { clearTemplates?: boolean },
+): Promise<ClearDemoResult> {
   // Leads cascade: events, notes, enrollments→scheduled, bookings
   const demoLeadIds = (
     await prisma.lead.findMany({
@@ -44,10 +54,30 @@ export async function clearDemoData(orgId: string): Promise<ClearDemoResult> {
     await prisma.campaign.deleteMany({ where: { orgId, isDemo: true } })
   ).count;
 
-  // Template sequences (isDemo) are KEPT — they are reusable templates,
-  // not clearable demo rows. Only their demo-lead enrollments go away
-  // (deleted with the demo leads above).
-  const sequences = 0;
+  // Template sequences (isDemo) are KEPT by default — they are reusable
+  // templates, not clearable demo rows. On a re-seed (clearTemplates), we
+  // remove demo templates that have NO real-lead enrollments so a workspace
+  // can't carry stale sequences from a previous vertical into the new seed.
+  let sequences = 0;
+  if (opts?.clearTemplates) {
+    const demoSeqs = await prisma.sequence.findMany({
+      where: { orgId, isDemo: true },
+      select: {
+        id: true,
+        _count: { select: { enrollments: { where: { lead: { isDemo: false } } } } },
+      },
+    });
+    const removable = demoSeqs.filter((s) => s._count.enrollments === 0).map((s) => s.id);
+    if (removable.length) {
+      await prisma.scheduledMessage.deleteMany({
+        where: { enrollment: { sequenceId: { in: removable } } },
+      });
+      await prisma.enrollment.deleteMany({ where: { sequenceId: { in: removable } } });
+      sequences = (
+        await prisma.sequence.deleteMany({ where: { id: { in: removable } } })
+      ).count;
+    }
+  }
 
   const availability = (
     await prisma.availabilityBlock.deleteMany({ where: { orgId, isDemo: true } })

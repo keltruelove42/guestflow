@@ -19,6 +19,7 @@ export type BoardLead = {
   followUpAt: string | null;
   needsAttention: boolean;
   lastEventAt: string | null;
+  latestNote?: string | null;
   property?: { name: string } | null;
   enrollments: Array<{ sequence: { name: string }; currentStep: number; status?: string }>;
   heat: { score: number; temp: "hot" | "warm" | "cold"; reasons: string[] };
@@ -134,6 +135,12 @@ export function LeadsBoard({
                   <div className="mt-1 truncate text-[10px] text-muted">
                     {l.property?.name ?? l.email ?? l.phone ?? "no contact"}
                   </div>
+                  {l.latestNote && (
+                    <div className="mt-1.5 flex items-start gap-1 rounded-control bg-surface-2/70 px-1.5 py-1 text-[10px] leading-snug text-ink-2">
+                      <Icon name="tag" size={9} className="mt-0.5 shrink-0 text-muted" />
+                      <span className="line-clamp-2">{l.latestNote}</span>
+                    </div>
+                  )}
                   <div className="mt-1.5 flex flex-wrap items-center gap-1">
                     {money(l.dealValueCents) && (
                       <span className="rounded-pill bg-surface-2 px-1.5 py-0.5 text-[10px] font-medium tabular-nums">

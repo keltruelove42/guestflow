@@ -227,7 +227,7 @@ export async function stopActiveEnrollments(
 export async function manualEnroll(
   leadId: string,
   sequenceId: string,
-  opts?: { now?: Date; processInstant?: boolean },
+  opts?: { now?: Date; processInstant?: boolean; replace?: boolean },
 ): Promise<AutoEnrollResult> {
   const now = opts?.now ?? new Date();
   const lead = await prisma.lead.findUniqueOrThrow({ where: { id: leadId } });
@@ -254,6 +254,26 @@ export async function manualEnroll(
   });
   if (existing) {
     return { enrolled: false, reason: "Already enrolled in this sequence" };
+  }
+
+  // Switch sequences: cancel any OTHER active/paused enrollment (and its
+  // pending scheduled messages) so the lead moves fully onto the new sequence
+  // instead of running both at once.
+  if (opts?.replace) {
+    const others = await prisma.enrollment.findMany({
+      where: { leadId: lead.id, status: { in: ["ACTIVE", "PAUSED"] } },
+      select: { id: true, sequenceId: true },
+    });
+    if (others.length) {
+      await prisma.scheduledMessage.updateMany({
+        where: { enrollmentId: { in: others.map((e) => e.id) }, status: "PENDING" },
+        data: { status: "CANCELED" },
+      });
+      await prisma.enrollment.updateMany({
+        where: { id: { in: others.map((e) => e.id) } },
+        data: { status: "STOPPED", pausedReason: "Switched to another sequence" },
+      });
+    }
   }
 
   const enrollment = await prisma.enrollment.create({

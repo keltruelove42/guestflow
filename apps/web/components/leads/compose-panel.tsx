@@ -13,8 +13,27 @@ import type { DeliveryStatus } from "@/lib/queries";
  * The error slot is owned by the caller because both call sites surface enroll
  * errors in the same spot (between the merge-tag hint and the send button).
  */
+/**
+ * Client-side merge-tag preview so the sender SEES the personalized message
+ * before sending. This mirrors the server's substitution for the common tags;
+ * the actual send re-renders authoritatively (incl. org custom variables).
+ */
+function previewMergeTags(
+  text: string,
+  ctx: { first_name: string; name: string; property: string; host_name: string; dates: string },
+): string {
+  return text
+    .replace(/\{\{\s*(\w+)\s*\}\}/g, (_m, key: string) =>
+      key in ctx ? ((ctx as Record<string, string>)[key] ?? "") : "",
+    )
+    .replace(/ {2,}/g, " ");
+}
+
 export function ComposePanel({
   leadId,
+  leadName,
+  propertyName,
+  hostName,
   canEmail,
   canSms,
   delivery,
@@ -24,6 +43,9 @@ export function ComposePanel({
   onSendSuccess,
 }: {
   leadId: string;
+  leadName?: string | null;
+  propertyName?: string | null;
+  hostName?: string | null;
   canEmail: boolean;
   canSms: boolean;
   delivery?: DeliveryStatus;
@@ -107,6 +129,34 @@ export function ComposePanel({
         Merge tags: {"{{first_name}}"}, {"{{property}}"}, {"{{host_name}}"},{" "}
         {"{{dates}}"}
       </p>
+
+      {(() => {
+        const fullName = leadName?.trim() || "there";
+        const ctx = {
+          first_name: fullName.split(/\s+/)[0] || "there",
+          name: fullName,
+          property: propertyName?.trim() || "your project",
+          host_name: hostName?.trim() || "your team",
+          dates: "your dates",
+        };
+        if (!body.trim()) return null;
+        return (
+          <div className="mt-2 rounded-control border border-[var(--border)] bg-surface-2/50 p-2.5">
+            <div className="mb-1 text-[10px] font-medium uppercase tracking-wide text-muted">
+              Preview · what {ctx.first_name} will see
+            </div>
+            {channel === "EMAIL" && subject.trim() && (
+              <div className="mb-1 text-xs font-semibold text-ink">
+                {previewMergeTags(subject, ctx)}
+              </div>
+            )}
+            <div className="whitespace-pre-wrap text-xs text-ink-2">
+              {previewMergeTags(body, ctx)}
+            </div>
+          </div>
+        );
+      })()}
+
       {error && <p className="mt-2 text-sm text-critical">{error}</p>}
       <button
         type="button"

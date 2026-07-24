@@ -17,7 +17,9 @@ export async function POST() {
       where: { id: session.orgId },
       select: { vertical: true },
     });
-    await clearDemoData(session.orgId);
+    // clearTemplates: drop any stale demo sequences from a prior vertical
+    // (with no real-lead enrollments) so the re-seed is clean for this vertical.
+    await clearDemoData(session.orgId, { clearTemplates: true });
     await seedDemoContent(session.orgId, org.vertical);
     await prisma.org.update({
       where: { id: session.orgId },

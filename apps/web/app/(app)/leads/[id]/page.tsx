@@ -727,6 +727,8 @@ export default function LeadRecordPage() {
             <h3 className="mb-2 text-sm font-semibold">Conversation & activity</h3>
             <ComposePanel
               leadId={id}
+              leadName={lead.name}
+              propertyName={lead.property?.name ?? null}
               canEmail={canEmail}
               canSms={canSms}
               delivery={delivery}

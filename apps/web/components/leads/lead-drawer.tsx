@@ -87,6 +87,8 @@ export function LeadDrawer({
               <h3 className="mb-2 text-sm font-semibold">Compose</h3>
               <ComposePanel
                 leadId={leadId}
+                leadName={lead.name}
+                propertyName={lead.property?.name ?? null}
                 canEmail={canEmail}
                 canSms={canSms}
                 delivery={delivery}

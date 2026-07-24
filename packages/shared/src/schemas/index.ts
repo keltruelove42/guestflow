@@ -142,6 +142,8 @@ export type ImportLeadsInput = z.infer<typeof importLeadsSchema>;
 
 export const enrollLeadSchema = z.object({
   sequenceId: z.string().min(1),
+  /** Switch: cancel any other active/paused enrollment before enrolling. */
+  replace: z.boolean().optional(),
 });
 export type EnrollLeadInput = z.infer<typeof enrollLeadSchema>;
 

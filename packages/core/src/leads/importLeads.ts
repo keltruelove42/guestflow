@@ -24,6 +24,22 @@ export type ImportInput = {
   sourceTitle?: string;
   /** Lead source recorded on newly-created rows (default IMPORT). */
   source?: "IMPORT" | "MANUAL" | "META" | "TIKTOK" | "PINTEREST" | "DIRECT_SITE" | "WIFI";
+  /**
+   * How to dedupe against existing leads:
+   *  - "both" (default): merge on matching email OR phone — right for bulk
+   *    import / automated capture where the same person recurs.
+   *  - "email": merge only on a matching email (a strong identifier); never
+   *    merge on a shared phone (families / shared business lines / test data).
+   *  - "none": never merge — always create. Right for an explicit human
+   *    "Add lead", where clicking the button means "make me a new lead".
+   */
+  dedupeBy?: "both" | "email" | "none";
+  /**
+   * Require each row to have an email or phone. Default true (import/capture
+   * need a contact to follow up). A manual "Add lead" sets this false so a
+   * lead can be captured name-only and contact details filled in later.
+   */
+  requireContact?: boolean;
   now?: Date;
 };
 
@@ -66,7 +82,7 @@ export async function importLeads(input: ImportInput): Promise<ImportResult> {
       result.errors.push({ row: i + 1, reason: "Missing name" });
       continue;
     }
-    if (!email && !phone) {
+    if ((input.requireContact ?? true) && !email && !phone) {
       result.errors.push({ row: i + 1, reason: "No email or phone" });
       continue;
     }
@@ -75,11 +91,13 @@ export async function importLeads(input: ImportInput): Promise<ImportResult> {
       ? (propertyByName.get(row.propertyName.trim().toLowerCase()) ?? null)
       : null;
 
-    // Dedupe: merge into an existing lead with the same email or phone
-    let existing = email
-      ? await prisma.lead.findFirst({ where: { orgId: input.orgId, email } })
-      : null;
-    if (!existing && phone) {
+    // Dedupe: merge into an existing lead per the dedupe policy.
+    const dedupeBy = input.dedupeBy ?? "both";
+    let existing =
+      dedupeBy !== "none" && email
+        ? await prisma.lead.findFirst({ where: { orgId: input.orgId, email } })
+        : null;
+    if (!existing && dedupeBy === "both" && phone) {
       existing = await prisma.lead.findFirst({ where: { orgId: input.orgId, phone } });
     }
 
