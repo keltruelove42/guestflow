@@ -113,6 +113,30 @@ export default function LeadRecordPage() {
   const [dealInput, setDealInput] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [codeInput, setCodeInput] = useState("");
+  const [editingContact, setEditingContact] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  function startEditContact() {
+    if (!lead) return;
+    setEditName(lead.name ?? "");
+    setEditEmail(lead.email ?? "");
+    setEditPhone(lead.phone ?? "");
+    setEditingContact(true);
+  }
+
+  function saveContact() {
+    if (!editName.trim()) {
+      showToast("Name can't be empty");
+      return;
+    }
+    update.mutate(
+      { name: editName.trim(), email: editEmail.trim() || null, phone: editPhone.trim() || null },
+      { onSuccess: () => setEditingContact(false) },
+    );
+  }
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ["lead", id],
@@ -155,6 +179,9 @@ export default function LeadRecordPage() {
 
   const update = useMutation({
     mutationFn: (patch: {
+      name?: string;
+      email?: string | null;
+      phone?: string | null;
       stage?: string;
       tags?: string[];
       ownerId?: string | null;
@@ -174,6 +201,18 @@ export default function LeadRecordPage() {
       showToast("Saved.");
     },
     onError: (e) => showToast(e instanceof Error ? e.message : "Update failed"),
+  });
+
+  const del = useMutation({
+    mutationFn: () =>
+      api(`/api/v1/leads/${id}`, { method: "DELETE", errorMessage: "Delete failed" }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["leads"] });
+      await qc.invalidateQueries({ queryKey: ["leads-count"] });
+      showToast("Lead deleted.");
+      router.push("/leads");
+    },
+    onError: (e) => showToast(e instanceof Error ? e.message : "Delete failed"),
   });
 
   const logRedemption = useMutation({
@@ -366,6 +405,37 @@ export default function LeadRecordPage() {
             </option>
           ))}
         </select>
+        {confirmDelete ? (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-ink-2">Delete this lead?</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-critical"
+              disabled={del.isPending}
+              onClick={() => del.mutate()}
+            >
+              {del.isPending ? "Deleting…" : "Yes, delete"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={del.isPending}
+              onClick={() => setConfirmDelete(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-critical"
+            onClick={() => setConfirmDelete(true)}
+          >
+            Delete
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-12">
@@ -374,18 +444,68 @@ export default function LeadRecordPage() {
           <section className="rounded-card border border-[var(--border)] bg-surface p-4">
             <div className="mb-3 flex items-center justify-between gap-2">
               <h3 className="text-sm font-semibold">Contact</h3>
-              {hasGrowth && (
-                <Button
-                  variant="link"
-                  size="sm"
-                  disabled={extract.isPending}
-                  onClick={() => extract.mutate()}
-                  title="Read the conversation and fill in interest, timeframe, tags…"
-                >
-                  {extract.isPending ? "Extracting…" : "✨ Extract details"}
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {!editingContact && (
+                  <Button variant="link" size="sm" onClick={startEditContact}>
+                    Edit
+                  </Button>
+                )}
+                {hasGrowth && !editingContact && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    disabled={extract.isPending}
+                    onClick={() => extract.mutate()}
+                    title="Read the conversation and fill in interest, timeframe, tags…"
+                  >
+                    {extract.isPending ? "Extracting…" : "✨ Extract details"}
+                  </Button>
+                )}
+              </div>
             </div>
+            {editingContact ? (
+              <div className="space-y-2.5">
+                <div>
+                  <label className="text-[11px] text-muted">Name</label>
+                  <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-[11px] text-muted">Email</label>
+                  <Input
+                    type="email"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    placeholder="—"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-muted">Phone</label>
+                  <Input
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="—"
+                  />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    disabled={update.isPending}
+                    onClick={saveContact}
+                  >
+                    {update.isPending ? "Saving…" : "Save"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={update.isPending}
+                    onClick={() => setEditingContact(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
             <div className="space-y-3 text-xs">
               <div>
                 <div className="text-muted">Email</div>
@@ -424,6 +544,7 @@ export default function LeadRecordPage() {
                 <div className="mt-0.5 text-ink-2">{lead.partySize ?? "-"}</div>
               </div>
             </div>
+            )}
           </section>
 
           <section className="rounded-card border border-[var(--border)] bg-surface p-4">

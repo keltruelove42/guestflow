@@ -62,6 +62,9 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const body = (await req.json().catch(() => ({}))) as {
+    name?: string;
+    email?: string | null;
+    phone?: string | null;
     stage?: string;
     tags?: string[];
     ownerId?: string | null;
@@ -71,6 +74,17 @@ export async function PATCH(req: Request, { params }: Ctx) {
   };
 
   const data: Record<string, unknown> = {};
+  if (body.name !== undefined) {
+    const name = String(body.name).trim();
+    if (!name) return NextResponse.json({ error: "Name can't be empty" }, { status: 400 });
+    data.name = name.slice(0, 200);
+  }
+  if (body.email !== undefined) {
+    data.email = String(body.email ?? "").trim().toLowerCase() || null;
+  }
+  if (body.phone !== undefined) {
+    data.phone = String(body.phone ?? "").trim() || null;
+  }
   if (body.stage !== undefined) {
     const stage = String(body.stage).toUpperCase();
     if (!STAGES.includes(stage)) {
@@ -112,4 +126,27 @@ export async function PATCH(req: Request, { params }: Ctx) {
   }
 
   return NextResponse.json(updated);
+}
+
+/** DELETE /api/v1/leads/[id] — permanently remove a lead and its history. */
+export async function DELETE(_req: Request, { params }: Ctx) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const existing = await prisma.lead.findFirst({
+    where: { id: params.id, orgId: session.orgId },
+    select: { id: true },
+  });
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  // Bookings restrict deletion (no cascade) and AiSuggestions link by scalar
+  // leadId with no FK — clear both first, then the lead cascades the rest
+  // (events, notes, enrollments → scheduled messages, appointments).
+  await prisma.$transaction([
+    prisma.booking.deleteMany({ where: { leadId: existing.id } }),
+    prisma.aiSuggestion.deleteMany({ where: { leadId: existing.id } }),
+    prisma.lead.delete({ where: { id: existing.id } }),
+  ]);
+
+  return NextResponse.json({ ok: true });
 }

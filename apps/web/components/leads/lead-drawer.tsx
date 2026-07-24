@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOnboardingOptional } from "@/components/onboarding/onboarding-provider";
 import { Drawer } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/field";
 import { api } from "@/lib/api";
 import type { DeliveryStatus } from "@/lib/queries";
 import { ComposePanel } from "./compose-panel";
@@ -26,11 +28,53 @@ export function LeadDrawer({
   const qc = useQueryClient();
   const onboarding = useOnboardingOptional();
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ["lead", leadId],
     queryFn: () => api<LeadDetail>(`/api/v1/leads/${leadId}`, { errorMessage: "Failed" }),
   });
+
+  const save = useMutation({
+    mutationFn: (patch: { name: string; email: string | null; phone: string | null }) =>
+      api(`/api/v1/leads/${leadId}`, {
+        method: "PATCH",
+        body: patch,
+        errorMessage: "Update failed",
+      }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["lead", leadId] });
+      await qc.invalidateQueries({ queryKey: ["leads"] });
+      setEditing(false);
+      onSent("Lead updated.");
+    },
+    onError: (e) => setError(e instanceof Error ? e.message : "Update failed"),
+  });
+
+  const del = useMutation({
+    mutationFn: () =>
+      api(`/api/v1/leads/${leadId}`, { method: "DELETE", errorMessage: "Delete failed" }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["leads"] });
+      await qc.invalidateQueries({ queryKey: ["leads-count"] });
+      onSent("Lead deleted.");
+      onClose();
+    },
+    onError: (e) => setError(e instanceof Error ? e.message : "Delete failed"),
+  });
+
+  function startEdit() {
+    if (!lead) return;
+    setEditName(lead.name ?? "");
+    setEditEmail(lead.email ?? "");
+    setEditPhone(lead.phone ?? "");
+    setError(null);
+    setEditing(true);
+  }
 
   const canEmail = canEmailLead(lead);
   const canSms = canSmsLead(lead);
@@ -58,20 +102,81 @@ export function LeadDrawer({
         {isLoading && <p className="text-sm text-muted">Loading…</p>}
         {lead && (
           <>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-control bg-surface-2 p-2">
-                <div className="text-muted">Email</div>
-                <div className="mt-0.5 font-medium text-ink">{lead.email ?? "-"}</div>
-                <div className="text-muted">
-                  {canEmail ? "consent ok" : "cannot send"}
+            {editing ? (
+              <section className="space-y-2.5">
+                <div>
+                  <label className="text-[11px] text-muted">Name</label>
+                  <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
                 </div>
+                <div>
+                  <label className="text-[11px] text-muted">Email</label>
+                  <Input
+                    type="email"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    placeholder="—"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-muted">Phone</label>
+                  <Input
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="—"
+                  />
+                </div>
+                {error && <p className="text-xs text-critical">{error}</p>}
+                <div className="flex gap-2">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    disabled={save.isPending}
+                    onClick={() => {
+                      if (!editName.trim()) return setError("Name can't be empty");
+                      save.mutate({
+                        name: editName.trim(),
+                        email: editEmail.trim() || null,
+                        phone: editPhone.trim() || null,
+                      });
+                    }}
+                  >
+                    {save.isPending ? "Saving…" : "Save"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={save.isPending}
+                    onClick={() => setEditing(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </section>
+            ) : (
+              <div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="rounded-control bg-surface-2 p-2">
+                    <div className="text-muted">Email</div>
+                    <div className="mt-0.5 font-medium text-ink">{lead.email ?? "-"}</div>
+                    <div className="text-muted">
+                      {canEmail ? "consent ok" : "cannot send"}
+                    </div>
+                  </div>
+                  <div className="rounded-control bg-surface-2 p-2">
+                    <div className="text-muted">Phone</div>
+                    <div className="mt-0.5 font-medium text-ink">{lead.phone ?? "-"}</div>
+                    <div className="text-muted">{canSms ? "consent ok" : "cannot send"}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="mt-2 text-xs font-medium text-accent"
+                  onClick={startEdit}
+                >
+                  Edit contact
+                </button>
               </div>
-              <div className="rounded-control bg-surface-2 p-2">
-                <div className="text-muted">Phone</div>
-                <div className="mt-0.5 font-medium text-ink">{lead.phone ?? "-"}</div>
-                <div className="text-muted">{canSms ? "consent ok" : "cannot send"}</div>
-              </div>
-            </div>
+            )}
 
             <section>
               <h3 className="mb-2 text-sm font-semibold">Follow-up sequence</h3>
@@ -117,6 +222,41 @@ export function LeadDrawer({
             <section>
               <h3 className="mb-2 text-sm font-semibold">Timeline</h3>
               <LeadTimeline events={lead.events} />
+            </section>
+
+            <section className="border-t border-[var(--border)] pt-3">
+              {confirmDelete ? (
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-ink-2">Delete this lead permanently?</span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-critical"
+                      disabled={del.isPending}
+                      onClick={() => del.mutate()}
+                    >
+                      {del.isPending ? "Deleting…" : "Yes, delete"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={del.isPending}
+                      onClick={() => setConfirmDelete(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="text-xs font-medium text-critical"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  Delete lead
+                </button>
+              )}
             </section>
           </>
         )}
