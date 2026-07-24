@@ -59,13 +59,22 @@ export async function runReactivation(opts: {
   channel: "EMAIL" | "SMS";
   subject?: string | null;
   message: string;
+  /**
+   * Emergency override — bypass the quiet-hours guard for genuinely urgent,
+   * time-sensitive outreach (e.g. a trade's emergency-repair availability).
+   * Requires a reason, which is stamped on each send for the audit trail.
+   */
+  emergency?: boolean;
+  emergencyReason?: string | null;
   now?: Date;
 }): Promise<{ sent: number; skipped: number; blocked?: string }> {
   const now = opts.now ?? new Date();
+  const emergency = Boolean(opts.emergency);
 
   // Foolproof quiet-hours guard: never blast SMS to leads overnight. Email is
-  // exempt (it waits in the inbox). Demo orgs are never blocked.
-  if (opts.channel === "SMS") {
+  // exempt (it waits in the inbox). Demo orgs are never blocked. An explicit
+  // emergency override skips the guard (audited on each send below).
+  if (opts.channel === "SMS" && !emergency) {
     const org = await prisma.org.findUnique({
       where: { id: opts.orgId },
       select: { mode: true, quietStart: true, quietEnd: true, timezone: true },
@@ -86,7 +95,7 @@ export async function runReactivation(opts: {
         return {
           sent: 0,
           skipped: 0,
-          blocked: `It's quiet hours for your leads — texting resumes at ${resume}. Send this by email, or try again then.`,
+          blocked: `It's quiet hours for your leads — texting resumes at ${resume}. Send by email, wait, or mark this an emergency to send now.`,
         };
       }
     }
@@ -124,7 +133,13 @@ export async function runReactivation(opts: {
       subject: opts.subject,
       body: opts.message,
       eventType: "REACTIVATED",
-      eventTitle: "Reactivation message sent",
+      eventTitle: emergency
+        ? "Reactivation message sent (emergency — quiet hours bypassed)"
+        : "Reactivation message sent",
+      metaExtra:
+        emergency && opts.channel === "SMS"
+          ? { emergencyOverride: true, emergencyReason: opts.emergencyReason ?? null }
+          : undefined,
       now: opts.now,
     });
     if (r.sent) sent++;

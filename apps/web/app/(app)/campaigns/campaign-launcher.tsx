@@ -132,6 +132,8 @@ function ReactivationPanel({
   const [preview, setPreview] = useState<Preview | null>(null);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [emergency, setEmergency] = useState(false);
+  const [emergencyReason, setEmergencyReason] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -162,6 +164,10 @@ function ReactivationPanel({
     try {
       if (!segment) throw new Error("Pick a segment");
       if (!message.trim()) throw new Error("Add a message");
+      const useEmergency = channel === "SMS" && emergency;
+      if (useEmergency && !emergencyReason.trim()) {
+        throw new Error("Add a short reason for the emergency send");
+      }
       const res = await api<{ sent: number; skipped: number }>(
         "/api/v1/campaigns/reactivate",
         {
@@ -171,6 +177,9 @@ function ReactivationPanel({
             channel,
             ...(channel === "EMAIL" ? { subject } : {}),
             message,
+            ...(useEmergency
+              ? { emergency: true, emergencyReason: emergencyReason.trim() }
+              : {}),
           },
           errorMessage: "Could not send",
         },
@@ -246,15 +255,50 @@ function ReactivationPanel({
         />
       </Field>
 
+      {channel === "SMS" && (
+        <div className="rounded-card border border-[var(--border)] bg-surface-2 p-3">
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={emergency}
+              onChange={(e) => setEmergency(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium">Emergency — send now</span>
+              <span className="mt-0.5 block text-xs text-muted">
+                Bypasses quiet hours. Only for genuinely urgent, time-sensitive
+                texts (e.g. emergency-repair availability). Logged on each
+                lead&rsquo;s timeline.
+              </span>
+            </span>
+          </label>
+          {emergency && (
+            <div className="mt-2">
+              <Input
+                placeholder="Reason (e.g. burst-pipe emergency crew available tonight)"
+                value={emergencyReason}
+                onChange={(e) => setEmergencyReason(e.target.value)}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       <p className="text-xs text-muted">
-        Sends immediately to consented leads; respects your limits.
+        Sends immediately to consented leads; respects your limits
+        {channel === "SMS" && !emergency ? " and quiet hours" : ""}.
       </p>
 
       {error && <p className="text-sm text-critical">{error}</p>}
 
       <div className="flex justify-end">
         <Button variant="primary" disabled={sending} onClick={send}>
-          {sending ? "Sending…" : "Send now"}
+          {sending
+            ? "Sending…"
+            : channel === "SMS" && emergency
+              ? "Send now (emergency)"
+              : "Send now"}
         </Button>
       </div>
     </div>

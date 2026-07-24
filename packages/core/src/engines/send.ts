@@ -23,6 +23,8 @@ export async function deliverToLead(opts: {
     | "SMS_SENT"
     | "EMAIL_SENT";
   eventTitle: string;
+  /** Extra fields merged into the LeadEvent.meta (e.g. emergency override audit). */
+  metaExtra?: Record<string, unknown>;
   now?: Date;
 }): Promise<DeliverResult> {
   const now = opts.now ?? new Date();
@@ -115,7 +117,7 @@ export async function deliverToLead(opts: {
       title: opts.eventTitle,
       body: rendered.body,
       occurredAt: now,
-      meta: { providerId },
+      meta: { providerId, ...(opts.metaExtra ?? {}) },
     },
   });
 

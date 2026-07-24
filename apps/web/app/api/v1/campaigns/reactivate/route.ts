@@ -38,6 +38,8 @@ export async function POST(req: Request) {
     channel?: string;
     subject?: string;
     message?: string;
+    emergency?: boolean;
+    emergencyReason?: string;
   };
   if (!isSeg(String(body.segment))) {
     return NextResponse.json({ error: "Pick a valid segment" }, { status: 400 });
@@ -46,12 +48,25 @@ export async function POST(req: Request) {
   const message = String(body.message ?? "").trim();
   if (!message) return NextResponse.json({ error: "Message is required" }, { status: 400 });
 
+  // Emergency override requires a reason (audit trail). Only meaningful for SMS,
+  // which is the only channel the quiet-hours guard applies to.
+  const emergency = Boolean(body.emergency) && channel === "SMS";
+  const emergencyReason = String(body.emergencyReason ?? "").trim();
+  if (emergency && !emergencyReason) {
+    return NextResponse.json(
+      { error: "Add a short reason for the emergency send (kept on the timeline)." },
+      { status: 400 },
+    );
+  }
+
   const result = await runReactivation({
     orgId: session.orgId,
     segment: body.segment as ReactivationSegment,
     channel,
     subject: body.subject ?? null,
     message,
+    emergency,
+    emergencyReason: emergency ? emergencyReason : null,
   });
   if (result.blocked) {
     return NextResponse.json({ error: result.blocked }, { status: 400 });
