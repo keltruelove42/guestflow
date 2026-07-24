@@ -31,6 +31,65 @@ export function platformTwilioCreds(): { sid: string; token: string } | null {
   return { sid, token };
 }
 
+/** LeadCoda's SMS + Voice webhook URLs (with the shared secret) for a managed
+ * Twilio number. Null when APP_URL isn't configured. */
+export function leadcodaWebhookUrls(): { smsUrl: string; voiceUrl: string } | null {
+  const appUrl = process.env.APP_URL?.trim();
+  if (!appUrl) return null;
+  const secret = process.env.INBOUND_EMAIL_SECRET?.trim();
+  const qs = secret ? `?secret=${encodeURIComponent(secret)}` : "";
+  return {
+    smsUrl: `${appUrl}/api/webhooks/twilio/sms${qs}`,
+    voiceUrl: `${appUrl}/api/webhooks/twilio/voice${qs}`,
+  };
+}
+
+/** Reconfigure an existing managed number's SMS + Voice webhooks (for numbers
+ * provisioned before auto-wiring, or after APP_URL/secret changes). */
+export async function reconfigureManagedNumberWebhooks(orgId: string): Promise<boolean> {
+  const hooks = leadcodaWebhookUrls();
+  if (!hooks) return false;
+  const row = await prisma.integration.findUnique({
+    where: { orgId_provider: { orgId, provider: "managed_sms" } },
+  });
+  if (!row || row.status !== "CONNECTED") return false;
+  const creds = readIntegrationCredentials(row.credentials) as {
+    accountSid?: string;
+    authToken?: string;
+    fromNumber?: string;
+  } | null;
+  if (!creds?.accountSid || !creds.authToken || !creds.fromNumber) return false;
+
+  // Find the number's SID in the subaccount, then update its webhooks.
+  const listRes = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${creds.accountSid}/IncomingPhoneNumbers.json?PhoneNumber=${encodeURIComponent(creds.fromNumber)}`,
+    { headers: { Authorization: twilioAuth(creds.accountSid, creds.authToken) } },
+  );
+  const list = (await listRes.json().catch(() => ({}))) as {
+    incoming_phone_numbers?: Array<{ sid?: string }>;
+  };
+  const numSid = list.incoming_phone_numbers?.[0]?.sid;
+  if (!numSid) return false;
+
+  const upd = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${creds.accountSid}/IncomingPhoneNumbers/${numSid}.json`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: twilioAuth(creds.accountSid, creds.authToken),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        SmsUrl: hooks.smsUrl,
+        SmsMethod: "POST",
+        VoiceUrl: hooks.voiceUrl,
+        VoiceMethod: "POST",
+      }),
+    },
+  );
+  return upd.ok;
+}
+
 export type DnsRecord = {
   record: string;
   name: string;
@@ -326,6 +385,17 @@ export async function provisionManagedSms(orgId: string, input: ManagedSmsInput)
         `No numbers available${input.areaCode ? ` in area code ${input.areaCode}` : ""}. Try a different area code`,
     );
   }
+  // Point the number's SMS + Voice webhooks at LeadCoda at purchase time, so
+  // managed clients never touch Twilio (inbound replies + missed-call text-back
+  // work out of the box).
+  const buyBody = new URLSearchParams({ PhoneNumber: candidate });
+  const hooks = leadcodaWebhookUrls();
+  if (hooks) {
+    buyBody.set("SmsUrl", hooks.smsUrl);
+    buyBody.set("SmsMethod", "POST");
+    buyBody.set("VoiceUrl", hooks.voiceUrl);
+    buyBody.set("VoiceMethod", "POST");
+  }
   const buyRes = await fetch(
     `https://api.twilio.com/2010-04-01/Accounts/${sub.sid}/IncomingPhoneNumbers.json`,
     {
@@ -334,7 +404,7 @@ export async function provisionManagedSms(orgId: string, input: ManagedSmsInput)
         Authorization: twilioAuth(sub.sid, sub.auth_token),
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({ PhoneNumber: candidate }),
+      body: buyBody,
     },
   );
   const bought = (await buyRes.json().catch(() => ({}))) as {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@guestflow/db";
+import { reconfigureManagedNumberWebhooks } from "@guestflow/core";
 import { getSession } from "@/lib/auth";
 
 const DEFAULT_TEXT =
@@ -49,5 +50,12 @@ export async function PUT(req: Request) {
   }
 
   await prisma.org.update({ where: { id: session.orgId }, data });
-  return NextResponse.json({ ok: true });
+
+  // When switching on, auto-wire the client's MANAGED number's Voice webhook so
+  // they never touch Twilio (no-op for BYO numbers or if already configured).
+  let managedConfigured = false;
+  if (body.enabled === true) {
+    managedConfigured = await reconfigureManagedNumberWebhooks(session.orgId).catch(() => false);
+  }
+  return NextResponse.json({ ok: true, managedConfigured });
 }
