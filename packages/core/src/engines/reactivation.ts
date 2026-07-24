@@ -1,5 +1,6 @@
 import { prisma, type Prisma } from "@guestflow/db";
 import { bestChannel, deliverToLead } from "./send";
+import { shouldDeferForQuietHours } from "../messaging/quietHours";
 
 /**
  * Reactivation engine — mine the client's existing list. One-off nudge to a
@@ -59,7 +60,38 @@ export async function runReactivation(opts: {
   subject?: string | null;
   message: string;
   now?: Date;
-}): Promise<{ sent: number; skipped: number }> {
+}): Promise<{ sent: number; skipped: number; blocked?: string }> {
+  const now = opts.now ?? new Date();
+
+  // Foolproof quiet-hours guard: never blast SMS to leads overnight. Email is
+  // exempt (it waits in the inbox). Demo orgs are never blocked.
+  if (opts.channel === "SMS") {
+    const org = await prisma.org.findUnique({
+      where: { id: opts.orgId },
+      select: { mode: true, quietStart: true, quietEnd: true, timezone: true },
+    });
+    if (org && org.mode !== "DEMO") {
+      const quiet = shouldDeferForQuietHours({
+        now,
+        quietStart: org.quietStart,
+        quietEnd: org.quietEnd,
+        timeZone: org.timezone,
+      });
+      if (quiet.defer) {
+        const resume = quiet.sendAt.toLocaleString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          timeZone: org.timezone,
+        });
+        return {
+          sent: 0,
+          skipped: 0,
+          blocked: `It's quiet hours for your leads — texting resumes at ${resume}. Send this by email, or try again then.`,
+        };
+      }
+    }
+  }
+
   const where = segmentWhere(opts.orgId, opts.segment);
   const leads = await prisma.lead.findMany({
     where,

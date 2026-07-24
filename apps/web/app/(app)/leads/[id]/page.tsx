@@ -136,6 +136,15 @@ export default function LeadRecordPage() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: orgTags } = useQuery({
+    queryKey: ["org-tags"],
+    queryFn: () =>
+      api<{ tags: { tag: string; count: number }[] }>("/api/v1/org/tags").catch(
+        () => ({ tags: [] as { tag: string; count: number }[] }),
+      ),
+    staleTime: 60 * 1000,
+  });
+
   useEffect(() => {
     if (lead) {
       setDealInput(
@@ -161,6 +170,7 @@ export default function LeadRecordPage() {
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["lead", id] });
       await qc.invalidateQueries({ queryKey: ["leads"] });
+      await qc.invalidateQueries({ queryKey: ["org-tags"] });
       showToast("Saved.");
     },
     onError: (e) => showToast(e instanceof Error ? e.message : "Update failed"),
@@ -277,13 +287,19 @@ export default function LeadRecordPage() {
     if (cents !== lead.dealValueCents) update.mutate({ dealValueCents: cents });
   };
 
-  const addTag = () => {
+  const addTag = (value?: string) => {
     if (!lead) return;
-    const t = tagInput.trim();
+    const t = (value ?? tagInput).trim();
     if (!t || lead.tags.includes(t)) return;
     update.mutate({ tags: [...lead.tags, t] });
     setTagInput("");
   };
+
+  // Suggest the org's own tags this lead doesn't already have, most-used first.
+  const tagSuggestions = (orgTags?.tags ?? [])
+    .map((t) => t.tag)
+    .filter((t) => lead && !lead.tags.includes(t))
+    .slice(0, 8);
 
   const followUpButtons = (
     <div className="flex flex-wrap gap-2">
@@ -606,6 +622,7 @@ export default function LeadRecordPage() {
                 className="min-w-0 flex-1"
                 value={tagInput}
                 placeholder="Add a tag"
+                list="lead-tag-suggestions"
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -614,15 +631,36 @@ export default function LeadRecordPage() {
                   }
                 }}
               />
+              <datalist id="lead-tag-suggestions">
+                {(orgTags?.tags ?? []).map((t) => (
+                  <option key={t.tag} value={t.tag} />
+                ))}
+              </datalist>
               <Button
                 variant="ghost"
                 className="shrink-0 disabled:opacity-50"
                 disabled={!tagInput.trim() || update.isPending}
-                onClick={addTag}
+                onClick={() => addTag()}
               >
                 Add
               </Button>
             </div>
+            {tagSuggestions.length > 0 && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] text-muted">Your tags:</span>
+                {tagSuggestions.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    disabled={update.isPending}
+                    onClick={() => addTag(t)}
+                    className="rounded-pill border border-[var(--border)] bg-surface-2 px-2 py-0.5 text-xs text-muted transition-colors hover:text-ink disabled:opacity-50"
+                  >
+                    + {t}
+                  </button>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="rounded-card border border-[var(--border)] bg-surface p-4">

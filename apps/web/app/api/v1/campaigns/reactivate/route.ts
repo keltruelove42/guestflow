@@ -53,5 +53,8 @@ export async function POST(req: Request) {
     subject: body.subject ?? null,
     message,
   });
+  if (result.blocked) {
+    return NextResponse.json({ error: result.blocked }, { status: 400 });
+  }
   return NextResponse.json(result);
 }

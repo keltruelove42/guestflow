@@ -331,6 +331,7 @@ export default function LeadsPage() {
               <th className="px-4 py-2.5 font-medium">Email</th>
               <th className="px-4 py-2.5 font-medium">Phone</th>
               <th className="px-4 py-2.5 font-medium">Source</th>
+              <th className="px-4 py-2.5 font-medium">Tags</th>
               <th className="px-4 py-2.5 font-medium">{pack.context.singular}</th>
               <th className="px-4 py-2.5 font-medium">{pack.fields.timeframe}</th>
               <th className="px-4 py-2.5 font-medium">Stage</th>
@@ -340,14 +341,14 @@ export default function LeadsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={10} className="px-4 py-8 text-center text-muted">
+                <td colSpan={11} className="px-4 py-8 text-center text-muted">
                   Loading…
                 </td>
               </tr>
             )}
             {!isLoading && leads.length === 0 && (
               <tr>
-                <td colSpan={10} className="px-4 py-8 text-center text-muted">
+                <td colSpan={11} className="px-4 py-8 text-center text-muted">
                   No leads yet.
                 </td>
               </tr>
@@ -394,6 +395,25 @@ export default function LeadsPage() {
                     <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs">
                       {l.source}
                     </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {l.tags.length === 0 ? (
+                      <span className="text-xs text-muted">-</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1">
+                        {l.tags.slice(0, 3).map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-pill bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] px-2 py-0.5 text-[10px] text-accent"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                        {l.tags.length > 3 && (
+                          <span className="text-[10px] text-muted">+{l.tags.length - 3}</span>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-ink-2">{l.property?.name ?? "-"}</td>
                   <td className="px-4 py-3 text-ink-2">{l.travelDates ?? "-"}</td>
