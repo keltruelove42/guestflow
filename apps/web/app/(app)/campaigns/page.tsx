@@ -11,6 +11,7 @@ import { Toast, useToast } from "@/components/ui/toast";
 import { api } from "@/lib/api";
 import { CAMPAIGN_STATUS_COLOR } from "@/lib/status";
 import { CampaignWizard, type Campaign } from "./campaign-wizard";
+import { CampaignLauncher } from "./campaign-launcher";
 import { FormPreviewModal } from "./form-preview-modal";
 
 export default function CampaignsPage() {
@@ -18,6 +19,7 @@ export default function CampaignsPage() {
   const onboarding = useOnboardingOptional();
   const pack = useVertical();
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [launcherOpen, setLauncherOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Campaign | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const { toast, showToast } = useToast(5000);
@@ -82,7 +84,7 @@ export default function CampaignsPage() {
           <Button variant="ghost" disabled={sync.isPending} onClick={() => sync.mutate()}>
             {sync.isPending ? "Syncing…" : "↻ Sync metrics"}
           </Button>
-          <Button variant="primary" onClick={() => setWizardOpen(true)}>
+          <Button variant="primary" onClick={() => setLauncherOpen(true)}>
             ＋ New campaign
           </Button>
         </div>
@@ -92,7 +94,7 @@ export default function CampaignsPage() {
       {!isLoading && campaigns.length === 0 && (
         <div className="rounded-card border border-[var(--border)] bg-surface p-8 text-center">
           <p className="text-sm text-ink-2">No campaigns yet.</p>
-          <Button variant="primary" className="mt-3" onClick={() => setWizardOpen(true)}>
+          <Button variant="primary" className="mt-3" onClick={() => setLauncherOpen(true)}>
             Launch your first campaign
           </Button>
         </div>
@@ -218,6 +220,17 @@ export default function CampaignsPage() {
           </article>
         ))}
       </div>
+
+      {launcherOpen && (
+        <CampaignLauncher
+          onClose={() => setLauncherOpen(false)}
+          onPickAd={() => {
+            setLauncherOpen(false);
+            setWizardOpen(true);
+          }}
+          showToast={showToast}
+        />
+      )}
 
       {wizardOpen && (
         <CampaignWizard

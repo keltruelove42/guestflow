@@ -40,6 +40,10 @@ model Org {
   voiceForwardPhone  String?
   /// Text-back template (merge tags allowed). Null = a sensible default.
   missedCallText     String?
+  /// Review flywheel: ask for a review after a booking.
+  reviewEnabled      Boolean       @default(false)
+  reviewUrl          String? // Google/Airbnb review destination
+  reviewMessage      String?
   stripeCustomerId   String?
   stripeSubscriptionId String?
   bookingSlug        String?       @unique
@@ -290,6 +294,8 @@ model Lead {
   /// Filled by built-in AI enrichment and/or an external provider webhook (Clay).
   enrichment     Json?
   enrichedAt     DateTime?
+  /// Referral attribution: the lead who referred this one, if any.
+  referredById   String?
   events         LeadEvent[]
   notes          Note[]
   enrollments    Enrollment[]
@@ -369,6 +375,10 @@ enum LeadEventType {
   EMAIL_OPENED
   CODE_REDEEMED
   MISSED_CALL
+  REVIEW_REQUESTED
+  REVIEW_CLICKED
+  REACTIVATED
+  REFERRAL_CAPTURED
 }
 
 enum Channel {

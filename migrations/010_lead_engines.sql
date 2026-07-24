@@ -1,0 +1,13 @@
+-- Migration 010 — Review flywheel, reactivation, referral engines
+-- Run in Neon SQL Editor against `neondb`. Additive + idempotent.
+
+ALTER TABLE "Org" ADD COLUMN IF NOT EXISTS "reviewEnabled" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Org" ADD COLUMN IF NOT EXISTS "reviewUrl" TEXT;
+ALTER TABLE "Org" ADD COLUMN IF NOT EXISTS "reviewMessage" TEXT;
+
+ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "referredById" TEXT;
+
+ALTER TYPE "LeadEventType" ADD VALUE IF NOT EXISTS 'REVIEW_REQUESTED';
+ALTER TYPE "LeadEventType" ADD VALUE IF NOT EXISTS 'REVIEW_CLICKED';
+ALTER TYPE "LeadEventType" ADD VALUE IF NOT EXISTS 'REACTIVATED';
+ALTER TYPE "LeadEventType" ADD VALUE IF NOT EXISTS 'REFERRAL_CAPTURED';
