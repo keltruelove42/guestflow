@@ -2,6 +2,7 @@ export * from "./ai";
 export * from "./analytics";
 export * from "./auth";
 export * from "./enrichment";
+export * from "./voice";
 export { sendTransactionalEmail } from "./integrations/transactional";
 export * from "./leads";
 export * from "./integrations";

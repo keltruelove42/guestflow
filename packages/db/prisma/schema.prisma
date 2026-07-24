@@ -34,6 +34,12 @@ model Org {
   /// URL (e.g. a Clay table's webhook source) to run an external provider.
   enrichAuto         Boolean       @default(false)
   enrichWebhookUrl   String?
+  /// Missed-call text-back: an unanswered call auto-texts the caller.
+  missedCallEnabled  Boolean       @default(false)
+  /// Real phone to ring first (owner's cell). Empty = text back immediately.
+  voiceForwardPhone  String?
+  /// Text-back template (merge tags allowed). Null = a sensible default.
+  missedCallText     String?
   stripeCustomerId   String?
   stripeSubscriptionId String?
   bookingSlug        String?       @unique
@@ -309,6 +315,7 @@ enum LeadSource {
   WIFI
   MANUAL
   IMPORT
+  PHONE
 }
 
 enum Stage {
@@ -361,6 +368,7 @@ enum LeadEventType {
   CALL_DUE
   EMAIL_OPENED
   CODE_REDEEMED
+  MISSED_CALL
 }
 
 enum Channel {
