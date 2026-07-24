@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { Toast, useToast } from "@/components/ui/toast";
+import { usePlan } from "@/components/upgrade";
 import { api } from "@/lib/api";
 import { useMessagingStatus } from "@/lib/queries";
 
@@ -50,6 +51,24 @@ type LeadDetail = {
 
 type OrgUser = { id: string; name: string; email: string };
 
+type ExtractResult = {
+  fields: {
+    summary: string;
+    interest: string | null;
+    urgency: "low" | "medium" | "high" | null;
+    budget: string | null;
+    timeframe: string | null;
+    partySize: string | null;
+    tags: string[];
+  };
+  applied: {
+    timeframe: boolean;
+    partySize: boolean;
+    tagsAdded: string[];
+    noteAdded: boolean;
+  };
+};
+
 function addDaysIso(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
@@ -62,6 +81,7 @@ export default function LeadRecordPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const pack = useVertical();
+  const { hasGrowth } = usePlan();
 
   const { toast, showToast } = useToast();
   const [error, setError] = useState<string | null>(null);
@@ -126,6 +146,35 @@ export default function LeadRecordPage() {
       showToast("Redemption logged.");
     },
     onError: (e) => showToast(e instanceof Error ? e.message : "Could not log redemption"),
+  });
+
+  const extract = useMutation({
+    mutationFn: () =>
+      api<ExtractResult>(`/api/v1/leads/${id}/extract`, {
+        method: "POST",
+        errorMessage: "Could not extract details",
+      }),
+    onSuccess: async (data) => {
+      await qc.invalidateQueries({ queryKey: ["lead", id] });
+      await qc.invalidateQueries({ queryKey: ["leads"] });
+      const applied: string[] = [];
+      const tagCount = data.applied.tagsAdded.length;
+      if (tagCount) applied.push(`${tagCount} tag${tagCount > 1 ? "s" : ""}`);
+      if (data.applied.timeframe) applied.push("timeframe");
+      if (data.applied.partySize) applied.push(pack.fields.detail.toLowerCase());
+      if (data.applied.noteAdded) applied.push("note");
+      const summary =
+        data.fields.summary.length > 80
+          ? `${data.fields.summary.slice(0, 80)}…`
+          : data.fields.summary;
+      showToast(
+        applied.length
+          ? `${summary} · applied ${applied.join(", ")}`
+          : `Found: ${summary}`,
+      );
+    },
+    onError: (e) =>
+      showToast(e instanceof Error ? e.message : "Could not extract details"),
   });
 
   const canEmail = canEmailLead(lead);
@@ -235,7 +284,20 @@ export default function LeadRecordPage() {
         {/* LEFT rail */}
         <div className="space-y-4 lg:col-span-3">
           <section className="rounded-card border border-[var(--border)] bg-surface p-4">
-            <h3 className="mb-3 text-sm font-semibold">Contact</h3>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h3 className="text-sm font-semibold">Contact</h3>
+              {hasGrowth && (
+                <Button
+                  variant="link"
+                  size="sm"
+                  disabled={extract.isPending}
+                  onClick={() => extract.mutate()}
+                  title="Read the conversation and fill in interest, timeframe, tags…"
+                >
+                  {extract.isPending ? "Extracting…" : "✨ Extract details"}
+                </Button>
+              )}
+            </div>
             <div className="space-y-3 text-xs">
               <div>
                 <div className="text-muted">Email</div>

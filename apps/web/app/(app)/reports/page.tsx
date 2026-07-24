@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { Toast, useToast } from "@/components/ui/toast";
 import { UpgradeChip, usePlan } from "@/components/upgrade";
@@ -50,6 +51,150 @@ const STARTERS: { name: string; spec: ReportSpec }[] = [
     },
   },
 ];
+
+/* ------------------------------- analytics copilot ----------------------------- */
+
+type CopilotAnswer = {
+  title: string;
+  spec: ReportSpec;
+  result: RunResult;
+  note?: string;
+};
+
+const ASK_EXAMPLES = [
+  "New leads by week",
+  "Booking revenue by campaign",
+  "Open rate over time",
+];
+
+function AskPanel({ showToast }: { showToast: (message: string) => void }) {
+  const qc = useQueryClient();
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState<CopilotAnswer | null>(null);
+
+  const ask = useMutation({
+    mutationFn: (q: string) =>
+      api<CopilotAnswer>("/api/v1/analytics/ask", {
+        method: "POST",
+        body: { question: q },
+        errorMessage: "Couldn’t understand that question — try rephrasing.",
+      }),
+    onSuccess: (data) => setAnswer(data),
+    onError: (e) =>
+      showToast(
+        e instanceof ApiError
+          ? e.message
+          : "Couldn’t understand that question — try rephrasing.",
+      ),
+  });
+
+  const save = useMutation({
+    mutationFn: (a: CopilotAnswer) =>
+      api<SavedReport>("/api/v1/analytics/reports", {
+        method: "POST",
+        body: { name: a.title, spec: a.spec },
+        errorMessage: "Could not save report",
+      }),
+    onSuccess: (_data, a) => {
+      showToast(`Saved “${a.title}”`);
+      qc.invalidateQueries({ queryKey: ["analytics-reports"] });
+    },
+    onError: (e) =>
+      showToast(e instanceof ApiError ? e.message : "Could not save report"),
+  });
+
+  function submit() {
+    const q = question.trim();
+    if (!q || ask.isPending) return;
+    ask.mutate(q);
+  }
+
+  return (
+    <section className="rounded-card border border-[var(--border)] bg-surface p-4">
+      <div className="flex items-center gap-2">
+        <span className="text-base">✨</span>
+        <h2 className="text-sm font-semibold">Ask about your data</h2>
+      </div>
+
+      <div className="mt-3 flex gap-2">
+        <Input
+          className="min-w-0 flex-1"
+          value={question}
+          placeholder="Ask about your data — e.g. which sequence booked the most last month?"
+          onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submit();
+            }
+          }}
+        />
+        <Button
+          variant="primary"
+          className="shrink-0"
+          disabled={!question.trim() || ask.isPending}
+          onClick={submit}
+        >
+          {ask.isPending ? "Thinking…" : "Ask"}
+        </Button>
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <span className="text-xs text-muted">Try:</span>
+        {ASK_EXAMPLES.map((ex) => (
+          <Button
+            key={ex}
+            variant="ghost"
+            size="xs"
+            onClick={() => setQuestion(ex)}
+          >
+            {ex}
+          </Button>
+        ))}
+      </div>
+
+      {ask.isPending && <p className="mt-3 text-sm text-muted">Thinking…</p>}
+
+      {answer && !ask.isPending && (
+        <div className="mt-4 rounded-card border border-[var(--border)] bg-page p-4">
+          <div className="mb-3 flex items-start justify-between gap-2">
+            <h3 className="min-w-0 truncate text-sm font-semibold">
+              {answer.title}
+            </h3>
+            <div className="flex shrink-0 gap-1">
+              <Button
+                variant="secondary"
+                size="xs"
+                disabled={save.isPending}
+                onClick={() => save.mutate(answer)}
+              >
+                {save.isPending ? "Saving…" : "Save to dashboard"}
+              </Button>
+              <Button variant="ghost" size="xs" onClick={() => setAnswer(null)}>
+                Clear
+              </Button>
+            </div>
+          </div>
+
+          <ReportChart
+            result={answer.result}
+            chart={answer.spec.chart ?? "line"}
+            granularity={
+              answer.spec.groupBy === "time"
+                ? answer.spec.granularity
+                : undefined
+            }
+            height={200}
+          />
+
+          {answer.note && (
+            <p className="mt-3 text-xs text-muted">{answer.note}</p>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
 
 /* --------------------------------- page entry ---------------------------------- */
 
@@ -163,6 +308,9 @@ function ReportsDashboard() {
           ＋ New report
         </Button>
       </div>
+
+      {/* Analytics copilot — ask in plain language */}
+      <AskPanel showToast={showToast} />
 
       {/* Quick-add starters */}
       {catalog && (
