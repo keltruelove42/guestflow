@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
 import { Toast, useToast } from "@/components/ui/toast";
 import { UpgradeChip } from "@/components/upgrade";
 import { cn } from "@/lib/utils";
@@ -39,6 +42,122 @@ const OPTIONS: Array<{
       "Sends replies automatically. Fully gated by consent, quiet hours, and your trial limits; anything it can't send (or isn't sure about) becomes a suggestion instead.",
   },
 ];
+
+type EnrichmentSettings = {
+  auto: boolean;
+  webhookUrl: string | null;
+  available: boolean;
+};
+
+function EnrichmentCard({ showToast }: { showToast: (m: string) => void }) {
+  const qc = useQueryClient();
+  const [webhook, setWebhook] = useState("");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["org-enrichment"],
+    queryFn: () =>
+      api<EnrichmentSettings>("/api/v1/org/enrichment", {
+        errorMessage: "Failed to load enrichment settings",
+      }),
+  });
+
+  useEffect(() => {
+    if (data) setWebhook(data.webhookUrl ?? "");
+  }, [data]);
+
+  const save = useMutation({
+    mutationFn: (patch: { auto?: boolean; webhookUrl?: string | null }) =>
+      api<{ auto: boolean; webhookUrl: string | null }>("/api/v1/org/enrichment", {
+        method: "PUT",
+        body: patch,
+        errorMessage: "Could not update enrichment settings",
+      }),
+    onSuccess: (res, patch) => {
+      qc.setQueryData<EnrichmentSettings>(["org-enrichment"], (prev) =>
+        prev ? { ...prev, auto: res.auto, webhookUrl: res.webhookUrl } : prev,
+      );
+      showToast(
+        "webhookUrl" in patch ? "Webhook saved." : "Enrichment settings saved.",
+      );
+    },
+    onError: (e) =>
+      showToast(
+        e instanceof ApiError ? e.message : "Could not update enrichment settings",
+      ),
+  });
+
+  const available = data?.available ?? false;
+  const auto = data?.auto ?? false;
+  const disabled = !available || save.isPending;
+  const webhookDirty = webhook.trim() !== (data?.webhookUrl ?? "");
+
+  return (
+    <div className="rounded-card border border-[var(--border)] bg-surface p-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-sm font-semibold">Enrichment</h2>
+        {!available && <UpgradeChip />}
+      </div>
+      <p className="mt-1 text-xs text-muted">
+        Look up company, role, industry, and talking points for new leads from their
+        email and public data.
+      </p>
+      {!available && (
+        <p className="mt-2 text-xs text-ink-2">Included with the Growth plan.</p>
+      )}
+
+      {isLoading ? (
+        <p className="mt-4 text-sm text-muted">Loading…</p>
+      ) : (
+        <div className="mt-4 space-y-5">
+          <label
+            className={cn(
+              "flex items-start gap-2.5",
+              disabled && "cursor-not-allowed opacity-60",
+            )}
+          >
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4"
+              checked={auto}
+              disabled={disabled}
+              onChange={(e) => save.mutate({ auto: e.target.checked })}
+            />
+            <span>
+              <span className="block text-sm font-medium">Auto-enrich new leads</span>
+              <span className="block text-xs text-muted">
+                Run enrichment automatically as leads come in.
+              </span>
+            </span>
+          </label>
+
+          <Field
+            label="External provider webhook (optional)"
+            hint="LeadCoda posts each lead (name / email / phone plus a callbackUrl) to this URL. Your provider (Clay, etc.) runs its data waterfall and POSTs verified fields back to the callbackUrl."
+          >
+            <div className="flex gap-2">
+              <Input
+                className="min-w-0 flex-1"
+                type="url"
+                placeholder="https://… (e.g. a Clay table webhook URL)"
+                value={webhook}
+                disabled={disabled}
+                onChange={(e) => setWebhook(e.target.value)}
+              />
+              <Button
+                variant="secondary"
+                className="shrink-0 disabled:opacity-50"
+                disabled={disabled || !webhookDirty}
+                onClick={() => save.mutate({ webhookUrl: webhook.trim() || null })}
+              >
+                {save.isPending ? "Saving…" : "Save"}
+              </Button>
+            </div>
+          </Field>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AiAssistantPage() {
   const qc = useQueryClient();
@@ -169,6 +288,8 @@ export default function AiAssistantPage() {
           </div>
         )}
       </div>
+
+      <EnrichmentCard showToast={showToast} />
 
       <Toast message={toast} />
     </div>

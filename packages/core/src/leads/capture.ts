@@ -160,7 +160,22 @@ export async function createFromCapture(input: CaptureInput): Promise<CaptureRes
     // Abandonment enrollment happens in tick phase 3 after window
   }
 
+  // Auto-enrich new leads when the org opted in (best-effort, gated on plan).
+  void maybeAutoEnrich(lead.orgId, lead.id).catch(() => {});
+
   return { leadId: lead.id, created: true, merged: false };
+}
+
+/** Fire enrichment for a fresh lead if the org enabled auto-enrich + is paid. */
+async function maybeAutoEnrich(orgId: string, leadId: string): Promise<void> {
+  const org = await prisma.org.findUnique({
+    where: { id: orgId },
+    select: { enrichAuto: true, plan: true },
+  });
+  if (!org?.enrichAuto) return;
+  if (org.plan !== "GROWTH" && org.plan !== "ENTERPRISE") return;
+  const { enrichLead } = await import("../enrichment/enrich");
+  await enrichLead(orgId, leadId);
 }
 
 function prettySource(s: LeadSource): string {
